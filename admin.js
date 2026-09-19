@@ -31,6 +31,7 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
+
 // -----------------------------
 // Login
 // -----------------------------
@@ -56,6 +57,7 @@ document
     loadApplications();
   });
 
+
 // -----------------------------
 // Load Applications
 // -----------------------------
@@ -74,6 +76,7 @@ async function loadApplications() {
       API_BASE + "/api/applications",
       {
         method: "GET",
+
         headers: {
           "x-admin-key": adminKey
         }
@@ -101,6 +104,9 @@ async function loadApplications() {
 
     displayApplications(result);
 
+    // Load eligibility inquiries automatically
+    loadInquiries();
+
   } catch (error) {
 
     console.error(error);
@@ -115,6 +121,221 @@ async function loadApplications() {
   }
 }
 
+
+// -----------------------------
+// Eligibility Inquiries
+// -----------------------------
+
+async function loadInquiries() {
+
+  const container =
+    document.getElementById("inquiriesList");
+
+  if (!container) return;
+
+  container.innerHTML =
+    "<p>Eligibility inquiries load हो रही हैं...</p>";
+
+  try {
+
+    const response = await fetch(
+      API_BASE + "/api/admin/inquiries",
+      {
+        method: "GET",
+
+        headers: {
+          "x-admin-key": adminKey
+        }
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+        "Eligibility inquiries load नहीं हुईं"
+      );
+    }
+
+    const inquiries = result.inquiries || [];
+
+    if (!inquiries.length) {
+
+      container.innerHTML = `
+        <div class="application-card">
+          अभी कोई eligibility inquiry नहीं है।
+        </div>
+      `;
+
+      return;
+    }
+
+    let html = `
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Inquiry ID</th>
+            <th>Customer</th>
+            <th>Mobile</th>
+            <th>Loan Amount</th>
+            <th>Income</th>
+            <th>Tenure</th>
+            <th>Estimated EMI</th>
+            <th>Rate</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+    `;
+
+    inquiries.forEach(function (inquiry) {
+
+      let statusClass = "status-blue";
+
+      if (
+        inquiry.eligibility_status ===
+        "likely_eligible"
+      ) {
+        statusClass = "status-green";
+      }
+
+      if (
+        inquiry.eligibility_status ===
+        "not_eligible"
+      ) {
+        statusClass = "status-red";
+      }
+
+      let statusText =
+        inquiry.eligibility_status || "under_review";
+
+      if (statusText === "likely_eligible") {
+        statusText = "Likely Eligible";
+      } else if (statusText === "needs_review") {
+        statusText = "Needs Review";
+      } else if (statusText === "not_eligible") {
+        statusText = "Not Eligible";
+      }
+
+      html += `
+
+        <tr>
+
+          <td>
+            ${escapeHtml(inquiry.inquiry_id)}
+          </td>
+
+          <td>
+            <strong>
+              ${escapeHtml(inquiry.full_name)}
+            </strong>
+
+            ${
+              inquiry.email
+                ? `<br>
+                   <small>
+                     ${escapeHtml(inquiry.email)}
+                   </small>`
+                : ""
+            }
+          </td>
+
+          <td>
+            ${escapeHtml(inquiry.mobile)}
+          </td>
+
+          <td>
+            ${formatMoney(inquiry.requested_amount)}
+          </td>
+
+          <td>
+            ${formatMoney(inquiry.monthly_income)}
+          </td>
+
+          <td>
+            ${escapeHtml(inquiry.tenure_months)}
+            months
+          </td>
+
+          <td>
+            ${formatMoney(inquiry.estimated_emi)}
+          </td>
+
+          <td>
+            ${
+              inquiry.estimated_interest_rate
+                ? escapeHtml(
+                    inquiry.estimated_interest_rate
+                  ) + "%"
+                : "-"
+            }
+          </td>
+
+          <td>
+
+            <span class="status ${statusClass}">
+              ${escapeHtml(statusText)}
+            </span>
+
+            ${
+              inquiry.eligibility_reason
+                ? `<br>
+                   <small>
+                     ${escapeHtml(
+                       inquiry.eligibility_reason
+                     )}
+                   </small>`
+                : ""
+            }
+
+          </td>
+
+          <td>
+            ${
+              inquiry.created_at
+                ? new Date(
+                    inquiry.created_at
+                  ).toLocaleString("en-IN")
+                : "-"
+            }
+          </td>
+
+        </tr>
+
+      `;
+    });
+
+    html += `
+        </tbody>
+      </table>
+    `;
+
+    container.innerHTML = html;
+
+  } catch (error) {
+
+    console.error(error);
+
+    container.innerHTML = `
+
+      <div
+        class="message error"
+        style="display:block;"
+      >
+        ${escapeHtml(error.message)}
+      </div>
+
+    `;
+  }
+}
+
+
 // -----------------------------
 // Display Applications
 // -----------------------------
@@ -127,9 +348,11 @@ function displayApplications(applications) {
   if (!applications.length) {
 
     container.innerHTML = `
+
       <div class="application-card">
         अभी कोई loan application नहीं है।
       </div>
+
     `;
 
     return;
@@ -157,6 +380,7 @@ function displayApplications(applications) {
 
       <p>
         <strong>Status:</strong>
+
         <span class="status">
           ${escapeHtml(application.status)}
         </span>
@@ -181,7 +405,8 @@ function displayApplications(applications) {
 
         <div class="info">
           <small>Tenure</small>
-          ${escapeHtml(application.tenure_months)} months
+          ${escapeHtml(application.tenure_months)}
+          months
         </div>
 
         <div class="info">
@@ -196,11 +421,14 @@ function displayApplications(applications) {
 
       </div>
 
+
       <div class="loan-form">
 
         <h3>Create Loan Account</h3>
 
-        <label>Principal / Loan Amount</label>
+        <label>
+          Principal / Loan Amount
+        </label>
 
         <input
           type="number"
@@ -209,7 +437,9 @@ function displayApplications(applications) {
           min="1"
         >
 
-        <label>Annual Interest Rate (%)</label>
+        <label>
+          Annual Interest Rate (%)
+        </label>
 
         <input
           type="number"
@@ -219,7 +449,9 @@ function displayApplications(applications) {
           step="0.01"
         >
 
-        <label>Tenure (Months)</label>
+        <label>
+          Tenure (Months)
+        </label>
 
         <input
           type="number"
@@ -278,8 +510,10 @@ function displayApplications(applications) {
     `;
 
     container.appendChild(card);
+
   });
 }
+
 
 // -----------------------------
 // Create Loan Account
@@ -312,34 +546,50 @@ async function createLoan(
     );
 
   if (!principal || principal <= 0) {
+
     alert("Loan amount सही डालें।");
+
     return;
   }
 
   if (rate < 0) {
+
     alert("Interest rate सही डालें।");
+
     return;
   }
 
   if (!tenure || tenure <= 0) {
+
     alert("Tenure सही डालें।");
+
     return;
   }
 
   const confirmed = confirm(
+
     "क्या आप इस application का Loan Account बनाना चाहते हैं?\n\n" +
+
     "Application ID: " +
     applicationId +
+
     "\n" +
+
     "Loan Amount: " +
     formatMoney(principal) +
+
     "\n" +
+
     "Interest Rate: " +
     rate +
-    "%\n" +
+    "%" +
+
+    "\n" +
+
     "Tenure: " +
     tenure +
     " months"
+
   );
 
   if (!confirmed) {
@@ -359,17 +609,24 @@ async function createLoan(
         },
 
         body: JSON.stringify({
+
           application_id: applicationId,
+
           principal: principal,
+
           annual_interest_rate: rate,
+
           tenure_months: tenure
+
         })
       }
     );
 
-    const result = await response.json();
+    const result =
+      await response.json();
 
     if (!response.ok) {
+
       throw new Error(
         result.error ||
         "Loan account create नहीं हुआ"
@@ -377,16 +634,23 @@ async function createLoan(
     }
 
     alert(
+
       "Loan Account Successfully Created!\n\n" +
+
       "Loan Account No.: " +
       result.loan_account_no +
+
       "\n" +
+
       "Monthly EMI: " +
       formatMoney(result.emi) +
+
       "\n" +
+
       "Tenure: " +
       result.tenure_months +
       " months"
+
     );
 
     loadApplications();
@@ -402,6 +666,7 @@ async function createLoan(
   }
 }
 
+
 // -----------------------------
 // Update Application Status
 // -----------------------------
@@ -414,10 +679,12 @@ async function updateStatus(
   try {
 
     const response = await fetch(
+
       API_BASE +
       "/api/applications/" +
       encodeURIComponent(applicationId) +
       "/status",
+
       {
         method: "PATCH",
 
@@ -432,9 +699,11 @@ async function updateStatus(
       }
     );
 
-    const result = await response.json();
+    const result =
+      await response.json();
 
     if (!response.ok) {
+
       throw new Error(
         result.error ||
         "Status update नहीं हुआ"
@@ -443,8 +712,7 @@ async function updateStatus(
 
     showMessage(
       "applicationMessage",
-      "Application status updated: " +
-      status,
+      "Application status updated: " + status,
       "success"
     );
 
@@ -463,8 +731,9 @@ async function updateStatus(
   }
 }
 
+
 // -----------------------------
-// Refresh Button
+// Refresh Applications
 // -----------------------------
 
 document
@@ -473,6 +742,19 @@ document
     "click",
     loadApplications
   );
+
+
+// -----------------------------
+// Refresh Eligibility Inquiries
+// -----------------------------
+
+document
+  .getElementById("inquiriesButton")
+  .addEventListener(
+    "click",
+    loadInquiries
+  );
+
 
 // -----------------------------
 // Payment Records
@@ -484,6 +766,7 @@ document
     "click",
     loadPayments
   );
+
 
 async function loadPayments() {
 
@@ -506,9 +789,11 @@ async function loadPayments() {
       }
     );
 
-    const result = await response.json();
+    const result =
+      await response.json();
 
     if (!response.ok) {
+
       throw new Error(
         result.error ||
         "Payments load नहीं हुए"
@@ -518,31 +803,38 @@ async function loadPayments() {
     if (!result.length) {
 
       container.innerHTML =
-        "<p>अभी कोई payment record नहीं है।</p>";
+        "<p>अभी कोई payment record नहीं है।";
 
       return;
     }
 
     let html = `
+
       <table>
 
         <thead>
+
           <tr>
+
             <th>Loan Account</th>
             <th>Amount</th>
             <th>Method</th>
             <th>Reference</th>
             <th>Date</th>
             <th>Status</th>
+
           </tr>
+
         </thead>
 
         <tbody>
+
     `;
 
     result.forEach(function (payment) {
 
       html += `
+
         <tr>
 
           <td>
@@ -568,22 +860,32 @@ async function loadPayments() {
           </td>
 
           <td>
-            ${new Date(
+            ${
               payment.payment_date
-            ).toLocaleString("en-IN")}
+                ? new Date(
+                    payment.payment_date
+                  ).toLocaleString("en-IN")
+                : "-"
+            }
           </td>
 
           <td>
-            ${escapeHtml(payment.status)}
+            ${escapeHtml(
+              payment.status || "-"
+            )}
           </td>
 
         </tr>
+
       `;
     });
 
     html += `
+
         </tbody>
+
       </table>
+
     `;
 
     container.innerHTML = html;
@@ -593,9 +895,14 @@ async function loadPayments() {
     console.error(error);
 
     container.innerHTML = `
-      <div class="message error" style="display:block;">
+
+      <div
+        class="message error"
+        style="display:block;"
+      >
         ${escapeHtml(error.message)}
       </div>
+
     `;
   }
 }
