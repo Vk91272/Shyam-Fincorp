@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Shyam Fincorp | Admin Panel</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      color: #172033;
+    }
+
+    header {
+      background: #102a43;
+      color: white;
+      padding: 20px;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .container {
+      width: 94%;
+      max-width: 1200px;
+      margin: 25px auto;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,.07);
+      margin-bottom: 22px;
+    }
+
+    h2,
+    h3 {
+      color: #102a43;
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid #ccd6e0;
+      border-radius: 7px;
+      font-size: 15px;
+    }
+
+    button {
+      border: none;
+      border-radius: 7px;
+      padding: 11px 15px;
+      background: #1976d2;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    button:hover {
+      background: #125ca1;
+    }
+
+    button.green {
+      background: #168a45;
+    }
+
+    button.green:hover {
+      background: #106b35;
+    }
+
+    button.gray {
+      background: #52606d;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .message {
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 7px;
+      display: none;
+    }
+
+    .success {
+      display: block;
+      background: #e8f7ee;
+      color: #126b36;
+    }
+
+    .error {
+      display: block;
+      background: #fdecec;
+      color: #a52222;
+    }
+
+    .login-box {
+      max-width: 450px;
+      margin: 70px auto;
+    }
+
+    .application-card {
+      border: 1px solid #e0e5eb;
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 15px;
+    }
+
+    .application-card strong {
+      color: #102a43;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .info {
+      background: #f5f7fb;
+      padding: 12px;
+      border-radius: 7px;
+    }
+
+    .info small {
+      display: block;
+      color: #66788a;
+      margin-bottom: 3px;
+    }
+
+    .loan-form {
+      background: #f5f7fb;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 20px;
+      background: #fff3cd;
+      color: #856404;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #e1e6eb;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f5f7fb;
+    }
+
+    @media (max-width: 800px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>Shyam Fincorp</h1>
+      <p>Admin Panel</p>
+    </div>
+
+    <div id="adminStatus">
+      Not Logged In
+    </div>
+  </div>
+</header>
+
+
+<!-- LOGIN -->
+
+<section id="loginSection" class="container">
+
+  <div class="card login-box">
+
+    <h2>Admin Login</h2>
+
+    <p style="color:#66788a;margin-bottom:15px;">
+      Admin panel access करने के लिए Admin Key डालें।
+    </p>
+
+    <label>Admin Key</label>
+
+    <input
+      type="password"
+      id="adminKey"
+      placeholder="Enter Admin Key"
+    >
+
+    <button
+      type="button"
+      id="loginButton"
+    >
+      Login
+    </button>
+
+    <div
+      id="loginMessage"
+      class="message"
+    ></div>
+
+  </div>
+
+</section>
+
+
+<!-- ADMIN PANEL -->
+
+<main
+  id="adminSection"
+  class="container hidden"
+>
+
+  <div class="card">
+
+    <h2>Loan Applications</h2>
+
+    <button
+      type="button"
+      id="refreshButton"
+      class="gray"
+    >
+      Refresh Applications
+    </button>
+
+    <div
+      id="applicationMessage"
+      class="message"
+    ></div>
+
+    <div id="applicationsList"></div>
+
+  </div>
+
+
+  <!-- PAYMENTS -->
+
+  <div class="card">
+
+    <h2>Payment Records</h2>
+
+    <button
+      type="button"
+      id="paymentsButton"
+      class="gray"
+    >
+      Load Payments
+    </button>
+
+    <div
+      id="paymentsList"
+      class="table-wrap"
+    ></div>
+
+  </div>
+
+</main>
+
+
+<script src="admin.js"></script>
+
+</body>
+</html>
