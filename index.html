@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -562,6 +562,102 @@
     </section>
 
 
+
+    <!-- DOCUMENT UPLOAD -->
+    <section
+      id="documentUploadSection"
+      class="card"
+      style="display:none;"
+    >
+
+      <div class="section-heading">
+        <h2>Upload Documents</h2>
+        <p>
+          Upload the required documents for your loan application.
+          JPG, PNG and PDF only. Maximum 5 MB per file.
+        </p>
+      </div>
+
+      <div class="form-grid">
+
+        <div>
+          <label for="documentApplicationId">Application ID</label>
+          <input
+            type="text"
+            id="documentApplicationId"
+            placeholder="SFL-XXXXXXXX"
+            readonly
+          />
+        </div>
+
+        <div>
+          <label for="identityProof">Identity Proof</label>
+          <input
+            type="file"
+            id="identityProof"
+            accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+          />
+        </div>
+
+        <div>
+          <label for="panCard">PAN Card</label>
+          <input
+            type="file"
+            id="panCard"
+            accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+          />
+        </div>
+
+        <div>
+          <label for="addressProof">Address Proof</label>
+          <input
+            type="file"
+            id="addressProof"
+            accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+          />
+        </div>
+
+        <div>
+          <label for="incomeProof">Income Proof</label>
+          <input
+            type="file"
+            id="incomeProof"
+            accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+          />
+        </div>
+
+        <div>
+          <label for="applicantPhoto">Applicant Photo</label>
+          <input
+            type="file"
+            id="applicantPhoto"
+            accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+          />
+        </div>
+
+      </div>
+
+      <button
+        type="button"
+        class="primary-btn"
+        id="uploadDocumentsButton"
+      >
+        Upload Documents
+      </button>
+
+      <div
+        id="documentUploadMessage"
+        class="message"
+      ></div>
+
+      <div
+        id="documentUploadStatus"
+        class="result-box"
+        style="display:none;"
+      ></div>
+
+    </section>
+
     <!-- CUSTOMER PORTAL -->
     <section class="card customer-card">
 
@@ -687,6 +783,65 @@
 
     </section>
 
+
+
+    <!-- PAYMENT SUMMARY -->
+    <section
+      id="paymentSummarySection"
+      class="card"
+      style="display:none;"
+    >
+
+      <div class="section-heading">
+        <h2>Payment Summary</h2>
+        <p>
+          See how much you have paid and how much is still pending.
+        </p>
+      </div>
+
+      <div class="summary-grid">
+
+        <div>
+          <span>Total Payable</span>
+          <strong>
+            ₹<span id="totalPayableAmount">0</span>
+          </strong>
+        </div>
+
+        <div>
+          <span>Total Paid</span>
+          <strong>
+            ₹<span id="totalPaidAmount">0</span>
+          </strong>
+        </div>
+
+        <div>
+          <span>Total Pending</span>
+          <strong>
+            ₹<span id="totalPendingAmount">0</span>
+          </strong>
+        </div>
+
+        <div>
+          <span>EMI Paid</span>
+          <strong id="paidEmiCount">0</strong>
+        </div>
+
+        <div>
+          <span>EMI Pending</span>
+          <strong id="pendingEmiCount">0</strong>
+        </div>
+
+        <div>
+          <span>Payment Progress</span>
+          <strong>
+            <span id="paymentProgress">0</span>%
+          </strong>
+        </div>
+
+      </div>
+
+    </section>
 
     <!-- EMI SCHEDULE -->
     <section
@@ -854,4 +1009,3 @@
 
 </body>
 </html>
-
