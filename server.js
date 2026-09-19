@@ -41,6 +41,130 @@ function requireAdmin(req, res, next) {
 
   next();
 }
+const ALLOWED_DOCUMENT_TYPES = [
+  "identity_proof",
+  "pan_card",
+  "address_proof",
+  "income_proof",
+  "applicant_photo"
+];
+
+const ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "application/pdf"
+];
+
+const MAX_DOCUMENT_SIZE = 5 * 1024 * 1024;
+
+app.post("/api/documents/upload-url", async (req, res) => {
+  try {
+    const {
+      application_id,
+      document_type,
+      file_name,
+      file_type,
+      file_size
+    } = req.body;
+
+    if (
+      !application_id ||
+      !document_type ||
+      !file_name ||
+      !file_type ||
+      !file_size
+    ) {
+      return res.status(400).json({
+        error: "Document information is missing"
+      });
+    }
+
+    if (!ALLOWED_DOCUMENT_TYPES.includes(document_type)) {
+      return res.status(400).json({
+        error: "Invalid document type"
+      });
+    }
+
+    if (!ALLOWED_FILE_TYPES.includes(file_type)) {
+      return res.status(400).json({
+        error: "Only JPG, PNG and PDF files are allowed"
+      });
+    }
+
+    if (
+      Number(file_size) <= 0 ||
+      Number(file_size) > MAX_DOCUMENT_SIZE
+    ) {
+      return res.status(400).json({
+        error: "Each document must be 5 MB or smaller"
+      });
+    }
+
+    const {
+      data: application,
+      error: applicationError
+    } = await supabase
+      .from("loan_applications")
+      .select("id, application_id")
+      .eq("application_id", application_id)
+      .single();
+
+    if (applicationError || !application) {
+      return res.status(404).json({
+        error: "Loan application not found"
+      });
+    }
+
+    const extension =
+      file_name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
+    const safeExtension =
+      /^[a-z0-9]+$/.test(extension)
+        ? extension
+        : "bin";
+
+    const uniqueName =
+      `${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 10)}.${safeExtension}`;
+
+    const storagePath =
+      `${application_id}/${document_type}/${uniqueName}`;
+
+    const {
+      data: signedUpload,
+      error: signedUploadError
+    } = await supabase
+      .storage
+      .from("loan-documents")
+      .createSignedUploadUrl(storagePath);
+
+    if (signedUploadError) {
+      console.error(signedUploadError);
+
+      return res.status(500).json({
+        error: "Could not create document upload URL"
+      });
+    }
+
+    res.json({
+      success: true,
+      path: storagePath,
+      token: signedUpload.token,
+      signedUrl: signedUpload.signedUrl
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Document upload setup failed"
+    });
+  }
+});
 
 // --------------------------------------------------
 // Basic routes
