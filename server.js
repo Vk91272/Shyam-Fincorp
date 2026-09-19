@@ -250,6 +250,32 @@ app.post("/api/eligibility", async (req, res) => {
     });
   }
 });
+app.get("/api/admin/inquiries", requireAdmin, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("loan_inquiries")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      return res.status(500).json({
+        error: "Could not load loan inquiries"
+      });
+    }
+
+    res.json({
+      inquiries: data || []
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Server error"
+    });
+  }
+});
 app.get("/api/health", async (req, res) => {
   res.json({
     ok: true,
