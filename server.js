@@ -52,7 +52,204 @@ app.get("/", (req, res) => {
     service: "Shyam Fincorp Loan API"
   });
 });
+// -----------------------------
+// Loan Eligibility Inquiry
+// -----------------------------
 
+function makeInquiryId() {
+  return "INQ-" + Date.now().toString().slice(-8);
+}
+
+app.post("/api/eligibility", async (req, res) => {
+  try {
+    const {
+      full_name,
+      mobile,
+      email,
+      age,
+      employment_type,
+      monthly_income,
+      existing_emi,
+      requested_amount,
+      tenure_months
+    } = req.body;
+
+    if (
+      !full_name ||
+      !mobile ||
+      !age ||
+      !employment_type ||
+      monthly_income === undefined ||
+      existing_emi === undefined ||
+      !requested_amount ||
+      !tenure_months
+    ) {
+      return res.status(400).json({
+        error: "Required eligibility fields are missing"
+      });
+    }
+
+    if (!/^[0-9]{10}$/.test(String(mobile))) {
+      return res.status(400).json({
+        error: "Mobile number must be 10 digits"
+      });
+    }
+
+    const ageNumber = Number(age);
+    const income = Number(monthly_income);
+    const existingEmi = Number(existing_emi);
+    const requestedAmount = Number(requested_amount);
+    const tenure = Number(tenure_months);
+
+    if (ageNumber < 18 || ageNumber > 80) {
+      return res.status(400).json({
+        error: "Age must be between 18 and 80"
+      });
+    }
+
+    if (income < 0 || existingEmi < 0) {
+      return res.status(400).json({
+        error: "Income and existing EMI cannot be negative"
+      });
+    }
+
+    if (requestedAmount <= 0) {
+      return res.status(400).json({
+        error: "Requested loan amount must be greater than zero"
+      });
+    }
+
+    if (tenure < 1 || tenure > 120) {
+      return res.status(400).json({
+        error: "Tenure must be between 1 and 120 months"
+      });
+    }
+
+    // Preliminary screening only.
+    // This is NOT a final credit decision.
+
+    const estimatedRate = 12;
+
+    const monthlyRate =
+      estimatedRate / 12 / 100;
+
+    let estimatedEmi;
+
+    if (monthlyRate === 0) {
+      estimatedEmi =
+        requestedAmount / tenure;
+    } else {
+      estimatedEmi =
+        (requestedAmount *
+          monthlyRate *
+          Math.pow(1 + monthlyRate, tenure)) /
+        (Math.pow(1 + monthlyRate, tenure) - 1);
+    }
+
+    estimatedEmi =
+      Number(estimatedEmi.toFixed(2));
+
+    const totalExistingAndNewEmi =
+      existingEmi + estimatedEmi;
+
+    const emiRatio =
+      income > 0
+        ? totalExistingAndNewEmi / income
+        : 1;
+
+    let eligibilityStatus;
+    let eligibilityReason;
+
+    if (ageNumber < 18) {
+
+      eligibilityStatus = "not_eligible";
+
+      eligibilityReason =
+        "Applicant does not meet the minimum age requirement.";
+
+    } else if (income <= 0) {
+
+      eligibilityStatus = "not_eligible";
+
+      eligibilityReason =
+        "Monthly income is required for preliminary assessment.";
+
+    } else if (emiRatio <= 0.40) {
+
+      eligibilityStatus = "likely_eligible";
+
+      eligibilityReason =
+        "Estimated existing and proposed EMI is within the preliminary affordability range.";
+
+    } else if (emiRatio <= 0.55) {
+
+      eligibilityStatus = "needs_review";
+
+      eligibilityReason =
+        "Estimated EMI burden requires further review of income, existing obligations and documents.";
+
+    } else {
+
+      eligibilityStatus = "not_eligible";
+
+      eligibilityReason =
+        "Estimated EMI burden is high compared with the declared monthly income.";
+
+    }
+
+    const inquiry_id = makeInquiryId();
+
+    const { data, error } = await supabase
+      .from("loan_inquiries")
+      .insert({
+        inquiry_id,
+        full_name,
+        mobile,
+        email: email || null,
+        age: ageNumber,
+        employment_type,
+        monthly_income: income,
+        existing_emi: existingEmi,
+        requested_amount: requestedAmount,
+        tenure_months: tenure,
+        estimated_interest_rate: estimatedRate,
+        estimated_emi: estimatedEmi,
+        eligibility_status: eligibilityStatus,
+        eligibility_reason: eligibilityReason
+      })
+      .select(`
+        inquiry_id,
+        estimated_interest_rate,
+        estimated_emi,
+        eligibility_status,
+        eligibility_reason
+      `)
+      .single();
+
+    if (error) {
+      console.error(error);
+
+      return res.status(500).json({
+        error: "Could not save eligibility inquiry"
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      ...data,
+      disclaimer:
+        "This is a preliminary eligibility indication only and is not a loan approval."
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: "Server error"
+    });
+  }
+});
 app.get("/api/health", async (req, res) => {
   res.json({
     ok: true,
