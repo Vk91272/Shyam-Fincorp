@@ -981,21 +981,95 @@ async function checkEligibility(event) {
     event.preventDefault();
   }
 
-  const form =
-    document.getElementById(
-      "eligibilityForm"
+  const nameInput =
+    document.getElementById("eligibilityName");
+
+  const mobileInput =
+    document.getElementById("eligibilityMobile");
+
+  const incomeInput =
+    document.getElementById("monthlyIncome");
+
+  const amountInput =
+    document.getElementById("requestedAmount");
+
+  const tenureInput =
+    document.getElementById("eligibilityTenure");
+
+  if (
+    !nameInput ||
+    !mobileInput ||
+    !incomeInput ||
+    !amountInput ||
+    !tenureInput
+  ) {
+    showMessage(
+      "Eligibility form fields not found.",
+      "error"
     );
+    return;
+  }
 
-  if (!form) return;
+  const payload = {
+    full_name: nameInput.value.trim(),
 
-  const formData =
-    new FormData(form);
+    mobile: mobileInput.value.trim(),
 
-  const payload = {};
+    age: 30,
 
-  formData.forEach((value, key) => {
-    payload[key] = value;
-  });
+    employment_type: "other",
+
+    existing_emi: 0,
+
+    monthly_income:
+      Number(incomeInput.value),
+
+    requested_amount:
+      Number(amountInput.value),
+
+    tenure_months:
+      Number(tenureInput.value)
+  };
+
+  if (!payload.full_name) {
+    showMessage(
+      "Please enter your full name.",
+      "error"
+    );
+    return;
+  }
+
+  if (!/^[0-9]{10}$/.test(payload.mobile)) {
+    showMessage(
+      "Please enter a valid 10 digit mobile number.",
+      "error"
+    );
+    return;
+  }
+
+  if (payload.monthly_income <= 0) {
+    showMessage(
+      "Please enter monthly income.",
+      "error"
+    );
+    return;
+  }
+
+  if (payload.requested_amount <= 0) {
+    showMessage(
+      "Please enter required loan amount.",
+      "error"
+    );
+    return;
+  }
+
+  if (!payload.tenure_months) {
+    showMessage(
+      "Please select loan tenure.",
+      "error"
+    );
+    return;
+  }
 
   try {
     showMessage(
@@ -1007,6 +1081,7 @@ async function checkEligibility(event) {
       `${API_BASE}/api/eligibility`,
       {
         method: "POST",
+
         body: JSON.stringify(payload)
       }
     );
@@ -1021,12 +1096,17 @@ async function checkEligibility(event) {
 
       result.innerHTML = `
         <h3>
-          ${data.eligible ? "Eligible" : "Not Eligible"}
+          ${
+            data.eligible
+              ? "Eligible"
+              : "Not Eligible"
+          }
         </h3>
 
         <p>
           ${
             data.message ||
+            data.eligibility_reason ||
             "Eligibility result received."
           }
         </p>
@@ -1035,7 +1115,9 @@ async function checkEligibility(event) {
 
     showMessage(
       data.message ||
+      data.eligibility_reason ||
       "Eligibility result received.",
+
       data.eligible
         ? "success"
         : "info"
@@ -1051,34 +1133,6 @@ async function checkEligibility(event) {
     );
   }
 }
-
-
-// ===============================
-// CONTACT / INQUIRY
-// ===============================
-
-async function submitInquiry(event) {
-  if (event) {
-    event.preventDefault();
-  }
-
-  const form =
-    document.getElementById(
-      "inquiryForm"
-    );
-
-  if (!form) return;
-
-  const formData =
-    new FormData(form);
-
-  const payload = {};
-
-  formData.forEach((value, key) => {
-    payload[key] = value;
-  });
-
-  try {
     showMessage(
       "Inquiry submit ho rahi hai...",
       "info"
