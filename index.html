@@ -1,18 +1,502 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shyam Fincorp Loan</title><link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shyam Fincorp | Loan & EMI</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #172033;
+      line-height: 1.5;
+    }
+
+    header {
+      background: #102a43;
+      color: white;
+      padding: 22px 20px;
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo h1 {
+      font-size: 26px;
+    }
+
+    .logo p {
+      font-size: 13px;
+      opacity: .85;
+    }
+
+    .container {
+      width: 92%;
+      max-width: 1100px;
+      margin: 30px auto;
+    }
+
+    .hero {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.07);
+      margin-bottom: 25px;
+    }
+
+    .hero h2 {
+      font-size: 30px;
+      margin-bottom: 8px;
+      color: #102a43;
+    }
+
+    .hero p {
+      color: #52606d;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.07);
+    }
+
+    .card h3 {
+      margin-bottom: 18px;
+      color: #102a43;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccd6e0;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #1976d2;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      background: #1976d2;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #125ca1;
+    }
+
+    button.secondary {
+      background: #52606d;
+    }
+
+    button.pay {
+      background: #168a45;
+    }
+
+    button.pay:hover {
+      background: #106b35;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .success {
+      display: block;
+      background: #e8f7ee;
+      color: #126b36;
+    }
+
+    .error {
+      display: block;
+      background: #fdecec;
+      color: #a52222;
+    }
+
+    #loanSection {
+      display: none;
+      margin-top: 25px;
+    }
+
+    .loan-summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .summary-box {
+      background: #f5f7fb;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .summary-box small {
+      display: block;
+      color: #66788a;
+      margin-bottom: 4px;
+    }
+
+    .summary-box strong {
+      font-size: 18px;
+    }
+
+    .emi-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    .emi-table th,
+    .emi-table td {
+      padding: 12px 8px;
+      border-bottom: 1px solid #e3e8ee;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .emi-table th {
+      background: #f5f7fb;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status.pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status.paid {
+      background: #d9f5e5;
+      color: #126b36;
+    }
+
+    .status.overdue {
+      background: #fde2e2;
+      color: #a52222;
+    }
+
+    .demo-note {
+      margin-top: 15px;
+      padding: 12px;
+      background: #fff8df;
+      border-left: 4px solid #e0a800;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 25px 20px;
+      background: #102a43;
+      color: white;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .loan-summary {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .emi-table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+
 </head>
+
 <body>
-<header><div class="brand"><b>SF</b><span>Shyam Fincorp<br><small>Personal Loan</small></span></div><nav><a href="#home">Home</a><a href="#apply">Apply</a><a href="#emi">EMI Calculator</a><a href="#myloan">My EMI</a><a href="#about">About</a></nav><button onclick="document.querySelector('nav').classList.toggle('open')">☰</button></header>
-<main>
-<section id="home" class="hero"><div><small>PERSONAL LOAN</small><h1>Simple, Transparent<br><span>Loan Journey</span></h1><p>Apply for a personal loan, calculate EMI and track your application.</p><a class="btn" href="#apply">Apply for Loan →</a></div><div class="card"><small>Estimated EMI</small><h2 id="heroEmi">₹0 / month</h2></div></section>
-<section class="stats"><div><b>₹10,000+</b><span>Illustrative loan amount</span></div><div><b>6–60</b><span>Illustrative tenure</span></div><div><b>24×7</b><span>Application access</span></div></section>
-<section id="apply" class="section"><h2>Personal Loan Application</h2><p>Demo application. Production lending/KYC workflows require applicable compliance review.</p><form id="loanForm" class="card"><input id="name" required placeholder="Full Name"><input id="mobile" required pattern="[0-9]{10}" placeholder="Mobile Number"><input id="email" type="email" placeholder="Email"><input id="income" type="number" required placeholder="Monthly Income (₹)"><input id="amount" type="number" required placeholder="Loan Amount (₹)"><select id="tenure" required><option value="">Select Tenure</option><option>6</option><option>12</option><option>24</option><option>36</option><option>48</option><option>60</option></select><textarea id="address" required placeholder="Address"></textarea><button class="btn" type="submit">Submit Application</button><p id="applicationMessage"></p></form></section>
-<section id="emi" class="section alt"><h2>EMI Calculator</h2><div class="card calc"><label>Loan Amount<input id="calcAmount" type="number" value="100000"></label><label>Annual Interest Rate (%)<input id="rate" type="number" step="0.1" value="18"></label><label>Tenure (months)<input id="months" type="number" value="24"></label><h2>Estimated EMI: <span id="emiValue">₹0</span></h2><small>Illustrative calculation only.</small></div></section>
-<section id="myloan" class="section"><h2>My Loan & EMI Payment</h2><p>Enter the mobile number used for your loan account.</p><div class="card"><input id="loanMobile" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number"><button class="btn" id="loadLoanBtn" type="button">View EMI</button><p id="loanMessage"></p><div id="loanDetails" hidden></div></div></section>
-<section id="about" class="section"><h2>About Shyam Fincorp</h2><div class="card"><p>Customer-facing personal-loan application prototype for Web and Android. Connect an approved payment gateway and required compliance/security controls before accepting real payments.</p></div></section>
-</main><footer>© 2026 Shyam Fincorp Loan • Personal Loan</footer>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <h1>Shyam Fincorp</h1>
+      <p>Loan & EMI Management</p>
+    </div>
+    <div>Customer Portal</div>
+  </div>
+</header>
+
+<main class="container">
+
+  <section class="hero">
+    <h2>Loan & EMI Customer Portal</h2>
+    <p>
+      अपना loan account देखें, EMI की जानकारी प्राप्त करें और
+      demo payment के माध्यम से EMI payment test करें।
+    </p>
+  </section>
+
+  <section class="grid">
+
+```
+<!-- Loan Application -->
+<div class="card">
+  <h3>Apply for Loan</h3>
+
+  <form id="loanForm">
+
+    <label>Full Name *</label>
+    <input
+      type="text"
+      id="full_name"
+      placeholder="अपना पूरा नाम"
+      required
+    >
+
+    <label>Mobile Number *</label>
+    <input
+      type="tel"
+      id="mobile"
+      placeholder="10 digit mobile number"
+      maxlength="10"
+      required
+    >
+
+    <label>Email</label>
+    <input
+      type="email"
+      id="email"
+      placeholder="example@email.com"
+    >
+
+    <label>Monthly Income *</label>
+    <input
+      type="number"
+      id="monthly_income"
+      placeholder="Monthly income"
+      min="0"
+      required
+    >
+
+    <label>Requested Loan Amount *</label>
+    <input
+      type="number"
+      id="requested_amount"
+      placeholder="Loan amount"
+      min="1"
+      required
+    >
+
+    <label>Tenure (Months) *</label>
+    <input
+      type="number"
+      id="tenure_months"
+      placeholder="e.g. 24"
+      min="1"
+      max="120"
+      required
+    >
+
+    <label>Address *</label>
+    <input
+      type="text"
+      id="address"
+      placeholder="पूरा address"
+      required
+    >
+
+    <button type="submit">
+      Submit Loan Application
+    </button>
+
+  </form>
+
+  <div id="applicationMessage" class="message"></div>
+</div>
+
+<!-- Customer EMI Login -->
+<div class="card">
+  <h3>Check Your EMI</h3>
+
+  <p style="color:#66788a;font-size:14px;margin-bottom:12px;">
+    अपना Application ID और registered mobile number डालें।
+  </p>
+
+  <form id="loanLookupForm">
+
+    <label>Application ID *</label>
+    <input
+      type="text"
+      id="application_id"
+      placeholder="Example: SFL-12345678"
+      required
+    >
+
+    <label>Registered Mobile *</label>
+    <input
+      type="tel"
+      id="lookup_mobile"
+      placeholder="10 digit mobile number"
+      maxlength="10"
+      required
+    >
+
+    <button type="submit">
+      View Loan & EMI
+    </button>
+
+  </form>
+
+  <div id="lookupMessage" class="message"></div>
+</div>
+```
+
+  </section>
+
+  <!-- Loan Details -->
+
+  <section id="loanSection" class="card">
+
+```
+<h3>My Loan Account</h3>
+
+<div class="loan-summary">
+
+  <div class="summary-box">
+    <small>Customer</small>
+    <strong id="customerName">-</strong>
+  </div>
+
+  <div class="summary-box">
+    <small>Loan Account</small>
+    <strong id="loanAccountNo">-</strong>
+  </div>
+
+  <div class="summary-box">
+    <small>Loan Amount</small>
+    <strong id="principalAmount">₹0</strong>
+  </div>
+
+  <div class="summary-box">
+    <small>Monthly EMI</small>
+    <strong id="monthlyEmi">₹0</strong>
+  </div>
+
+</div>
+
+<div class="demo-note">
+  <strong>Demo/Test Mode:</strong>
+  यह payment system अभी testing के लिए है।
+  कोई वास्तविक पैसा नहीं कटेगा।
+</div>
+
+<h3 style="margin-top:25px;">
+  EMI Schedule
+</h3>
+
+<div style="overflow-x:auto;">
+  <table class="emi-table">
+
+    <thead>
+      <tr>
+        <th>EMI No.</th>
+        <th>Due Date</th>
+        <th>Principal</th>
+        <th>Interest</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody id="emiTableBody"></tbody>
+
+  </table>
+</div>
+
+<div style="margin-top:25px;">
+  <button
+    type="button"
+    id="paymentHistoryButton"
+    class="secondary"
+  >
+    View Payment History
+  </button>
+</div>
+
+<div
+  id="paymentHistory"
+  style="margin-top:15px;"
+  class="hidden"
+></div>
+```
+
+  </section>
+
+</main>
+
+<footer>
+  © 2026 Shyam Fincorp. All Rights Reserved.
+</footer>
+
 <script src="app.js"></script>
-</body></html>
+
+</body>
+</html>
+
