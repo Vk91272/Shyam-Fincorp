@@ -172,6 +172,21 @@
       font-weight: 600;
     }
 
+    .status-green {
+      background: #e8f7ee;
+      color: #126b36;
+    }
+
+    .status-red {
+      background: #fdecec;
+      color: #a52222;
+    }
+
+    .status-blue {
+      background: #e8f1ff;
+      color: #1557a6;
+    }
+
     .table-wrap {
       overflow-x: auto;
       margin-top: 15px;
@@ -180,7 +195,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 700px;
+      min-width: 850px;
     }
 
     th,
@@ -189,14 +204,47 @@
       border-bottom: 1px solid #e1e6eb;
       text-align: left;
       font-size: 14px;
+      vertical-align: top;
     }
 
     th {
       background: #f5f7fb;
+      color: #102a43;
+    }
+
+    .inquiry-summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .summary-box {
+      background: #f5f7fb;
+      padding: 14px;
+      border-radius: 8px;
+    }
+
+    .summary-box small {
+      display: block;
+      color: #66788a;
+      margin-bottom: 5px;
+    }
+
+    .summary-box strong {
+      font-size: 18px;
+      color: #102a43;
+    }
+
+    .section-note {
+      color: #66788a;
+      margin-bottom: 12px;
+      line-height: 1.5;
     }
 
     @media (max-width: 800px) {
-      .info-grid {
+      .info-grid,
+      .inquiry-summary {
         grid-template-columns: 1fr;
       }
 
@@ -204,6 +252,10 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
+      }
+
+      .card {
+        padding: 16px;
       }
     }
   </style>
@@ -213,6 +265,7 @@
 
 <header>
   <div class="header-inner">
+
     <div>
       <h1>Shyam Fincorp</h1>
       <p>Admin Panel</p>
@@ -221,6 +274,7 @@
     <div id="adminStatus">
       Not Logged In
     </div>
+
   </div>
 </header>
 
@@ -268,6 +322,40 @@
   id="adminSection"
   class="container hidden"
 >
+
+
+  <!-- LOAN ELIGIBILITY INQUIRIES -->
+
+  <div class="card">
+
+    <h2>Loan Eligibility Inquiries</h2>
+
+    <p class="section-note">
+      यहाँ customers द्वारा भेजी गई preliminary loan eligibility inquiries दिखाई देंगी।
+    </p>
+
+    <button
+      type="button"
+      id="inquiriesButton"
+      class="gray"
+    >
+      Refresh Eligibility Inquiries
+    </button>
+
+    <div
+      id="inquiriesMessage"
+      class="message"
+    ></div>
+
+    <div
+      id="inquiriesList"
+      class="table-wrap"
+    ></div>
+
+  </div>
+
+
+  <!-- LOAN APPLICATIONS -->
 
   <div class="card">
 
