@@ -1,0 +1,833 @@
+===============================
+   SHYAM FINCORP
+   Modern Responsive Fintech Design
+   Mobile First
+===================================================== */
+
+:root {
+  --primary: #0b5cff;
+  --primary-dark: #0645c7;
+  --secondary: #0f172a;
+
+  --success: #15803d;
+  --success-bg: #ecfdf3;
+
+  --warning: #b45309;
+  --warning-bg: #fffbeb;
+
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+
+  --text: #172033;
+  --muted: #64748b;
+
+  --background: #f5f7fb;
+  --card: #ffffff;
+  --border: #e2e8f0;
+
+  --shadow:
+    0 10px 30px rgba(15, 23, 42, 0.08);
+
+  --radius: 18px;
+}
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+body {
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background: var(--background);
+  color: var(--text);
+
+  line-height: 1.6;
+
+  min-height: 100vh;
+}
+
+
+/* =====================================================
+   COMMON
+===================================================== */
+
+.container {
+  width: min(1180px, calc(100% - 28px));
+  margin: 0 auto;
+}
+
+
+h1,
+h2,
+h3 {
+  color: var(--secondary);
+  line-height: 1.25;
+}
+
+
+h2 {
+  font-size: 1.45rem;
+  margin-bottom: 7px;
+}
+
+
+h3 {
+  font-size: 1.15rem;
+}
+
+
+p {
+  color: var(--muted);
+}
+
+
+a {
+  color: inherit;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.site-header {
+  background:
+    linear-gradient(
+      135deg,
+      #0b5cff,
+      #083b9e
+    );
+
+  color: white;
+
+  padding: 18px 0;
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  box-shadow:
+    0 5px 20px rgba(0, 0, 0, 0.12);
+}
+
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+
+.site-header h1 {
+  color: white;
+  font-size: 1.35rem;
+  letter-spacing: -0.3px;
+}
+
+
+.site-header p {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.78rem;
+}
+
+
+.header-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: white;
+  color: var(--primary);
+
+  text-decoration: none;
+
+  padding: 10px 14px;
+
+  border-radius: 12px;
+
+  font-weight: 700;
+  font-size: 0.82rem;
+
+  white-space: nowrap;
+
+  transition: 0.2s ease;
+}
+
+
+.header-btn:hover {
+  transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+main.container {
+  padding-top: 22px;
+  padding-bottom: 40px;
+}
+
+
+/* =====================================================
+   CARDS
+===================================================== */
+
+.card {
+  background: var(--card);
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius);
+
+  padding: 20px;
+
+  margin-bottom: 18px;
+
+  box-shadow: var(--shadow);
+}
+
+
+.card:first-child {
+  border-top: 4px solid var(--primary);
+}
+
+
+.section-note {
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+
+/* =====================================================
+   FORMS
+===================================================== */
+
+.form-grid {
+  display: grid;
+
+  grid-template-columns: 1fr;
+
+  gap: 15px;
+
+  margin-bottom: 18px;
+}
+
+
+label {
+  display: block;
+
+  font-size: 0.84rem;
+
+  font-weight: 700;
+
+  color: #334155;
+
+  margin-bottom: 7px;
+}
+
+
+input,
+select,
+textarea {
+  width: 100%;
+
+  border: 1px solid #cbd5e1;
+
+  background: #ffffff;
+
+  color: var(--text);
+
+  border-radius: 12px;
+
+  padding: 13px 14px;
+
+  font-size: 16px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+
+  box-shadow:
+    0 0 0 3px rgba(11, 92, 255, 0.12);
+}
+
+
+textarea {
+  resize: vertical;
+
+  min-height: 110px;
+
+  margin-bottom: 18px;
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.primary-btn {
+  width: 100%;
+
+  min-height: 50px;
+
+  border: none;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      #0647c9
+    );
+
+  color: white;
+
+  font-size: 1rem;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  padding: 13px 18px;
+
+  box-shadow:
+    0 7px 18px rgba(11, 92, 255, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+
+.primary-btn:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 10px 24px rgba(11, 92, 255, 0.28);
+}
+
+
+.primary-btn:active {
+  transform: translateY(0);
+}
+
+
+.primary-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   ELIGIBILITY RESULT
+===================================================== */
+
+.result-box {
+  margin-top: 20px;
+
+  padding: 18px;
+
+  border-radius: 15px;
+
+  background: #f8fafc;
+
+  border: 1px solid var(--border);
+}
+
+
+.result-box h3 {
+  margin-bottom: 8px;
+}
+
+
+.result-details {
+  display: grid;
+
+  grid-template-columns: 1fr;
+
+  gap: 10px;
+
+  margin-top: 16px;
+}
+
+
+.result-details p {
+  background: white;
+
+  border: 1px solid var(--border);
+
+  border-radius: 12px;
+
+  padding: 12px;
+}
+
+
+.result-details strong {
+  color: var(--secondary);
+}
+
+
+.disclaimer {
+  margin-top: 15px;
+
+  padding: 12px;
+
+  background: #f8fafc;
+
+  border-left: 3px solid var(--primary);
+
+  border-radius: 6px;
+
+  font-size: 0.78rem;
+
+  line-height: 1.5;
+}
+
+
+/* =====================================================
+   MESSAGES
+===================================================== */
+
+.message {
+  margin-top: 14px;
+
+  padding: 12px 14px;
+
+  border-radius: 10px;
+
+  font-size: 0.9rem;
+
+  background: #f1f5f9;
+
+  color: #334155;
+}
+
+
+.message.success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+
+.message.error {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+.summary-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 12px;
+
+  margin-top: 18px;
+}
+
+
+.summary-grid > div {
+  background: #f8fafc;
+
+  border: 1px solid var(--border);
+
+  border-radius: 14px;
+
+  padding: 14px;
+}
+
+
+.summary-grid span {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 0.75rem;
+}
+
+
+.summary-grid strong {
+  display: block;
+
+  margin-top: 4px;
+
+  color: var(--secondary);
+
+  font-size: 0.98rem;
+
+  word-break: break-word;
+}
+
+
+/* =====================================================
+   TABLES
+===================================================== */
+
+.table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  margin-top: 16px;
+
+  border-radius: 12px;
+
+  border: 1px solid var(--border);
+}
+
+
+table {
+  width: 100%;
+
+  min-width: 700px;
+
+  border-collapse: collapse;
+
+  background: white;
+}
+
+
+th,
+td {
+  padding: 12px;
+
+  text-align: left;
+
+  border-bottom: 1px solid var(--border);
+
+  font-size: 0.84rem;
+
+  white-space: nowrap;
+}
+
+
+th {
+  background: #f8fafc;
+
+  color: #334155;
+
+  font-weight: 800;
+}
+
+
+td {
+  color: #475569;
+}
+
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.site-footer {
+  background: #0f172a;
+
+  color: white;
+
+  padding: 28px 0;
+
+  text-align: center;
+}
+
+
+.site-footer p {
+  color: #94a3b8;
+
+  font-size: 0.78rem;
+
+  margin: 5px 0;
+}
+
+
+/* =====================================================
+   LARGE MOBILE / TABLET
+===================================================== */
+
+@media (min-width: 600px) {
+
+  .container {
+    width: min(
+      1180px,
+      calc(100% - 40px)
+    );
+  }
+
+
+  .card {
+    padding: 25px;
+  }
+
+
+  .form-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .result-details {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+
+  .primary-btn {
+    width: auto;
+
+    min-width: 220px;
+  }
+
+}
+
+
+/* =====================================================
+   DESKTOP
+===================================================== */
+
+@media (min-width: 900px) {
+
+  main.container {
+    padding-top: 35px;
+  }
+
+
+  .site-header {
+    padding: 20px 0;
+  }
+
+
+  .site-header h1 {
+    font-size: 1.55rem;
+  }
+
+
+  .card {
+    padding: 28px;
+
+    margin-bottom: 22px;
+  }
+
+
+  h2 {
+    font-size: 1.65rem;
+  }
+
+
+  .summary-grid {
+    grid-template-columns:
+      repeat(3, 1fr);
+  }
+
+
+  .form-grid {
+    gap: 18px;
+  }
+
+}
+
+
+/* =====================================================
+   VERY SMALL PHONES
+===================================================== */
+
+@media (max-width: 380px) {
+
+  .container {
+    width: min(
+      100% - 20px,
+      1180px
+    );
+  }
+
+
+  .site-header {
+    padding: 14px 0;
+  }
+
+
+  .header-inner {
+    align-items: flex-start;
+  }
+
+
+  .header-btn {
+    padding: 8px 10px;
+
+    font-size: 0.74rem;
+  }
+
+
+  .site-header h1 {
+    font-size: 1.15rem;
+  }
+
+
+  .card {
+    padding: 15px;
+
+    border-radius: 15px;
+  }
+
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  input,
+  select,
+  textarea {
+    padding: 12px;
+  }
+
+}
+
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+
+}
+/* =====================================================
+   COMPLETE PAGE COMPONENTS
+   Added for the current index.html structure
+===================================================== */
+
+.hero-card {
+  overflow: hidden;
+  background: linear-gradient(135deg, #ffffff 0%, #eef5ff 100%);
+  border: 1px solid #dbe7ff;
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.hero-content { max-width: 760px; }
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #e8f0ff;
+  color: #0b5cff;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.hero-content h2 { font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.08; margin-bottom: 12px; letter-spacing: -1.5px; }
+.hero-content p { color: #64748b; font-size: 1.05rem; max-width: 650px; margin-bottom: 20px; }
+.hero-btn, .apply-now-btn { display: inline-flex; width: auto; min-width: 180px; text-decoration: none; align-items: center; justify-content: center; }
+
+.section-heading { margin-bottom: 22px; }
+.section-heading h2 { font-size: clamp(1.55rem, 3vw, 2.1rem); margin-bottom: 5px; }
+.section-heading p { color: #64748b; }
+
+.progress-wrapper { margin: 8px 0 28px; position: relative; }
+.progress-line { height: 5px; background: #e2e8f0; border-radius: 999px; position: absolute; top: 18px; left: 12%; right: 12%; overflow: hidden; }
+.progress-line span { display: block; width: 0; height: 100%; background: linear-gradient(90deg, #0b5cff, #38bdf8); border-radius: inherit; transition: width .25s ease; }
+.progress-steps { display: flex; justify-content: space-between; position: relative; z-index: 1; }
+.progress-step { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #94a3b8; font-weight: 700; }
+.progress-step span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: #e2e8f0; color: #64748b; border: 4px solid #fff; box-shadow: 0 2px 8px rgba(15,23,42,.08); }
+.progress-step small { font-size: 12px; }
+.progress-step.active { color: #0b5cff; }
+.progress-step.active span { background: #0b5cff; color: #fff; }
+
+.eligibility-step { display: none; animation: fadeStep .2s ease; }
+.eligibility-step.active { display: block; }
+@keyframes fadeStep { from { opacity: .3; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.eligibility-step h3 { font-size: 1.25rem; margin-bottom: 4px; }
+.step-note { color: #64748b; margin-bottom: 18px; }
+.step-buttons { display: flex; gap: 12px; }
+.step-buttons > * { flex: 1; }
+.secondary-btn { width: 100%; min-height: 50px; border: 1px solid #cbd5e1; border-radius: 13px; background: #fff; color: #334155; font-weight: 800; cursor: pointer; }
+
+.eligibility-result { padding: 8px 0; }
+.result-icon { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: #e8f0ff; color: #0b5cff; font-size: 24px; margin-bottom: 12px; }
+.result-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+.result-cards > div { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 15px; }
+.result-cards small { display: block; color: #64748b; margin-bottom: 5px; }
+.result-cards strong { font-size: 1.1rem; color: #0f172a; }
+.disclaimer { margin-top: 15px; padding: 12px 14px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; color: #92400e; font-size: .85rem; }
+
+.result-box, .message { margin-top: 15px; padding: 14px 16px; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0; }
+
+.customer-card { background: linear-gradient(135deg, #ffffff, #f8fbff); }
+.summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.summary-grid > div { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 15px; }
+
+.table-wrapper { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; min-width: 650px; }
+th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+th { background: #f8fafc; color: #334155; font-size: .84rem; }
+
+@media (min-width: 700px) {
+  .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .form-grid > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+
+@media (max-width: 699px) {
+  .hero-content h2 { font-size: 2rem; }
+  .result-cards, .summary-grid { grid-template-columns: 1fr; }
+  .step-buttons { flex-direction: column; }
+  .header-btn { padding: 9px 11px; }
+}
