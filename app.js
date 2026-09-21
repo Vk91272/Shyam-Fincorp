@@ -199,7 +199,7 @@ async function lookupLoan(event) {
   if (!/^\d{10}$/.test(mobile)) return showMessage("Valid 10-digit mobile number enter karein.", "error");
   try {
     if (message) message.textContent = "Loan details load ho rahi hain...";
-    const data = await apiRequest(`${API_BASE}/api/customer/loan?application_id=${encodeURIComponent(applicationId)}&mobile=${encodeURIComponent(mobile)}`);
+    const data = await apiRequest(`${API_BASE}/api/customer/loan`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ application_id: applicationId, mobile: mobile }) });
     currentApplicationId = applicationId; currentMobile = mobile; currentLoan = getLoanObject(data);
     displayLoan(data);
     await loadPaymentHistory(false);
@@ -335,7 +335,7 @@ async function loadPaymentHistory(showStatus = true) {
   if (!currentApplicationId || !currentMobile) return;
   try {
     if (showStatus) showMessage("Payment history load ho rahi hai...", "info");
-    const data = await apiRequest(`${API_BASE}/api/customer/payment-history?application_id=${encodeURIComponent(currentApplicationId)}&mobile=${encodeURIComponent(currentMobile)}`);
+    const data = await apiRequest(`${API_BASE}/api/customer/payment-history`, { method: "POST", body: JSON.stringify({ application_id: currentApplicationId, mobile: currentMobile }) });
     currentPayments = data.payments || data.payment_history || data.history || [];
     displayPaymentHistory(currentPayments);
     displayPaymentSummary(currentEmiSchedule, currentPayments);
@@ -454,17 +454,3 @@ window.checkEligibility = checkEligibility;
 window.submitInquiry = submitInquiry;
 window.goToEligibilityStep2 = goToEligibilityStep2;
 window.goToEligibilityStep1 = goToEligibilityStep1;
-
-// Show loan application after eligibility result
-const applyNowButtons = document.querySelectorAll(".apply-now-btn");
-applyNowButtons.forEach((button) => {
-  button.addEventListener("click", function (event) {
-    event.preventDefault();
-    const section = document.getElementById("loanApplication");
-    if (section) {
-      section.style.display = "block";
-      setTimeout(() => section.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
-    }
-  });
-});
-
