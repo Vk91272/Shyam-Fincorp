@@ -1135,5 +1135,131 @@ tr:hover td {
   }
 
 }
-```
+/* ===== COMPACT PAGE DESIGN ===== */
+
+section {
+  padding: 45px 20px !important;
+}
+
+.hero {
+  min-height: 430px !important;
+  padding: 55px 20px !important;
+}
+
+.hero h1 {
+  font-size: 38px !important;
+  margin-bottom: 12px !important;
+}
+
+.hero p {
+  margin-bottom: 20px !important;
+}
+
+.trust-strip {
+  padding: 18px 15px !important;
+}
+
+.card,
+.form-card,
+.eligibility-card,
+.application-card {
+  padding: 22px !important;
+  margin-bottom: 18px !important;
+}
+
+h2 {
+  margin-bottom: 20px !important;
+}
+
+h3 {
+  margin-bottom: 10px !important;
+}
+
+/* Contact section compact */
+.contact-section {
+  padding: 40px 20px !important;
+}
+
+.contact-grid {
+  gap: 15px !important;
+}
+
+.contact-card {
+  padding: 18px !important;
+  min-height: auto !important;
+}
+
+.contact-icon {
+  width: 42px !important;
+  height: 42px !important;
+  font-size: 20px !important;
+  margin-bottom: 8px !important;
+}
+
+.contact-card h3 {
+  font-size: 17px !important;
+  margin-bottom: 5px !important;
+}
+
+.contact-card p {
+  margin: 4px 0 !important;
+}
+
+/* Forms compact */
+.form-group {
+  margin-bottom: 12px !important;
+}
+
+input,
+select,
+textarea {
+  padding: 11px 13px !important;
+}
+
+button {
+  padding: 11px 18px !important;
+}
+
+/* Tables compact */
+table th,
+table td {
+  padding: 9px 8px !important;
+}
+
+/* Footer compact */
+footer {
+  padding: 25px 20px !important;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  section {
+    padding: 32px 14px !important;
+  }
+
+  .hero {
+    min-height: 360px !important;
+    padding: 40px 15px !important;
+  }
+
+  .hero h1 {
+    font-size: 29px !important;
+  }
+
+  .hero p {
+    font-size: 14px !important;
+  }
+
+  .card,
+  .form-card,
+  .eligibility-card,
+  .application-card {
+    padding: 16px !important;
+  }
+
+  .contact-section {
+    padding: 32px 14px !important;
+  }
+}
+
 
