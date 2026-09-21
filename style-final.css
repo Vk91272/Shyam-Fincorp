@@ -1261,5 +1261,128 @@ footer {
     padding: 32px 14px !important;
   }
 }
+/* ===== EXTRA COMPACT / SMALL SCREEN LOOK ===== */
+
+html {
+  font-size: 14px !important;
+}
+
+body {
+  margin: 0 !important;
+  font-size: 14px !important;
+}
+
+section {
+  padding: 28px 15px !important;
+}
+
+.container {
+  max-width: 1100px !important;
+}
+
+/* Header */
+header {
+  padding: 8px 15px !important;
+}
+
+.logo {
+  transform: scale(0.85);
+}
+
+nav a {
+  font-size: 13px !important;
+  margin: 0 7px !important;
+}
+
+/* Hero */
+.hero {
+  min-height: 320px !important;
+  padding: 35px 15px !important;
+}
+
+.hero h1 {
+  font-size: 30px !important;
+  line-height: 1.15 !important;
+}
+
+.hero p {
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+/* Headings */
+h2 {
+  font-size: 25px !important;
+}
+
+h3 {
+  font-size: 17px !important;
+}
+
+/* Cards */
+.card,
+.form-card,
+.eligibility-card,
+.application-card,
+.contact-card {
+  padding: 15px !important;
+  border-radius: 12px !important;
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  min-height: 38px !important;
+  padding: 8px 10px !important;
+  font-size: 13px !important;
+}
+
+/* Buttons */
+button,
+.contact-button {
+  padding: 9px 14px !important;
+  font-size: 13px !important;
+}
+
+/* Contact */
+.contact-section {
+  padding: 28px 15px !important;
+}
+
+.contact-grid {
+  gap: 10px !important;
+}
+
+.contact-icon {
+  width: 36px !important;
+  height: 36px !important;
+  font-size: 17px !important;
+}
+
+/* Footer */
+footer {
+  padding: 18px 15px !important;
+  font-size: 12px !important;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .hero h1 {
+    font-size: 25px !important;
+  }
+
+  .hero {
+    min-height: 280px !important;
+  }
+
+  section {
+    padding: 22px 12px !important;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
 
 
