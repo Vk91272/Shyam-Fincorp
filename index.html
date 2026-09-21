@@ -3,46 +3,43 @@
 
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <meta
     name="description"
-    content="Shyam Fincorp - Personal Loan Services"
-  >
+    content="Shyam Fincorp - Personal Loan Services">
 
-  <title>Shyam Fincorp Loan</title>
+  <title>Shyam Fincorp | Personal Loan Services</title>
 
-  <link
-    rel="stylesheet"
-    href="style-final.css?v=20260922"
-  >
+  <link rel="stylesheet" href="style-final.css?v=20260923">
 </head>
 
 <body>
 
-  <!-- =====================================================
-       TOP BAR
-       ===================================================== -->
+  <!-- ================= TOP MARQUEE ================= -->
 
-  <div class="top-bar">
-    <div class="container">
-      <span>जय श्री श्याम 🙏</span>
+  <div class="top-marquee">
+    <div class="marquee-track">
+      <span>🙏 जय श्री श्याम</span>
       <span>Personal Loan Assistance</span>
+      <span>Fast & Simple Loan Application</span>
+      <span>Secure Customer Assistance</span>
+
+      <span>🙏 जय श्री श्याम</span>
+      <span>Personal Loan Assistance</span>
+      <span>Fast & Simple Loan Application</span>
+      <span>Secure Customer Assistance</span>
     </div>
   </div>
 
 
-  <!-- =====================================================
-       HEADER
-       ===================================================== -->
+  <!-- ================= HEADER ================= -->
 
   <header class="main-header">
 
-    <div class="container header-container">
+    <div class="header-container">
+
+      <!-- BRAND -->
 
       <a
         href="#"
@@ -50,17 +47,24 @@
         onclick="openScreen('eligibility'); return false;"
       >
 
-        <div class="logo-mark">
-          SF
+        <div class="logo-box">
+          <span>SF</span>
         </div>
 
         <div class="brand-text">
+
           <strong>Shyam Fincorp</strong>
-          <small>Loan Services</small>
+
+          <small>
+            Personal Loan Services
+          </small>
+
         </div>
 
       </a>
 
+
+      <!-- NAVIGATION -->
 
       <nav class="main-nav">
 
@@ -85,23 +89,32 @@
           My Loan
         </a>
 
+        <a
+          href="#"
+          onclick="openScreen('contact'); return false;"
+        >
+          Contact
+        </a>
+
       </nav>
 
+
+      <!-- HEADER ACTIONS -->
 
       <div class="header-actions">
 
         <a
           href="tel:+919118183794"
-          class="header-btn"
+          class="header-call"
         >
-          Call Now
+          📞 Call
         </a>
 
         <a
           href="mailto:yadavvinit416@gmail.com"
-          class="header-btn"
+          class="header-email"
         >
-          Email Us
+          ✉ Email
         </a>
 
       </div>
@@ -111,16 +124,14 @@
   </header>
 
 
-  <!-- =====================================================
-       MAIN
-       ===================================================== -->
+  <!-- ================= MAIN ================= -->
 
   <main>
 
 
-    <!-- ===================================================
-         SCREEN 1 - ELIGIBILITY
-         =================================================== -->
+    <!-- =================================================
+         ELIGIBILITY
+         ================================================= -->
 
     <section
       id="eligibility"
@@ -143,7 +154,7 @@
 
             <p>
               Check your preliminary loan eligibility
-              in just a few simple steps.
+              quickly and conveniently.
             </p>
 
           </div>
@@ -190,21 +201,18 @@
           </div>
 
 
-          <!-- =============================================
-               ELIGIBILITY FORM
-               ============================================= -->
+          <!-- FORM -->
 
           <form
             id="eligibilityForm"
             class="professional-form"
           >
 
-
             <!-- STEP 1 -->
 
             <div
               id="eligibilityStep1"
-              class="eligibility-step"
+              class="eligibility-step active"
             >
 
               <div class="form-heading">
@@ -214,7 +222,7 @@
                 </h2>
 
                 <p>
-                  Please enter your basic information.
+                  Enter your basic information.
                 </p>
 
               </div>
@@ -248,7 +256,7 @@
                   type="tel"
                   id="eligibilityMobile"
                   name="mobile"
-                  placeholder="Enter 10 digit mobile number"
+                  placeholder="10 digit mobile number"
                   maxlength="10"
                   inputmode="numeric"
                   required
@@ -262,7 +270,8 @@
                 class="btn btn-primary next-screen-btn"
                 onclick="nextStep1()"
               >
-                Continue →
+                Continue
+                <span>→</span>
               </button>
 
             </div>
@@ -273,7 +282,6 @@
             <div
               id="eligibilityStep2"
               class="eligibility-step"
-              style="display:none;"
             >
 
               <div class="form-heading">
@@ -283,8 +291,7 @@
                 </h2>
 
                 <p>
-                  Enter your financial details for
-                  preliminary eligibility.
+                  Enter your financial information.
                 </p>
 
               </div>
@@ -393,7 +400,7 @@
 
                 <button
                   type="button"
-                  class="btn back-screen-btn"
+                  class="btn btn-secondary"
                   onclick="backStep2()"
                 >
                   ← Back
@@ -402,7 +409,7 @@
                 <button
                   type="submit"
                   id="eligibilityButton"
-                  class="btn btn-primary next-screen-btn"
+                  class="btn btn-primary"
                 >
                   Check Eligibility
                 </button>
@@ -417,7 +424,6 @@
             <div
               id="eligibilityStep3"
               class="eligibility-step"
-              style="display:none;"
             >
 
               <div
@@ -432,20 +438,16 @@
                   ✓
                 </div>
 
-
                 <h2 id="eligibilityResultTitle">
                   Eligibility Result
                 </h2>
 
-
                 <p id="eligibilityResultMessage">
-                  Your preliminary eligibility result
-                  will appear here.
+                  Your preliminary result will appear here.
                 </p>
 
 
                 <div class="result-details">
-
 
                   <div class="result-item">
 
@@ -485,17 +487,15 @@
 
                   </div>
 
-
                 </div>
 
 
                 <div class="result-disclaimer">
 
                   <small>
-                    This is a preliminary eligibility
-                    inquiry only. Final loan approval,
-                    interest rate and terms are subject
-                    to verification and applicable
+                    This is a preliminary eligibility inquiry only.
+                    Final loan approval, interest rate and terms
+                    are subject to verification and applicable
                     policies.
                   </small>
 
@@ -514,9 +514,9 @@
     </section>
 
 
-    <!-- ===================================================
-         SCREEN 2 - LOAN APPLICATION
-         =================================================== -->
+    <!-- =================================================
+         LOAN APPLICATION
+         ================================================= -->
 
     <section
       id="loanApplication"
@@ -530,11 +530,11 @@
           <div class="section-heading">
 
             <span class="section-label">
-              STEP 2
+              LOAN APPLICATION
             </span>
 
             <h2>
-              Loan Application
+              Apply for a Personal Loan
             </h2>
 
             <p>
@@ -549,7 +549,6 @@
             id="loanApplicationForm"
             class="professional-form"
           >
-
 
             <div class="form-group">
 
@@ -590,7 +589,7 @@
             <div class="form-group">
 
               <label for="applicationEmail">
-                Email
+                Email Address
               </label>
 
               <input
@@ -604,7 +603,6 @@
 
 
             <div class="form-row">
-
 
               <div class="form-group">
 
@@ -658,29 +656,12 @@
                   Select Tenure
                 </option>
 
-                <option value="12">
-                  12 Months
-                </option>
-
-                <option value="18">
-                  18 Months
-                </option>
-
-                <option value="24">
-                  24 Months
-                </option>
-
-                <option value="36">
-                  36 Months
-                </option>
-
-                <option value="48">
-                  48 Months
-                </option>
-
-                <option value="60">
-                  60 Months
-                </option>
+                <option value="12">12 Months</option>
+                <option value="18">18 Months</option>
+                <option value="24">24 Months</option>
+                <option value="36">36 Months</option>
+                <option value="48">48 Months</option>
+                <option value="60">60 Months</option>
 
               </select>
 
@@ -690,7 +671,7 @@
             <div class="form-group">
 
               <label for="applicationAddress">
-                Address
+                Complete Address
               </label>
 
               <textarea
@@ -714,12 +695,11 @@
 
             <button
               type="button"
-              class="btn back-screen-btn"
+              class="btn btn-secondary back-screen-btn"
               onclick="openScreen('eligibility')"
             >
-              ← Back to Eligibility
+              ← Back
             </button>
-
 
           </form>
 
@@ -727,7 +707,7 @@
           <div class="application-success">
 
             <p>
-              Application ID:
+              Application ID
             </p>
 
             <strong id="applicationSuccessId">
@@ -743,9 +723,9 @@
     </section>
 
 
-    <!-- ===================================================
-         SCREEN 3 - DOCUMENT UPLOAD
-         =================================================== -->
+    <!-- =================================================
+         DOCUMENT UPLOAD
+         ================================================= -->
 
     <section
       id="documentUploadSection"
@@ -759,7 +739,7 @@
           <div class="section-heading">
 
             <span class="section-label">
-              STEP 3
+              DOCUMENT VERIFICATION
             </span>
 
             <h2>
@@ -779,7 +759,6 @@
             class="professional-form"
           >
 
-
             <div class="form-group">
 
               <label for="documentApplicationId">
@@ -790,7 +769,6 @@
                 type="text"
                 id="documentApplicationId"
                 name="application_id"
-                placeholder="Application ID"
                 required
               >
 
@@ -853,7 +831,7 @@
               >
 
               <small>
-                JPG, PNG or PDF only. Maximum size 5 MB.
+                JPG, PNG or PDF • Maximum 5 MB
               </small>
 
             </div>
@@ -866,26 +844,23 @@
               Upload Document
             </button>
 
-
           </form>
 
 
           <div class="document-info">
 
-            <p>
-              After uploading your documents,
-              you can access your customer loan portal.
-            </p>
+            🔒 Your document is submitted for
+            verification as part of the loan process.
 
           </div>
 
 
           <button
             type="button"
-            class="btn back-screen-btn"
+            class="btn btn-secondary back-screen-btn"
             onclick="openScreen('loanApplication')"
           >
-            ← Back to Application
+            ← Back
           </button>
 
         </div>
@@ -895,9 +870,9 @@
     </section>
 
 
-    <!-- ===================================================
-         SCREEN 4 - CUSTOMER PORTAL
-         =================================================== -->
+    <!-- =================================================
+         CUSTOMER PORTAL
+         ================================================= -->
 
     <section
       id="customerPortal"
@@ -906,7 +881,7 @@
 
       <div class="container">
 
-        <div class="form-card">
+        <div class="form-card portal-card">
 
           <div class="section-heading">
 
@@ -919,8 +894,8 @@
             </h2>
 
             <p>
-              Enter your mobile number and application
-              ID to view your loan details.
+              Enter your registered mobile number
+              and application ID.
             </p>
 
           </div>
@@ -931,11 +906,10 @@
             class="professional-form"
           >
 
-
             <div class="form-group">
 
               <label for="customerMobile">
-                Mobile Number
+                Registered Mobile Number
               </label>
 
               <input
@@ -943,7 +917,7 @@
                 id="customerMobile"
                 maxlength="10"
                 inputmode="numeric"
-                placeholder="Enter registered mobile number"
+                placeholder="Enter mobile number"
                 required
               >
 
@@ -973,13 +947,12 @@
               View My Loan
             </button>
 
-
           </form>
 
 
           <button
             type="button"
-            class="btn back-screen-btn"
+            class="btn btn-secondary back-screen-btn"
             onclick="openScreen('eligibility')"
           >
             ← Back to Home
@@ -992,23 +965,20 @@
     </section>
 
 
-    <!-- ===================================================
+    <!-- =================================================
          LOAN DASHBOARD
-         =================================================== -->
+         ================================================= -->
 
     <div
       id="loanDashboard"
       class="flow-hidden"
     >
 
-
-      <!-- ===============================================
-           LOAN SUMMARY
-           =============================================== -->
+      <!-- LOAN SUMMARY -->
 
       <section
         id="loanSummarySection"
-        class="section dashboard-section"
+        class="dashboard-section"
       >
 
         <div class="container">
@@ -1016,7 +986,7 @@
           <div class="section-heading">
 
             <span class="section-label">
-              MY LOAN
+              CUSTOMER DASHBOARD
             </span>
 
             <h2>
@@ -1030,123 +1000,50 @@
 
             <div class="dashboard-grid">
 
-
               <div class="dashboard-item">
-
-                <span>
-                  Loan Account
-                </span>
-
-                <strong id="displayLoanAccount">
-                  -
-                </strong>
-
+                <span>Loan Account</span>
+                <strong id="displayLoanAccount">-</strong>
               </div>
 
-
               <div class="dashboard-item">
-
-                <span>
-                  Application ID
-                </span>
-
-                <strong id="displayApplicationId">
-                  -
-                </strong>
-
+                <span>Application ID</span>
+                <strong id="displayApplicationId">-</strong>
               </div>
 
-
               <div class="dashboard-item">
-
-                <span>
-                  Customer Name
-                </span>
-
-                <strong id="displayCustomerName">
-                  -
-                </strong>
-
+                <span>Customer Name</span>
+                <strong id="displayCustomerName">-</strong>
               </div>
 
-
               <div class="dashboard-item">
-
-                <span>
-                  Loan Amount
-                </span>
-
-                <strong id="displayLoanAmount">
-                  ₹0
-                </strong>
-
+                <span>Loan Amount</span>
+                <strong id="displayLoanAmount">₹0</strong>
               </div>
 
-
               <div class="dashboard-item">
-
-                <span>
-                  Interest Rate
-                </span>
-
-                <strong id="displayInterestRate">
-                  -
-                </strong>
-
+                <span>Interest Rate</span>
+                <strong id="displayInterestRate">-</strong>
               </div>
 
-
               <div class="dashboard-item">
-
-                <span>
-                  Tenure
-                </span>
-
-                <strong id="displayTenure">
-                  -
-                </strong>
-
+                <span>Tenure</span>
+                <strong id="displayTenure">-</strong>
               </div>
 
-
               <div class="dashboard-item">
-
-                <span>
-                  Monthly EMI
-                </span>
-
-                <strong id="displayEmi">
-                  ₹0
-                </strong>
-
+                <span>Monthly EMI</span>
+                <strong id="displayEmi">₹0</strong>
               </div>
 
-
               <div class="dashboard-item">
-
-                <span>
-                  Outstanding
-                </span>
-
-                <strong id="displayOutstanding">
-                  ₹0
-                </strong>
-
+                <span>Outstanding</span>
+                <strong id="displayOutstanding">₹0</strong>
               </div>
 
-
               <div class="dashboard-item">
-
-                <span>
-                  Loan Status
-                </span>
-
-                <strong id="displayLoanStatus">
-                  -
-                </strong>
-
+                <span>Loan Status</span>
+                <strong id="displayLoanStatus">-</strong>
               </div>
-
 
             </div>
 
@@ -1157,13 +1054,11 @@
       </section>
 
 
-      <!-- ===============================================
-           PAYMENT SUMMARY
-           =============================================== -->
+      <!-- PAYMENT SUMMARY -->
 
       <section
         id="paymentSummarySection"
-        class="section dashboard-section"
+        class="dashboard-section"
       >
 
         <div class="container">
@@ -1176,20 +1071,15 @@
 
           </div>
 
+          <div class="dashboard-card payment-summary-box">
 
-          <div class="dashboard-card">
+            <p>
+              Current EMI information
+            </p>
 
-            <div class="payment-summary-box">
-
-              <p>
-                Your current EMI details are shown below.
-              </p>
-
-              <strong id="paymentSummaryAmount">
-                -
-              </strong>
-
-            </div>
+            <strong id="paymentSummaryAmount">
+              -
+            </strong>
 
           </div>
 
@@ -1198,13 +1088,11 @@
       </section>
 
 
-      <!-- ===============================================
-           EMI SCHEDULE
-           =============================================== -->
+      <!-- EMI SCHEDULE -->
 
       <section
         id="emiScheduleSection"
-        class="section dashboard-section"
+        class="dashboard-section"
       >
 
         <div class="container">
@@ -1217,18 +1105,10 @@
 
           </div>
 
-
           <div class="dashboard-card">
 
-            <div
-              id="emiScheduleContainer"
-              class="emi-schedule-container"
-            >
-
-              <p>
-                EMI schedule will appear here.
-              </p>
-
+            <div id="emiScheduleContainer">
+              EMI schedule will appear here.
             </div>
 
           </div>
@@ -1238,13 +1118,11 @@
       </section>
 
 
-      <!-- ===============================================
-           PAY EMI
-           =============================================== -->
+      <!-- PAY EMI -->
 
       <section
         id="paymentSection"
-        class="section dashboard-section"
+        class="dashboard-section"
       >
 
         <div class="container">
@@ -1261,10 +1139,6 @@
                 Pay Your EMI
               </h2>
 
-              <p>
-                Select your EMI and make the payment.
-              </p>
-
             </div>
 
 
@@ -1272,7 +1146,6 @@
               id="paymentForm"
               class="professional-form"
             >
-
 
               <div class="form-group">
 
@@ -1303,7 +1176,6 @@
                 <input
                   type="number"
                   id="paymentAmount"
-                  placeholder="Payment amount"
                   min="1"
                   required
                 >
@@ -1343,7 +1215,6 @@
                 Pay EMI
               </button>
 
-
             </form>
 
           </div>
@@ -1353,13 +1224,11 @@
       </section>
 
 
-      <!-- ===============================================
-           PAYMENT HISTORY
-           =============================================== -->
+      <!-- PAYMENT HISTORY -->
 
       <section
         id="paymentHistorySection"
-        class="section dashboard-section"
+        class="dashboard-section"
       >
 
         <div class="container">
@@ -1375,15 +1244,8 @@
 
           <div class="dashboard-card">
 
-            <div
-              id="paymentHistoryContainer"
-              class="payment-history-container"
-            >
-
-              <p>
-                Payment history will appear here.
-              </p>
-
+            <div id="paymentHistoryContainer">
+              Payment history will appear here.
             </div>
 
           </div>
@@ -1391,7 +1253,7 @@
 
           <button
             type="button"
-            class="btn back-screen-btn"
+            class="btn btn-secondary back-screen-btn"
             onclick="openScreen('customerPortal')"
           >
             ← Back to My Loan
@@ -1404,9 +1266,9 @@
     </div>
 
 
-    <!-- ===================================================
+    <!-- =================================================
          CONTACT
-         =================================================== -->
+         ================================================= -->
 
     <section
       id="contact"
@@ -1418,15 +1280,15 @@
         <div class="section-heading">
 
           <span class="section-label">
-            CONTACT
+            CONTACT US
           </span>
 
           <h2>
-            Contact Shyam Fincorp
+            Get in Touch with Shyam Fincorp
           </h2>
 
           <p>
-            We are here to assist you.
+            Our team is available to assist you.
           </p>
 
         </div>
@@ -1437,8 +1299,12 @@
 
           <div class="contact-card">
 
+            <div class="contact-icon">
+              📍
+            </div>
+
             <h3>
-              Location
+              Office Location
             </h3>
 
             <p>
@@ -1450,8 +1316,12 @@
 
           <div class="contact-card">
 
+            <div class="contact-icon">
+              📞
+            </div>
+
             <h3>
-              Phone
+              Customer Support
             </h3>
 
             <p>
@@ -1460,13 +1330,24 @@
               </a>
             </p>
 
+            <a
+              href="tel:+919118183794"
+              class="contact-action"
+            >
+              Call Now
+            </a>
+
           </div>
 
 
           <div class="contact-card">
 
+            <div class="contact-icon">
+              ✉
+            </div>
+
             <h3>
-              Email
+              Email Support
             </h3>
 
             <p>
@@ -1474,6 +1355,13 @@
                 yadavvinit416@gmail.com
               </a>
             </p>
+
+            <a
+              href="mailto:yadavvinit416@gmail.com"
+              class="contact-action"
+            >
+              Send Email
+            </a>
 
           </div>
 
@@ -1484,25 +1372,29 @@
 
     </section>
 
-
   </main>
 
 
-  <!-- =====================================================
+  <!-- =================================================
        FOOTER
-       ===================================================== -->
+       ================================================= -->
 
   <footer class="main-footer">
 
-    <div class="container">
+    <div class="footer-container">
 
-      <div class="footer-content">
+
+      <div class="footer-brand">
+
+        <div class="footer-logo">
+          SF
+        </div>
 
         <div>
 
-          <strong>
+          <h3>
             Shyam Fincorp
-          </strong>
+          </h3>
 
           <p>
             Personal Loan Services
@@ -1510,30 +1402,56 @@
 
         </div>
 
+      </div>
 
-        <div>
 
-          <p>
-            © 2026 Shyam Fincorp.
-            All Rights Reserved.
-          </p>
+      <div class="footer-jai">
+        🙏 जय श्री श्याम
+      </div>
 
-        </div>
+
+      <div class="footer-contact">
+
+        <p>
+          📍 Gorakhpur, Uttar Pradesh, India
+        </p>
+
+        <p>
+          📞
+          <a href="tel:+919118183794">
+            +91 9118183794
+          </a>
+        </p>
+
+        <p>
+          ✉
+          <a href="mailto:yadavvinit416@gmail.com">
+            yadavv416@gmail.com
+          </a>
+        </p>
 
       </div>
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+      <span>
+        © 2026 Shyam Fincorp. All Rights Reserved.
+      </span>
+
+      <span>
+        Personal Loan Assistance
+      </span>
 
     </div>
 
   </footer>
 
 
-  <!-- =====================================================
-       JAVASCRIPT
-       ===================================================== -->
-
-  <script src="app.js?v=20260922"></script>
+  <script src="app.js?v=20260923"></script>
 
 </body>
-
 </html>
 
