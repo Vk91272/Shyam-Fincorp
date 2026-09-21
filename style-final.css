@@ -1384,5 +1384,150 @@ footer {
     grid-template-columns: 1fr !important;
   }
 }
+/* =========================================================
+   SHYAM FINCORP - ONE SCREEN AT A TIME
+   ========================================================= */
+
+.flow-hidden {
+  display: none !important;
+}
+
+.flow-visible {
+  display: block !important;
+}
+
+
+/* First screen */
+
+#eligibility {
+  min-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+/* Hide screens until required */
+
+#loanApplication,
+#documentUploadSection,
+#customerPortal,
+#contact,
+.values-section,
+#loanDashboard {
+  display: none;
+}
+
+
+/* Eligibility */
+
+.eligibility-card {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+
+/* Navigation button */
+
+.next-screen-btn {
+  width: 100%;
+  margin-top: 20px;
+  min-height: 50px;
+}
+
+.back-screen-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+
+
+/* Loan dashboard */
+
+#loanDashboard {
+  width: 100%;
+  min-height: 100vh;
+  padding: 35px 20px;
+}
+
+#loanDashboard.flow-visible {
+  display: block !important;
+}
+
+
+/* Dashboard sections */
+
+#loanDashboard > section {
+  margin-bottom: 25px;
+}
+
+
+/* EMI rows */
+
+.emi-row,
+.payment-history-row {
+  display: grid;
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 15px;
+
+  padding: 15px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* Mobile */
+
+@media (max-width: 700px) {
+
+  #eligibility {
+    min-height: calc(100vh - 80px);
+    padding: 25px 12px !important;
+  }
+
+  .eligibility-card {
+    width: 100%;
+  }
+
+  #loanDashboard {
+    padding: 20px 12px;
+  }
+
+  .emi-row,
+  .payment-history-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .next-screen-btn,
+  .back-screen-btn {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
+
+.message-box {
+  display: none;
+  padding: 14px;
+  margin: 15px 0;
+  border-radius: 10px;
+}
+
+
+/* =========================================================
+   BUTTON DISABLED
+   ========================================================= */
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 
