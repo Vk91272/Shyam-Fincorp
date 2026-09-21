@@ -667,10 +667,11 @@ if (lookupForm) {
 
         if (!response.ok) {
 
-          throw new Error(
-            data.error ||
-            "Active loan account not found."
-          );
+          const message = data.error || "Unable to find loan.";
+          if (response.status === 404 && /Active loan account not found/i.test(message)) {
+            throw new Error("Application found, but an active loan account has not been created yet. Please contact the loan team/admin to activate the loan account.");
+          }
+          throw new Error(message);
 
         }
 
@@ -718,7 +719,8 @@ function displayLoan(data) {
   currentLoanAccountId =
     loan.id ||
     loan.loan_account_id ||
-    data.loan_account_id;
+    data.loan_account_id ||
+    null;
 
 
   const accountNo =
@@ -880,6 +882,33 @@ function displayEmiSchedule(schedule) {
 }
 
 
+function updatePaymentSummary(schedule) {
+  const items = Array.isArray(schedule) ? schedule : [];
+  const payable = items.reduce((sum, emi) => sum + Number(emi.total_due || 0), 0);
+  const paid = items.reduce((sum, emi) => sum + Number(emi.paid_amount || 0), 0);
+  const pending = Math.max(0, payable - paid);
+  const paidCount = items.filter(emi => emi.status === "paid").length;
+  const pendingCount = Math.max(0, items.length - paidCount);
+  const progress = payable > 0 ? Math.min(100, Math.round((paid / payable) * 100)) : 0;
+
+  const values = {
+    totalPayableAmount: payable,
+    totalPaidAmount: paid,
+    totalPendingAmount: pending,
+    paidEmiCount: paidCount,
+    pendingEmiCount: pendingCount,
+    paymentProgress: progress
+  };
+
+  Object.entries(values).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = id === "paymentProgress" || id.includes("Count") ? value : formatMoney(value);
+  });
+
+  const section = document.getElementById("paymentSummarySection");
+  if (section) section.style.display = "block";
+}
+
 // =====================================================
 // EMI PAYMENT / PAYMENT MODE
 
@@ -952,7 +981,7 @@ async function refreshCustomerLoan() {
 
 async function refreshPaymentHistory() {
 
-  if (!currentLoanAccountId) {
+  if (!currentApplicationId || !currentCustomerMobile) {
     return;
   }
 
@@ -978,8 +1007,10 @@ async function refreshPaymentHistory() {
 
           body:
             JSON.stringify({
-              loan_account_id:
-                currentLoanAccountId
+              application_id:
+                currentApplicationId,
+              mobile:
+                currentCustomerMobile
             })
         }
       );
