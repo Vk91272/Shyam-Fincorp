@@ -150,28 +150,6 @@
 
             </div>
 
-            <div>
-              <label for="eligibilityAge">Age</label>
-              <input type="number" id="eligibilityAge" name="age" placeholder="Your age" min="18" max="80" required />
-            </div>
-
-            <div>
-              <label for="employmentType">Employment Type</label>
-              <select id="employmentType" name="employment_type" required>
-                <option value="">Select employment type</option>
-                <option value="salaried">Salaried / नौकरी</option>
-                <option value="business">Business / व्यवसाय</option>
-                <option value="self_employed">Self Employed / अपना काम</option>
-                <option value="professional">Professional</option>
-                <option value="agriculture">Agriculture / Farmer</option>
-                <option value="shopkeeper">Shopkeeper / Retail Business</option>
-                <option value="freelancer">Freelancer</option>
-                <option value="pensioner">Pensioner / Retired</option>
-                <option value="homemaker">Homemaker</option>
-                <option value="student">Student</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
 
             <div>
 
@@ -258,10 +236,6 @@
 
             </div>
 
-            <div>
-              <label for="existingEmi">Existing Monthly EMI</label>
-              <input type="number" id="existingEmi" name="existing_emi" placeholder="Example: 5000" min="0" inputmode="numeric" value="0" />
-            </div>
 
             <div>
 
@@ -495,23 +469,6 @@
 
           </div>
 
-          <div>
-            <label for="employmentTypeApplication">Employment Type</label>
-            <select id="employmentTypeApplication" name="employment_type" required>
-              <option value="">Select employment type</option>
-              <option value="salaried">Salaried / नौकरी</option>
-              <option value="business">Business / व्यवसाय</option>
-              <option value="self_employed">Self Employed / अपना काम</option>
-              <option value="professional">Professional</option>
-              <option value="agriculture">Agriculture / Farmer</option>
-              <option value="shopkeeper">Shopkeeper / Retail Business</option>
-              <option value="freelancer">Freelancer</option>
-              <option value="pensioner">Pensioner / Retired</option>
-              <option value="homemaker">Homemaker</option>
-              <option value="student">Student</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
 
           <div>
 
@@ -568,8 +525,6 @@
               </option>
 
             </select>
-
-            <small class="payment-mode-note">Online payment ke liye UPI, Card ya Net Banking select karein.</small>
 
           </div>
 
@@ -829,65 +784,6 @@
     </section>
 
 
-
-    <!-- PAYMENT SUMMARY -->
-    <section
-      id="paymentSummarySection"
-      class="card"
-      style="display:none;"
-    >
-
-      <div class="section-heading">
-        <h2>Payment Summary</h2>
-        <p>
-          See how much you have paid and how much is still pending.
-        </p>
-      </div>
-
-      <div class="summary-grid">
-
-        <div>
-          <span>Total Payable</span>
-          <strong>
-            ₹<span id="totalPayableAmount">0</span>
-          </strong>
-        </div>
-
-        <div>
-          <span>Total Paid</span>
-          <strong>
-            ₹<span id="totalPaidAmount">0</span>
-          </strong>
-        </div>
-
-        <div>
-          <span>Total Pending</span>
-          <strong>
-            ₹<span id="totalPendingAmount">0</span>
-          </strong>
-        </div>
-
-        <div>
-          <span>EMI Paid</span>
-          <strong id="paidEmiCount">0</strong>
-        </div>
-
-        <div>
-          <span>EMI Pending</span>
-          <strong id="pendingEmiCount">0</strong>
-        </div>
-
-        <div>
-          <span>Payment Progress</span>
-          <strong>
-            <span id="paymentProgress">0</span>%
-          </strong>
-        </div>
-
-      </div>
-
-    </section>
-
     <!-- EMI SCHEDULE -->
     <section
       id="emiScheduleSection"
@@ -965,7 +861,7 @@
             </label>
 
             <select id="paymentMethod" required>
-              <option value="">Select payment mode</option>
+              <option value="">Select Payment Mode</option>
               <option value="upi">UPI (Google Pay / PhonePe / Paytm)</option>
               <option value="debit_card">Debit Card</option>
               <option value="credit_card">Credit Card</option>
@@ -1017,7 +913,7 @@
             <tr>
               <th>Date</th>
               <th>Amount</th>
-              <th>Mode</th>
+              <th>Payment Mode</th>
               <th>Reference</th>
               <th>Status</th>
             </tr>

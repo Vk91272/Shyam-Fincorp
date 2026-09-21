@@ -301,21 +301,13 @@ async function payEmi(installmentNo) {
   if (!currentApplicationId || !currentMobile) return showMessage("Pehle apni loan details lookup karein.", "error");
   const emi = currentEmiSchedule.find((item, index) => Number(item.installment_no ?? item.installment_number ?? item.emi_number ?? index + 1) === Number(installmentNo));
   const amount = Number(emi?.total_due ?? emi?.emi_amount ?? emi?.emi ?? emi?.total ?? 0);
-  if (!amount || amount <= 0) return showMessage("EMI amount nahi mila.", "error");
-
-  const amountInput = document.getElementById("paymentAmount");
-  const methodInput = document.getElementById("paymentMethod");
-  const paymentSection = document.getElementById("paymentSection");
-
-  if (amountInput) amountInput.value = amount;
-  if (methodInput) methodInput.value = "";
-
-  if (paymentSection) {
-    paymentSection.style.display = "block";
-    paymentSection.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  showMessage(`EMI ${installmentNo} select ho gayi hai. Ab Payment Mode choose karke Pay EMI dabayein.`, "info");
+  if (!window.confirm(`EMI ${installmentNo} ke liye ${formatMoney(amount)} ka test payment karna hai?`)) return;
+  try {
+    showMessage("Payment process ho rahi hai...", "info");
+    const data = await apiRequest(`${API_BASE}/api/customer/pay-emi-test`, { method: "POST", body: JSON.stringify({ application_id: currentApplicationId, mobile: currentMobile, installment_no: Number(installmentNo), payment_method: "test" }) });
+    showMessage(data.message || "EMI payment successfully recorded.", "success");
+    await refreshLoan();
+  } catch (error) { console.error("payEmi:", error); showMessage(error.message, "error"); }
 }
 
 async function handlePaymentForm(event) {
@@ -328,11 +320,7 @@ async function handlePaymentForm(event) {
   if (!nextEmi) return showMessage("Koi pending EMI nahi hai.", "success");
   const installmentNo = nextEmi.installment_no ?? nextEmi.installment_number ?? nextEmi.emi_number;
   const amount = Number(nextEmi.total_due ?? nextEmi.emi_amount ?? nextEmi.emi ?? nextEmi.total ?? 0);
-  if (amountInput && !amountInput.value) amountInput.value = amount;
-
-  const selectedMode = methodInput?.value || "";
-  if (!selectedMode) return showMessage("Please Payment Mode select karein.", "error");
-
+  if (amountInput) amountInput.value = amount;
   try {
     if (message) message.textContent = "Payment process ho rahi hai...";
     const data = await apiRequest(`${API_BASE}/api/customer/pay-emi-test`, { method: "POST", body: JSON.stringify({ application_id: currentApplicationId, mobile: currentMobile, installment_no: Number(installmentNo), payment_method: methodInput?.value || "test" }) });
@@ -466,3 +454,17 @@ window.checkEligibility = checkEligibility;
 window.submitInquiry = submitInquiry;
 window.goToEligibilityStep2 = goToEligibilityStep2;
 window.goToEligibilityStep1 = goToEligibilityStep1;
+
+// Show loan application after eligibility result
+const applyNowButtons = document.querySelectorAll(".apply-now-btn");
+applyNowButtons.forEach((button) => {
+  button.addEventListener("click", function (event) {
+    event.preventDefault();
+    const section = document.getElementById("loanApplication");
+    if (section) {
+      section.style.display = "block";
+      setTimeout(() => section.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    }
+  });
+});
+
