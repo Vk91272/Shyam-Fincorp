@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -133,7 +133,6 @@
 
           <div class="form-grid">
 
-            <!-- FULL NAME -->
             <div>
 
               <label for="eligibilityName">
@@ -151,8 +150,29 @@
 
             </div>
 
+            <div>
+              <label for="eligibilityAge">Age</label>
+              <input type="number" id="eligibilityAge" name="age" placeholder="Your age" min="18" max="80" required />
+            </div>
 
-            <!-- MOBILE -->
+            <div>
+              <label for="employmentType">Employment Type</label>
+              <select id="employmentType" name="employment_type" required>
+                <option value="">Select employment type</option>
+                <option value="salaried">Salaried / नौकरी</option>
+                <option value="business">Business / व्यवसाय</option>
+                <option value="self_employed">Self Employed / अपना काम</option>
+                <option value="professional">Professional</option>
+                <option value="agriculture">Agriculture / Farmer</option>
+                <option value="shopkeeper">Shopkeeper / Retail Business</option>
+                <option value="freelancer">Freelancer</option>
+                <option value="pensioner">Pensioner / Retired</option>
+                <option value="homemaker">Homemaker</option>
+                <option value="student">Student</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
             <div>
 
               <label for="eligibilityMobile">
@@ -169,92 +189,6 @@
                 autocomplete="tel"
                 required
               />
-
-            </div>
-
-
-            <!-- AGE -->
-            <div>
-
-              <label for="eligibilityAge">
-                Age
-              </label>
-
-              <input
-                type="number"
-                id="eligibilityAge"
-                name="age"
-                placeholder="Example: 30"
-                min="18"
-                max="80"
-                required
-              />
-
-            </div>
-
-
-            <!-- EMPLOYMENT TYPE -->
-            <div>
-
-              <label for="employmentType">
-                Employment Type
-              </label>
-
-              <select
-                id="employmentType"
-                name="employment_type"
-                required
-              >
-
-                <option value="">
-                  Select employment type
-                </option>
-
-                <option value="salaried">
-                  Salaried / नौकरी
-                </option>
-
-                <option value="business">
-                  Business / व्यवसाय
-                </option>
-
-                <option value="self_employed">
-                  Self Employed / अपना काम
-                </option>
-
-                <option value="professional">
-                  Professional
-                </option>
-
-                <option value="agriculture">
-                  Agriculture / Farmer
-                </option>
-
-                <option value="shopkeeper">
-                  Shopkeeper / Retail Business
-                </option>
-
-                <option value="freelancer">
-                  Freelancer
-                </option>
-
-                <option value="pensioner">
-                  Pensioner / Retired
-                </option>
-
-                <option value="homemaker">
-                  Homemaker
-                </option>
-
-                <option value="student">
-                  Student
-                </option>
-
-                <option value="other">
-                  Other
-                </option>
-
-              </select>
 
             </div>
 
@@ -287,7 +221,6 @@
 
           <div class="form-grid">
 
-            <!-- LOAN AMOUNT -->
             <div>
 
               <label for="requestedAmount">
@@ -307,7 +240,6 @@
             </div>
 
 
-            <!-- MONTHLY INCOME -->
             <div>
 
               <label for="monthlyIncome">
@@ -326,28 +258,11 @@
 
             </div>
 
-
-            <!-- EXISTING EMI -->
             <div>
-
-              <label for="existingEmi">
-                Existing Monthly EMI
-              </label>
-
-              <input
-                type="number"
-                id="existingEmi"
-                name="existing_emi"
-                placeholder="Example: 5000"
-                min="0"
-                inputmode="numeric"
-                value="0"
-              />
-
+              <label for="existingEmi">Existing Monthly EMI</label>
+              <input type="number" id="existingEmi" name="existing_emi" placeholder="Example: 5000" min="0" inputmode="numeric" value="0" />
             </div>
 
-
-            <!-- TENURE -->
             <div>
 
               <label for="eligibilityTenure">
@@ -439,41 +354,29 @@
             <div class="result-cards">
 
               <div>
-
-                <small>
-                  Estimated EMI
-                </small>
+                <small>Estimated EMI</small>
 
                 <strong>
                   ₹<span id="estimatedEmi">0</span>
                 </strong>
-
               </div>
 
 
               <div>
-
-                <small>
-                  Interest Rate
-                </small>
+                <small>Interest Rate</small>
 
                 <strong>
                   <span id="estimatedRate">0</span>%
                 </strong>
-
               </div>
 
 
               <div>
-
-                <small>
-                  Inquiry ID
-                </small>
+                <small>Inquiry ID</small>
 
                 <strong id="inquiryId">
                   -
                 </strong>
-
               </div>
 
             </div>
@@ -523,7 +426,6 @@
 
         <div class="form-grid">
 
-          <!-- FULL NAME -->
           <div>
 
             <label for="fullName">
@@ -541,7 +443,6 @@
           </div>
 
 
-          <!-- MOBILE -->
           <div>
 
             <label for="mobile">
@@ -561,7 +462,6 @@
           </div>
 
 
-          <!-- EMAIL -->
           <div>
 
             <label for="email">
@@ -578,7 +478,6 @@
           </div>
 
 
-          <!-- MONTHLY INCOME -->
           <div>
 
             <label for="monthlyIncomeApplication">
@@ -596,74 +495,24 @@
 
           </div>
 
-
-          <!-- EMPLOYMENT TYPE -->
           <div>
-
-            <label for="employmentTypeApplication">
-              Employment Type
-            </label>
-
-            <select
-              id="employmentTypeApplication"
-              name="employment_type"
-              required
-            >
-
-              <option value="">
-                Select employment type
-              </option>
-
-              <option value="salaried">
-                Salaried / नौकरी
-              </option>
-
-              <option value="business">
-                Business / व्यवसाय
-              </option>
-
-              <option value="self_employed">
-                Self Employed / अपना काम
-              </option>
-
-              <option value="professional">
-                Professional
-              </option>
-
-              <option value="agriculture">
-                Agriculture / Farmer
-              </option>
-
-              <option value="shopkeeper">
-                Shopkeeper / Retail Business
-              </option>
-
-              <option value="freelancer">
-                Freelancer
-              </option>
-
-              <option value="pensioner">
-                Pensioner / Retired
-              </option>
-
-              <option value="homemaker">
-                Homemaker
-              </option>
-
-              <option value="student">
-                Student
-              </option>
-
-              <option value="other">
-                Other
-              </option>
-
+            <label for="employmentTypeApplication">Employment Type</label>
+            <select id="employmentTypeApplication" name="employment_type" required>
+              <option value="">Select employment type</option>
+              <option value="salaried">Salaried / नौकरी</option>
+              <option value="business">Business / व्यवसाय</option>
+              <option value="self_employed">Self Employed / अपना काम</option>
+              <option value="professional">Professional</option>
+              <option value="agriculture">Agriculture / Farmer</option>
+              <option value="shopkeeper">Shopkeeper / Retail Business</option>
+              <option value="freelancer">Freelancer</option>
+              <option value="pensioner">Pensioner / Retired</option>
+              <option value="homemaker">Homemaker</option>
+              <option value="student">Student</option>
+              <option value="other">Other</option>
             </select>
-
           </div>
 
-
-          <!-- LOAN AMOUNT -->
           <div>
 
             <label for="requestedAmountApplication">
@@ -682,7 +531,6 @@
           </div>
 
 
-          <!-- TENURE -->
           <div>
 
             <label for="tenureApplication">
@@ -726,7 +574,6 @@
         </div>
 
 
-        <!-- ADDRESS -->
         <label for="address">
           Address
         </label>
@@ -758,6 +605,7 @@
     </section>
 
 
+
     <!-- DOCUMENT UPLOAD -->
     <section
       id="documentUploadSection"
@@ -766,111 +614,71 @@
     >
 
       <div class="section-heading">
-
         <h2>Upload Documents</h2>
-
         <p>
           Upload the required documents for your loan application.
           JPG, PNG and PDF only. Maximum 5 MB per file.
         </p>
-
       </div>
-
 
       <div class="form-grid">
 
         <div>
-
-          <label for="documentApplicationId">
-            Application ID
-          </label>
-
+          <label for="documentApplicationId">Application ID</label>
           <input
             type="text"
             id="documentApplicationId"
             placeholder="SFL-XXXXXXXX"
             readonly
           />
-
         </div>
 
-
         <div>
-
-          <label for="identityProof">
-            Identity Proof
-          </label>
-
+          <label for="identityProof">Identity Proof</label>
           <input
             type="file"
             id="identityProof"
             accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
           />
-
         </div>
 
-
         <div>
-
-          <label for="panCard">
-            PAN Card
-          </label>
-
+          <label for="panCard">PAN Card</label>
           <input
             type="file"
             id="panCard"
             accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
           />
-
         </div>
 
-
         <div>
-
-          <label for="addressProof">
-            Address Proof
-          </label>
-
+          <label for="addressProof">Address Proof</label>
           <input
             type="file"
             id="addressProof"
             accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
           />
-
         </div>
 
-
         <div>
-
-          <label for="incomeProof">
-            Income Proof
-          </label>
-
+          <label for="incomeProof">Income Proof</label>
           <input
             type="file"
             id="incomeProof"
             accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
           />
-
         </div>
 
-
         <div>
-
-          <label for="applicantPhoto">
-            Applicant Photo
-          </label>
-
+          <label for="applicantPhoto">Applicant Photo</label>
           <input
             type="file"
             id="applicantPhoto"
             accept=".jpg,.jpeg,.png,image/jpeg,image/png"
           />
-
         </div>
 
       </div>
-
 
       <button
         type="button"
@@ -880,12 +688,10 @@
         Upload Documents
       </button>
 
-
       <div
         id="documentUploadMessage"
         class="message"
       ></div>
-
 
       <div
         id="documentUploadStatus"
@@ -894,7 +700,6 @@
       ></div>
 
     </section>
-
 
     <!-- CUSTOMER PORTAL -->
     <section class="card customer-card">
@@ -1022,6 +827,7 @@
     </section>
 
 
+
     <!-- PAYMENT SUMMARY -->
     <section
       id="paymentSummarySection"
@@ -1030,15 +836,11 @@
     >
 
       <div class="section-heading">
-
         <h2>Payment Summary</h2>
-
         <p>
           See how much you have paid and how much is still pending.
         </p>
-
       </div>
-
 
       <div class="summary-grid">
 
@@ -1083,7 +885,6 @@
       </div>
 
     </section>
-
 
     <!-- EMI SCHEDULE -->
     <section
