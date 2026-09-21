@@ -199,7 +199,7 @@ async function lookupLoan(event) {
   if (!/^\d{10}$/.test(mobile)) return showMessage("Valid 10-digit mobile number enter karein.", "error");
   try {
     if (message) message.textContent = "Loan details load ho rahi hain...";
-    const data = await apiRequest(`${API_BASE}/api/customer/loan`, { method: "POST", body: JSON.stringify({ application_id: applicationId, mobile }) });
+    const data = await apiRequest(`${API_BASE}/api/customer/loan?application_id=${encodeURIComponent(applicationId)}&mobile=${encodeURIComponent(mobile)}`);
     currentApplicationId = applicationId; currentMobile = mobile; currentLoan = getLoanObject(data);
     displayLoan(data);
     await loadPaymentHistory(false);
@@ -301,13 +301,21 @@ async function payEmi(installmentNo) {
   if (!currentApplicationId || !currentMobile) return showMessage("Pehle apni loan details lookup karein.", "error");
   const emi = currentEmiSchedule.find((item, index) => Number(item.installment_no ?? item.installment_number ?? item.emi_number ?? index + 1) === Number(installmentNo));
   const amount = Number(emi?.total_due ?? emi?.emi_amount ?? emi?.emi ?? emi?.total ?? 0);
-  if (!window.confirm(`EMI ${installmentNo} ke liye ${formatMoney(amount)} ka test payment karna hai?`)) return;
-  try {
-    showMessage("Payment process ho rahi hai...", "info");
-    const data = await apiRequest(`${API_BASE}/api/customer/pay-emi-test`, { method: "POST", body: JSON.stringify({ application_id: currentApplicationId, mobile: currentMobile, installment_no: Number(installmentNo), payment_method: "test" }) });
-    showMessage(data.message || "EMI payment successfully recorded.", "success");
-    await refreshLoan();
-  } catch (error) { console.error("payEmi:", error); showMessage(error.message, "error"); }
+  if (!amount || amount <= 0) return showMessage("EMI amount nahi mila.", "error");
+
+  const amountInput = document.getElementById("paymentAmount");
+  const methodInput = document.getElementById("paymentMethod");
+  const paymentSection = document.getElementById("paymentSection");
+
+  if (amountInput) amountInput.value = amount;
+  if (methodInput) methodInput.value = "";
+
+  if (paymentSection) {
+    paymentSection.style.display = "block";
+    paymentSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  showMessage(`EMI ${installmentNo} select ho gayi hai. Ab Payment Mode choose karke Pay EMI dabayein.`, "info");
 }
 
 async function handlePaymentForm(event) {
@@ -320,7 +328,11 @@ async function handlePaymentForm(event) {
   if (!nextEmi) return showMessage("Koi pending EMI nahi hai.", "success");
   const installmentNo = nextEmi.installment_no ?? nextEmi.installment_number ?? nextEmi.emi_number;
   const amount = Number(nextEmi.total_due ?? nextEmi.emi_amount ?? nextEmi.emi ?? nextEmi.total ?? 0);
-  if (amountInput) amountInput.value = amount;
+  if (amountInput && !amountInput.value) amountInput.value = amount;
+
+  const selectedMode = methodInput?.value || "";
+  if (!selectedMode) return showMessage("Please Payment Mode select karein.", "error");
+
   try {
     if (message) message.textContent = "Payment process ho rahi hai...";
     const data = await apiRequest(`${API_BASE}/api/customer/pay-emi-test`, { method: "POST", body: JSON.stringify({ application_id: currentApplicationId, mobile: currentMobile, installment_no: Number(installmentNo), payment_method: methodInput?.value || "test" }) });
@@ -363,7 +375,7 @@ function displayPaymentHistory(payments = []) {
 async function refreshLoan() {
   if (!currentApplicationId || !currentMobile) return showMessage("Pehle Application ID aur mobile number se loan lookup karein.", "error");
   try {
-    const data = await apiRequest(`${API_BASE}/api/customer/loan`, { method: "POST", body: JSON.stringify({ application_id: currentApplicationId, mobile: currentMobile }) });
+    const data = await apiRequest(`${API_BASE}/api/customer/loan?application_id=${encodeURIComponent(currentApplicationId)}&mobile=${encodeURIComponent(currentMobile)}`);
     currentLoan = getLoanObject(data); currentEmiSchedule = getScheduleFromData(data); displayLoan(data); await loadPaymentHistory(false); showMessage("Loan details refresh ho gayi.", "success");
   } catch (error) { console.error("refreshLoan:", error); showMessage(error.message, "error"); }
 }
@@ -383,20 +395,14 @@ async function checkEligibility(event) {
   const requestedAmount = Number(amountInput.value);
   const monthlyIncome = Number(incomeInput.value);
   const tenureMonths = Number(tenureInput.value);
-  const age = Number(document.getElementById("eligibilityAge")?.value || 0);
-  const employmentType = document.getElementById("employmentType")?.value || "";
-  const existingEmi = Number(document.getElementById("existingEmi")?.value || 0);
   if (name.length < 2) return showMessage("Please enter your full name.", "error");
   if (!/^\d{10}$/.test(mobile)) return showMessage("Please enter a valid 10-digit mobile number.", "error");
-  if (!Number.isFinite(age) || age < 18 || age > 80) return showMessage("Please enter a valid age.", "error");
-  if (!employmentType) return showMessage("Please select employment type.", "error");
-  if (!Number.isFinite(existingEmi) || existingEmi < 0) return showMessage("Please enter a valid existing EMI.", "error");
   if (!Number.isFinite(requestedAmount) || requestedAmount <= 0) return showMessage("Please enter a valid requested loan amount.", "error");
   if (!Number.isFinite(monthlyIncome) || monthlyIncome < 0) return showMessage("Please enter a valid monthly income.", "error");
   if (!Number.isFinite(tenureMonths) || tenureMonths < 1 || tenureMonths > 120) return showMessage("Tenure 1 se 120 months ke beech honi chahiye.", "error");
   try {
     showMessage("Eligibility check ho raha hai...", "info");
-    const data = await apiRequest(`${API_BASE}/api/eligibility`, { method: "POST", body: JSON.stringify({ full_name: name, mobile, age, employment_type: employmentType, existing_emi: existingEmi, monthly_income: monthlyIncome, requested_amount: requestedAmount, tenure_months: tenureMonths }) });
+    const data = await apiRequest(`${API_BASE}/api/eligibility`, { method: "POST", body: JSON.stringify({ full_name: name, mobile, age: 30, employment_type: "other", existing_emi: 0, monthly_income: monthlyIncome, requested_amount: requestedAmount, tenure_months: tenureMonths }) });
     const isEligible = data.eligible === true || data.eligibility_status === "likely_eligible";
     const needsReview = data.eligibility_status === "needs_review";
     setText("eligibilityTitle", isEligible ? "Preliminary Eligibility: Likely Eligible" : needsReview ? "Preliminary Eligibility: Review Required" : "Preliminary Eligibility: Not Eligible");
@@ -405,8 +411,6 @@ async function checkEligibility(event) {
     setText("estimatedRate", data.estimated_rate ?? data.estimatedRate ?? 12);
     setText("inquiryId", data.inquiry_id || data.inquiryId || "-");
     if (result) result.style.display = "block";
-    const loanApplication = document.getElementById("loanApplication");
-    if (loanApplication) loanApplication.style.display = "block";
     showEligibilityStep(3);
     showMessage("Preliminary eligibility result mil gaya.", "success");
   } catch (error) {
@@ -450,12 +454,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const inquiryForm = document.getElementById("inquiryForm");
   if (inquiryForm) inquiryForm.addEventListener("submit", submitInquiry);
   if (document.getElementById("eligibilityStep1")) showEligibilityStep(1);
-
-  const applyNowBtn = document.querySelector(".apply-now-btn");
-  if (applyNowBtn) applyNowBtn.addEventListener("click", () => {
-    const section = document.getElementById("loanApplication");
-    if (section) { section.style.display = "block"; setTimeout(() => section.scrollIntoView({behavior:"smooth", block:"start"}), 50); }
-  });
 });
 
 window.submitApplication = submitApplication;

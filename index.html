@@ -569,6 +569,8 @@
 
             </select>
 
+            <small class="payment-mode-note">Online payment ke liye UPI, Card ya Net Banking select karein.</small>
+
           </div>
 
         </div>
@@ -959,15 +961,19 @@
           <div>
 
             <label for="paymentMethod">
-              Payment Method
+              Payment Mode
             </label>
 
-            <select id="paymentMethod">
-
-              <option value="demo">
-                Demo Payment
-              </option>
-
+            <select id="paymentMethod" required>
+              <option value="">Select payment mode</option>
+              <option value="upi">UPI (Google Pay / PhonePe / Paytm)</option>
+              <option value="debit_card">Debit Card</option>
+              <option value="credit_card">Credit Card</option>
+              <option value="net_banking">Net Banking</option>
+              <option value="bank_transfer">Bank Transfer (NEFT / IMPS)</option>
+              <option value="cash">Cash (Office Payment)</option>
+              <option value="cheque">Cheque</option>
+              <option value="auto_debit">Auto Debit / NACH</option>
             </select>
 
           </div>
@@ -1011,7 +1017,7 @@
             <tr>
               <th>Date</th>
               <th>Amount</th>
-              <th>Method</th>
+              <th>Mode</th>
               <th>Reference</th>
               <th>Status</th>
             </tr>
