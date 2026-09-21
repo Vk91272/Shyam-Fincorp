@@ -784,6 +784,65 @@
     </section>
 
 
+
+    <!-- PAYMENT SUMMARY -->
+    <section
+      id="paymentSummarySection"
+      class="card"
+      style="display:none;"
+    >
+
+      <div class="section-heading">
+        <h2>Payment Summary</h2>
+        <p>
+          See how much you have paid and how much is still pending.
+        </p>
+      </div>
+
+      <div class="summary-grid">
+
+        <div>
+          <span>Total Payable</span>
+          <strong>
+            ₹<span id="totalPayableAmount">0</span>
+          </strong>
+        </div>
+
+        <div>
+          <span>Total Paid</span>
+          <strong>
+            ₹<span id="totalPaidAmount">0</span>
+          </strong>
+        </div>
+
+        <div>
+          <span>Total Pending</span>
+          <strong>
+            ₹<span id="totalPendingAmount">0</span>
+          </strong>
+        </div>
+
+        <div>
+          <span>EMI Paid</span>
+          <strong id="paidEmiCount">0</strong>
+        </div>
+
+        <div>
+          <span>EMI Pending</span>
+          <strong id="pendingEmiCount">0</strong>
+        </div>
+
+        <div>
+          <span>Payment Progress</span>
+          <strong>
+            <span id="paymentProgress">0</span>%
+          </strong>
+        </div>
+
+      </div>
+
+    </section>
+
     <!-- EMI SCHEDULE -->
     <section
       id="emiScheduleSection"
@@ -835,55 +894,30 @@
 
 
       <form id="paymentForm">
-
         <div class="form-grid">
-
           <div>
-
-            <label for="paymentAmount">
-              Amount
-            </label>
-
-            <input
-              type="number"
-              id="paymentAmount"
-              min="1"
-              required
-            />
-
+            <label for="paymentInstallment">Select EMI</label>
+            <select id="paymentInstallment" required><option value="">Select EMI</option></select>
           </div>
-
-
           <div>
-
-            <label for="paymentMethod">
-              Payment Mode
-            </label>
-
+            <label for="paymentAmount">Amount</label>
+            <input type="number" id="paymentAmount" min="1" readonly required />
+          </div>
+          <div>
+            <label for="paymentMethod">Payment Mode</label>
             <select id="paymentMethod" required>
-              <option value="">Select Payment Mode</option>
-              <option value="upi">UPI (Google Pay / PhonePe / Paytm)</option>
+              <option value="upi">UPI — Google Pay / PhonePe / Paytm</option>
               <option value="debit_card">Debit Card</option>
               <option value="credit_card">Credit Card</option>
               <option value="net_banking">Net Banking</option>
-              <option value="bank_transfer">Bank Transfer (NEFT / IMPS)</option>
-              <option value="cash">Cash (Office Payment)</option>
+              <option value="bank_transfer">Bank Transfer — NEFT / IMPS</option>
+              <option value="cash">Cash — Office Payment</option>
               <option value="cheque">Cheque</option>
               <option value="auto_debit">Auto Debit / NACH</option>
             </select>
-
           </div>
-
         </div>
-
-
-        <button
-          type="submit"
-          class="primary-btn"
-        >
-          Pay EMI
-        </button>
-
+        <button type="submit" class="primary-btn">Pay EMI</button>
       </form>
 
 
@@ -913,7 +947,7 @@
             <tr>
               <th>Date</th>
               <th>Amount</th>
-              <th>Payment Mode</th>
+              <th>Method</th>
               <th>Reference</th>
               <th>Status</th>
             </tr>
