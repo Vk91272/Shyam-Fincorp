@@ -106,11 +106,17 @@ function showEligibilityStep(step) {
   const step2 = document.getElementById("eligibilityStep2");
   const step3 = document.getElementById("eligibilityStep3");
 
-  const indicator1 = document.getElementById("eligibilityIndicator1");
-  const indicator2 = document.getElementById("eligibilityIndicator2");
-  const indicator3 = document.getElementById("eligibilityIndicator3");
+  const indicator1 =
+    document.getElementById("eligibilityIndicator1");
 
-  const progress = document.getElementById("eligibilityProgress");
+  const indicator2 =
+    document.getElementById("eligibilityIndicator2");
+
+  const indicator3 =
+    document.getElementById("eligibilityIndicator3");
+
+  const progress =
+    document.getElementById("eligibilityProgress");
 
   [step1, step2, step3].forEach(function (el) {
     if (el) el.style.display = "none";
@@ -123,7 +129,10 @@ function showEligibilityStep(step) {
   if (step === 1) {
 
     if (step1) step1.style.display = "block";
-    if (indicator1) indicator1.classList.add("active");
+
+    if (indicator1) {
+      indicator1.classList.add("active");
+    }
 
     if (progress) {
       progress.style.width = "33%";
@@ -133,8 +142,14 @@ function showEligibilityStep(step) {
   if (step === 2) {
 
     if (step2) step2.style.display = "block";
-    if (indicator1) indicator1.classList.add("active");
-    if (indicator2) indicator2.classList.add("active");
+
+    if (indicator1) {
+      indicator1.classList.add("active");
+    }
+
+    if (indicator2) {
+      indicator2.classList.add("active");
+    }
 
     if (progress) {
       progress.style.width = "66%";
@@ -144,9 +159,18 @@ function showEligibilityStep(step) {
   if (step === 3) {
 
     if (step3) step3.style.display = "block";
-    if (indicator1) indicator1.classList.add("active");
-    if (indicator2) indicator2.classList.add("active");
-    if (indicator3) indicator3.classList.add("active");
+
+    if (indicator1) {
+      indicator1.classList.add("active");
+    }
+
+    if (indicator2) {
+      indicator2.classList.add("active");
+    }
+
+    if (indicator3) {
+      indicator3.classList.add("active");
+    }
 
     if (progress) {
       progress.style.width = "100%";
@@ -157,8 +181,11 @@ function showEligibilityStep(step) {
 
 function nextStep1() {
 
-  const name = document.getElementById("eligibilityName");
-  const mobile = document.getElementById("eligibilityMobile");
+  const name =
+    document.getElementById("eligibilityName");
+
+  const mobile =
+    document.getElementById("eligibilityMobile");
 
   if (!name || !mobile) return;
 
@@ -196,270 +223,309 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (eligibilityForm) {
 
-    eligibilityForm.addEventListener("submit", async function (event) {
+    eligibilityForm.addEventListener(
+      "submit",
+      async function (event) {
 
-      event.preventDefault();
+        event.preventDefault();
 
-      const name =
-        document.getElementById("eligibilityName")?.value.trim();
+        const name =
+          document.getElementById(
+            "eligibilityName"
+          )?.value.trim();
 
-      const mobile =
-        document.getElementById("eligibilityMobile")?.value.trim();
+        const mobile =
+          document.getElementById(
+            "eligibilityMobile"
+          )?.value.trim();
 
-      const income =
-        document.getElementById("eligibilityIncome")?.value;
+        const income =
+          document.getElementById(
+            "eligibilityIncome"
+          )?.value;
 
-      const existingEmi =
-        document.getElementById("eligibilityExistingEmi")?.value || 0;
+        const existingEmi =
+          document.getElementById(
+            "eligibilityExistingEmi"
+          )?.value || 0;
 
-      const amount =
-        document.getElementById("eligibilityAmount")?.value;
+        const amount =
+          document.getElementById(
+            "eligibilityAmount"
+          )?.value;
 
-      const tenure =
-        document.getElementById("eligibilityTenure")?.value;
-
-
-      if (!name) {
-        alert("Please enter your full name.");
-        return;
-      }
-
-      if (!/^[0-9]{10}$/.test(mobile)) {
-        alert("Please enter a valid 10 digit mobile number.");
-        return;
-      }
-
-      if (!income || Number(income) <= 0) {
-        alert("Please enter monthly income.");
-        return;
-      }
-
-      if (!amount || Number(amount) <= 0) {
-        alert("Please enter requested loan amount.");
-        return;
-      }
-
-      if (!tenure) {
-        alert("Please select loan tenure.");
-        return;
-      }
+        const tenure =
+          document.getElementById(
+            "eligibilityTenure"
+          )?.value;
 
 
-      const button =
-        document.getElementById("eligibilityButton");
+        if (!name) {
+          alert("Please enter your full name.");
+          return;
+        }
 
-      if (button) {
-        button.disabled = true;
-        button.textContent = "Checking...";
-      }
+        if (!/^[0-9]{10}$/.test(mobile)) {
+          alert("Please enter a valid 10 digit mobile number.");
+          return;
+        }
 
+        if (!income || Number(income) <= 0) {
+          alert("Please enter monthly income.");
+          return;
+        }
 
-      try {
+        if (!amount || Number(amount) <= 0) {
+          alert("Please enter requested loan amount.");
+          return;
+        }
 
-        const response = await fetch(
-          `${API_BASE}/api/eligibility`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              full_name: name,
-              mobile: mobile,
-              email: "",
-              age: 30,
-              employment_type: "other",
-              monthly_income: Number(income),
-              existing_emi: Number(existingEmi),
-              requested_amount: Number(amount),
-              tenure_months: Number(tenure)
-            })
-          }
-        );
+        if (!tenure) {
+          alert("Please select loan tenure.");
+          return;
+        }
 
 
-        const data = await response.json();
-
-
-        if (!response.ok) {
-          throw new Error(
-            data.message ||
-            data.error ||
-            "Eligibility check failed."
+        const button =
+          document.getElementById(
+            "eligibilityButton"
           );
-        }
-
-
-        /* RESULT */
-
-        const inquiryId =
-          document.getElementById("inquiryId");
-
-        const estimatedRate =
-          document.getElementById("estimatedRate");
-
-        const estimatedEmi =
-          document.getElementById("estimatedEmi");
-
-        const resultTitle =
-          document.getElementById("eligibilityResultTitle");
-
-        const resultMessage =
-          document.getElementById("eligibilityResultMessage");
-
-        const resultIcon =
-          document.getElementById("eligibilityResultIcon");
-
-
-        if (inquiryId) {
-          inquiryId.textContent =
-            data.inquiry_id || data.inquiryId || "-";
-        }
-
-        if (estimatedRate) {
-          estimatedRate.textContent =
-            (data.estimated_interest_rate ??
-              data.estimatedRate ??
-              12) + "%";
-        }
-
-        if (estimatedEmi) {
-          estimatedEmi.textContent =
-            formatMoney(
-              data.estimated_emi ??
-              data.estimatedEmi ??
-              0
-            );
-        }
-
-
-        const status =
-          data.eligibility_status ||
-          data.status ||
-          "";
-
-
-        if (status === "likely_eligible") {
-
-          if (resultIcon) resultIcon.textContent = "✓";
-
-          if (resultTitle) {
-            resultTitle.textContent =
-              "Preliminary Eligibility Result";
-          }
-
-          if (resultMessage) {
-            resultMessage.textContent =
-              data.eligibility_reason ||
-              "Based on the information provided, you may be eligible for further loan application review.";
-          }
-
-        } else if (status === "needs_review") {
-
-          if (resultIcon) resultIcon.textContent = "ℹ";
-
-          if (resultTitle) {
-            resultTitle.textContent =
-              "Additional Review Required";
-          }
-
-          if (resultMessage) {
-            resultMessage.textContent =
-              data.eligibility_reason ||
-              "Your information requires additional review before proceeding.";
-          }
-
-        } else {
-
-          if (resultIcon) resultIcon.textContent = "✕";
-
-          if (resultTitle) {
-            resultTitle.textContent =
-              "Preliminary Result";
-          }
-
-          if (resultMessage) {
-            resultMessage.textContent =
-              data.eligibility_reason ||
-              "Based on the information provided, the preliminary criteria were not met.";
-          }
-        }
-
-
-        showEligibilityStep(3);
-
-
-        /* Continue Application Button */
-
-        const resultBox =
-          document.getElementById("eligibilityResult");
-
-        if (resultBox) {
-
-          const oldButton =
-            document.getElementById(
-              "continueApplicationButton"
-            );
-
-          if (oldButton) {
-            oldButton.remove();
-          }
-
-
-          const continueButton =
-            document.createElement("button");
-
-          continueButton.id =
-            "continueApplicationButton";
-
-          continueButton.type = "button";
-
-          continueButton.className =
-            "btn btn-primary next-screen-btn";
-
-          continueButton.textContent =
-            "Continue to Loan Application →";
-
-          continueButton.onclick = function () {
-
-            const applicationMobile =
-              document.getElementById("applicationMobile");
-
-            const applicationName =
-              document.getElementById("applicationName");
-
-            if (applicationMobile) {
-              applicationMobile.value = mobile;
-            }
-
-            if (applicationName) {
-              applicationName.value = name;
-            }
-
-            openScreen("loanApplication");
-          };
-
-
-          resultBox.appendChild(continueButton);
-        }
-
-      } catch (error) {
-
-        console.error(error);
-
-        alert(
-          error.message ||
-          "Unable to check eligibility."
-        );
-
-      } finally {
 
         if (button) {
-          button.disabled = false;
-          button.textContent = "Check Eligibility";
+          button.disabled = true;
+          button.textContent = "Checking...";
+        }
+
+
+        try {
+
+          const response = await fetch(
+            `${API_BASE}/api/eligibility`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                full_name: name,
+                mobile: mobile,
+                email: "",
+                age: 30,
+                employment_type: "other",
+                monthly_income: Number(income),
+                existing_emi: Number(existingEmi),
+                requested_amount: Number(amount),
+                tenure_months: Number(tenure)
+              })
+            }
+          );
+
+
+          const data =
+            await response.json();
+
+
+          if (!response.ok) {
+            throw new Error(
+              data.message ||
+              data.error ||
+              "Eligibility check failed."
+            );
+          }
+
+
+          const inquiryId =
+            document.getElementById("inquiryId");
+
+          const estimatedRate =
+            document.getElementById("estimatedRate");
+
+          const estimatedEmi =
+            document.getElementById("estimatedEmi");
+
+          const resultTitle =
+            document.getElementById(
+              "eligibilityResultTitle"
+            );
+
+          const resultMessage =
+            document.getElementById(
+              "eligibilityResultMessage"
+            );
+
+          const resultIcon =
+            document.getElementById(
+              "eligibilityResultIcon"
+            );
+
+
+          if (inquiryId) {
+            inquiryId.textContent =
+              data.inquiry_id ||
+              data.inquiryId ||
+              "-";
+          }
+
+          if (estimatedRate) {
+            estimatedRate.textContent =
+              (
+                data.estimated_interest_rate ??
+                data.estimatedRate ??
+                12
+              ) + "%";
+          }
+
+          if (estimatedEmi) {
+            estimatedEmi.textContent =
+              formatMoney(
+                data.estimated_emi ??
+                data.estimatedEmi ??
+                0
+              );
+          }
+
+
+          const status =
+            data.eligibility_status ||
+            data.status ||
+            "";
+
+
+          if (status === "likely_eligible") {
+
+            if (resultIcon) {
+              resultIcon.textContent = "✓";
+            }
+
+            if (resultTitle) {
+              resultTitle.textContent =
+                "Preliminary Eligibility Result";
+            }
+
+            if (resultMessage) {
+              resultMessage.textContent =
+                data.eligibility_reason ||
+                "Based on the information provided, you may be eligible for further loan application review.";
+            }
+
+          } else if (status === "needs_review") {
+
+            if (resultIcon) {
+              resultIcon.textContent = "ℹ";
+            }
+
+            if (resultTitle) {
+              resultTitle.textContent =
+                "Additional Review Required";
+            }
+
+            if (resultMessage) {
+              resultMessage.textContent =
+                data.eligibility_reason ||
+                "Your information requires additional review before proceeding.";
+            }
+
+          } else {
+
+            if (resultIcon) {
+              resultIcon.textContent = "✕";
+            }
+
+            if (resultTitle) {
+              resultTitle.textContent =
+                "Preliminary Result";
+            }
+
+            if (resultMessage) {
+              resultMessage.textContent =
+                data.eligibility_reason ||
+                "Based on the information provided, the preliminary criteria were not met.";
+            }
+          }
+
+
+          showEligibilityStep(3);
+
+
+          const resultBox =
+            document.getElementById(
+              "eligibilityResult"
+            );
+
+          if (resultBox) {
+
+            const oldButton =
+              document.getElementById(
+                "continueApplicationButton"
+              );
+
+            if (oldButton) {
+              oldButton.remove();
+            }
+
+
+            const continueButton =
+              document.createElement("button");
+
+            continueButton.id =
+              "continueApplicationButton";
+
+            continueButton.type = "button";
+
+            continueButton.className =
+              "btn btn-primary next-screen-btn";
+
+            continueButton.textContent =
+              "Continue to Loan Application →";
+
+            continueButton.onclick = function () {
+
+              const applicationMobile =
+                document.getElementById(
+                  "applicationMobile"
+                );
+
+              const applicationName =
+                document.getElementById(
+                  "applicationName"
+                );
+
+              if (applicationMobile) {
+                applicationMobile.value = mobile;
+              }
+
+              if (applicationName) {
+                applicationName.value = name;
+              }
+
+              openScreen("loanApplication");
+            };
+
+
+            resultBox.appendChild(
+              continueButton
+            );
+          }
+
+        } catch (error) {
+
+          console.error(error);
+
+          alert(
+            error.message ||
+            "Unable to check eligibility."
+          );
+
+        } finally {
+
+          if (button) {
+            button.disabled = false;
+            button.textContent =
+              "Check Eligibility";
+          }
         }
       }
-    });
+    );
   }
 
 
@@ -468,7 +534,9 @@ document.addEventListener("DOMContentLoaded", function () {
      ======================================================= */
 
   const loanApplicationForm =
-    document.getElementById("loanApplicationForm");
+    document.getElementById(
+      "loanApplicationForm"
+    );
 
 
   if (loanApplicationForm) {
@@ -488,14 +556,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (submitButton) {
           submitButton.disabled = true;
-          submitButton.textContent = "Submitting...";
+          submitButton.textContent =
+            "Submitting...";
         }
 
 
         try {
 
           const formData =
-            new FormData(loanApplicationForm);
+            new FormData(
+              loanApplicationForm
+            );
 
 
           const payload = {
@@ -512,22 +583,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
             monthly_income:
               Number(
-                formData.get("monthly_income") ||
-                formData.get("monthlyIncome") ||
+                formData.get(
+                  "monthly_income"
+                ) ||
+                formData.get(
+                  "monthlyIncome"
+                ) ||
                 0
               ),
 
             requested_amount:
               Number(
-                formData.get("requested_amount") ||
-                formData.get("requestedAmount") ||
+                formData.get(
+                  "requested_amount"
+                ) ||
+                formData.get(
+                  "requestedAmount"
+                ) ||
                 0
               ),
 
             tenure_months:
               Number(
-                formData.get("tenure_months") ||
-                formData.get("tenureMonths") ||
+                formData.get(
+                  "tenure_months"
+                ) ||
+                formData.get(
+                  "tenureMonths"
+                ) ||
                 0
               ),
 
@@ -536,19 +619,23 @@ document.addEventListener("DOMContentLoaded", function () {
           };
 
 
-          const response = await fetch(
-            `${API_BASE}/api/applications`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(payload)
-            }
-          );
+          const response =
+            await fetch(
+              `${API_BASE}/api/applications`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+                body:
+                  JSON.stringify(payload)
+              }
+            );
 
 
-          const data = await response.json();
+          const data =
+            await response.json();
 
 
           if (!response.ok) {
@@ -565,7 +652,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
           const applicationIdBox =
-            document.getElementById("applicationSuccessId");
+            document.getElementById(
+              "applicationSuccessId"
+            );
 
           if (applicationIdBox) {
             applicationIdBox.textContent =
@@ -594,7 +683,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
           setTimeout(function () {
-            openScreen("documentUploadSection");
+
+            openScreen(
+              "documentUploadSection"
+            );
+
           }, 300);
 
 
@@ -610,7 +703,9 @@ document.addEventListener("DOMContentLoaded", function () {
         } finally {
 
           if (submitButton) {
+
             submitButton.disabled = false;
+
             submitButton.textContent =
               "Submit Loan Application";
           }
@@ -620,9 +715,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  /* =======================================================
+  /* =========================================================
      CUSTOMER LOAN LOOKUP
-     ======================================================= */
+     ========================================================= */
 
   const lookupForm =
     document.getElementById("lookupForm");
@@ -641,6 +736,7 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById(
             "customerMobile"
           )?.value.trim();
+
 
         const applicationId =
           document.getElementById(
@@ -670,22 +766,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
 
-          const response = await fetch(
-            `${API_BASE}/api/customer/loan`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                mobile: mobile,
-                application_id: applicationId
-              })
-            }
-          );
+          const response =
+            await fetch(
+              `${API_BASE}/api/customer/loan`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+                body:
+                  JSON.stringify({
+                    mobile:
+                      mobile,
+
+                    application_id:
+                      applicationId
+                  })
+              }
+            );
 
 
-          const data = await response.json();
+          const data =
+            await response.json();
 
 
           if (!response.ok) {
@@ -698,12 +801,17 @@ document.addEventListener("DOMContentLoaded", function () {
           }
 
 
-          currentCustomerMobile = mobile;
-          currentApplicationId = applicationId;
+          currentCustomerMobile =
+            mobile;
+
+          currentApplicationId =
+            applicationId;
+
 
           displayLoan(data);
 
           openLoanDashboard();
+
 
           alert(
             "Loan details loaded successfully."
@@ -733,7 +841,9 @@ document.addEventListener("DOMContentLoaded", function () {
 function displayLoan(data) {
 
   const loan =
-    data.loan || data.application || {};
+    data.loan ||
+    data.application ||
+    {};
 
   const schedule =
     data.schedule ||
@@ -757,47 +867,71 @@ function displayLoan(data) {
   /* Loan summary */
 
   const account =
-    document.getElementById("displayLoanAccount");
+    document.getElementById(
+      "displayLoanAccount"
+    );
 
   const application =
-    document.getElementById("displayApplicationId");
+    document.getElementById(
+      "displayApplicationId"
+    );
 
   const customerName =
-    document.getElementById("displayCustomerName");
+    document.getElementById(
+      "displayCustomerName"
+    );
 
   const principal =
-    document.getElementById("displayLoanAmount");
+    document.getElementById(
+      "displayLoanAmount"
+    );
 
   const interest =
-    document.getElementById("displayInterestRate");
+    document.getElementById(
+      "displayInterestRate"
+    );
 
   const tenure =
-    document.getElementById("displayTenure");
+    document.getElementById(
+      "displayTenure"
+    );
 
   const emi =
-    document.getElementById("displayEmi");
+    document.getElementById(
+      "displayEmi"
+    );
 
   const outstanding =
-    document.getElementById("displayOutstanding");
+    document.getElementById(
+      "displayOutstanding"
+    );
 
   const status =
-    document.getElementById("displayLoanStatus");
+    document.getElementById(
+      "displayLoanStatus"
+    );
 
 
   if (account) {
     account.textContent =
-      currentLoanAccountId || "-";
+      currentLoanAccountId ||
+      "-";
   }
+
 
   if (application) {
     application.textContent =
-      currentApplicationId || "-";
+      currentApplicationId ||
+      "-";
   }
+
 
   if (customerName) {
     customerName.textContent =
-      loan.full_name || "-";
+      loan.full_name ||
+      "-";
   }
+
 
   if (principal) {
     principal.textContent =
@@ -809,10 +943,13 @@ function displayLoan(data) {
       );
   }
 
+
   if (interest) {
     interest.textContent =
-      (loan.interest_rate || 0) + "%";
+      (loan.interest_rate || 0) +
+      "%";
   }
+
 
   if (tenure) {
     tenure.textContent =
@@ -820,14 +957,18 @@ function displayLoan(data) {
       " Months";
   }
 
+
   if (emi) {
     emi.textContent =
       formatMoney(
         loan.emi ||
         loan.monthly_emi ||
+        loan.emi_amount ||
+        loan.monthlyEmi ||
         0
       );
   }
+
 
   if (outstanding) {
     outstanding.textContent =
@@ -838,17 +979,23 @@ function displayLoan(data) {
       );
   }
 
+
   if (status) {
     status.textContent =
-      loan.status || "-";
+      loan.status ||
+      "-";
   }
 
 
   displayEmiSchedule(schedule);
 
-  populatePaymentInstallments(schedule);
+  populatePaymentInstallments(
+    schedule
+  );
 
-  updatePaymentSummary(loan);
+  updatePaymentSummary(
+    loan
+  );
 
   refreshPaymentHistory();
 }
@@ -865,11 +1012,14 @@ function displayEmiSchedule(schedule) {
       "emiScheduleContainer"
     );
 
+
   if (!container) return;
 
 
-  if (!Array.isArray(schedule) ||
-      schedule.length === 0) {
+  if (
+    !Array.isArray(schedule) ||
+    schedule.length === 0
+  ) {
 
     container.innerHTML =
       "<p>No EMI schedule available.</p>";
@@ -878,53 +1028,65 @@ function displayEmiSchedule(schedule) {
   }
 
 
-  container.innerHTML = schedule.map(
-    function (item, index) {
+  container.innerHTML =
+    schedule.map(
+      function (item, index) {
 
-      const installment =
-        item.installment_no ||
-        item.installment ||
-        index + 1;
-
-      const dueDate =
-        item.due_date ||
-        item.dueDate ||
-        "-";
-
-      const amount =
-        item.emi ||
-        item.amount ||
-        item.emi_amount ||
-        0;
-
-      const itemStatus =
-        item.status ||
-        "pending";
+        const installment =
+          item.installment_no ||
+          item.installment ||
+          item.installmentNumber ||
+          index + 1;
 
 
-      return `
-        <div class="emi-row">
+        const dueDate =
+          item.due_date ||
+          item.dueDate ||
+          "-";
 
-          <div>
-            <strong>EMI ${installment}</strong>
+
+        const amount =
+          Number(
+            item.emi ||
+            item.monthly_emi ||
+            item.amount ||
+            item.emi_amount ||
+            item.installment_amount ||
+            item.payment_amount ||
+            0
+          );
+
+
+        const itemStatus =
+          item.status ||
+          "pending";
+
+
+        return `
+          <div class="emi-row">
+
+            <div>
+              <strong>
+                EMI ${installment}
+              </strong>
+            </div>
+
+            <div>
+              ${dueDate}
+            </div>
+
+            <div>
+              ${formatMoney(amount)}
+            </div>
+
+            <div>
+              ${itemStatus}
+            </div>
+
           </div>
-
-          <div>
-            ${dueDate}
-          </div>
-
-          <div>
-            ${formatMoney(amount)}
-          </div>
-
-          <div>
-            ${itemStatus}
-          </div>
-
-        </div>
-      `;
-    }
-  ).join("");
+        `;
+      }
+    ).join("");
 }
 
 
@@ -932,12 +1094,15 @@ function displayEmiSchedule(schedule) {
    PAYMENT INSTALLMENTS
    ========================================================= */
 
-function populatePaymentInstallments(schedule) {
+function populatePaymentInstallments(
+  schedule
+) {
 
   const select =
     document.getElementById(
       "paymentInstallment"
     );
+
 
   if (!select) return;
 
@@ -946,7 +1111,9 @@ function populatePaymentInstallments(schedule) {
     '<option value="">Select EMI</option>';
 
 
-  if (!Array.isArray(schedule)) return;
+  if (!Array.isArray(schedule)) {
+    return;
+  }
 
 
   schedule.forEach(
@@ -955,17 +1122,30 @@ function populatePaymentInstallments(schedule) {
       const installment =
         item.installment_no ||
         item.installment ||
+        item.installmentNumber ||
         index + 1;
 
+
       const amount =
-        item.emi ||
-        item.amount ||
-        item.emi_amount ||
-        0;
+        Number(
+          item.emi ||
+          item.monthly_emi ||
+          item.amount ||
+          item.emi_amount ||
+          item.installment_amount ||
+          item.payment_amount ||
+          0
+        );
+
 
       const status =
-        item.status || "pending";
+        String(
+          item.status ||
+          "pending"
+        ).toLowerCase();
 
+
+      /* Already paid EMI ko hide karo */
 
       if (
         status === "paid" ||
@@ -976,24 +1156,54 @@ function populatePaymentInstallments(schedule) {
 
 
       const option =
-        document.createElement("option");
+        document.createElement(
+          "option"
+        );
 
-      option.value = installment;
 
-      option.dataset.amount = amount;
+      option.value =
+        installment;
+
+
+      option.dataset.amount =
+        amount;
+
 
       option.textContent =
         `EMI ${installment} - ${formatMoney(amount)}`;
 
-      select.appendChild(option);
+
+      select.appendChild(
+        option
+      );
     }
   );
 
 
-  select.addEventListener(
-    "change",
-    updatePaymentSummary
-  );
+  /*
+     Important:
+     Purane event listener ki jagah
+     onchange use kar rahe hain,
+     taki refresh ke baad multiple
+     listeners na bane.
+  */
+
+  select.onchange =
+    updatePaymentSummary;
+
+
+  /*
+     Automatically first unpaid EMI select karo
+  */
+
+  if (
+    select.options.length > 1
+  ) {
+
+    select.selectedIndex = 1;
+
+    updatePaymentSummary();
+  }
 }
 
 
@@ -1001,32 +1211,15 @@ function populatePaymentInstallments(schedule) {
    PAYMENT SUMMARY
    ========================================================= */
 
-function updatePaymentSummary(loan) {
-
-  if (loan) {
-
-    const amount =
-      loan.emi ||
-      loan.monthly_emi ||
-      0;
-
-    const paymentAmount =
-      document.getElementById(
-        "paymentAmount"
-      );
-
-    if (paymentAmount &&
-        !paymentAmount.value) {
-
-      paymentAmount.value = amount;
-    }
-  }
-
+function updatePaymentSummary(
+  loan
+) {
 
   const installment =
     document.getElementById(
       "paymentInstallment"
     );
+
 
   const amountField =
     document.getElementById(
@@ -1034,20 +1227,77 @@ function updatePaymentSummary(loan) {
     );
 
 
+  if (!amountField) {
+    return;
+  }
+
+
+  /*
+     FIRST PRIORITY:
+     Selected EMI schedule ka amount
+  */
+
   if (
     installment &&
-    amountField &&
-    installment.selectedOptions[0]
+    installment.selectedOptions &&
+    installment.selectedOptions[0] &&
+    installment.selectedOptions[0].dataset.amount
   ) {
 
-    const amount =
-      installment.selectedOptions[0]
-        .dataset.amount;
+    const selectedAmount =
+      Number(
+        installment.selectedOptions[0]
+          .dataset.amount
+      );
 
-    if (amount) {
-      amountField.value = amount;
+
+    if (
+      selectedAmount > 0
+    ) {
+
+      amountField.value =
+        selectedAmount;
+
+      return;
     }
   }
+
+
+  /*
+     SECOND PRIORITY:
+     Loan EMI amount
+  */
+
+  if (loan) {
+
+    const loanEmi =
+      Number(
+        loan.emi ||
+        loan.monthly_emi ||
+        loan.emi_amount ||
+        loan.monthlyEmi ||
+        0
+      );
+
+
+    if (
+      loanEmi > 0
+    ) {
+
+      amountField.value =
+        loanEmi;
+
+      return;
+    }
+  }
+
+
+  /*
+     Agar kahin se EMI amount
+     available nahi hai
+  */
+
+  amountField.value = 0;
 }
 
 
@@ -1080,19 +1330,24 @@ document.addEventListener(
             "paymentInstallment"
           )?.value;
 
+
         const amount =
           document.getElementById(
             "paymentAmount"
           )?.value;
 
+
         const paymentMode =
           document.getElementById(
             "paymentMode"
-          )?.value || "test";
+          )?.value ||
+          "test";
 
 
-        if (!currentApplicationId &&
-            !currentLoanAccountId) {
+        if (
+          !currentApplicationId &&
+          !currentLoanAccountId
+        ) {
 
           alert(
             "Please check your loan first."
@@ -1112,7 +1367,10 @@ document.addEventListener(
         }
 
 
-        if (!amount || Number(amount) <= 0) {
+        if (
+          !amount ||
+          Number(amount) <= 0
+        ) {
 
           alert(
             "Please enter a valid payment amount."
@@ -1129,7 +1387,9 @@ document.addEventListener(
 
 
         if (button) {
+
           button.disabled = true;
+
           button.textContent =
             "Processing...";
         }
@@ -1137,36 +1397,41 @@ document.addEventListener(
 
         try {
 
-          const response = await fetch(
-            `${API_BASE}/api/customer/pay-emi-test`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
+          const response =
+            await fetch(
+              `${API_BASE}/api/customer/pay-emi-test`,
+              {
+                method: "POST",
 
-                application_id:
-                  currentApplicationId,
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
 
-                loan_account_id:
-                  currentLoanAccountId,
+                body:
+                  JSON.stringify({
 
-                mobile:
-                  currentCustomerMobile,
+                    application_id:
+                      currentApplicationId,
 
-                installment_no:
-                  Number(installment),
+                    loan_account_id:
+                      currentLoanAccountId,
 
-                amount:
-                  Number(amount),
+                    mobile:
+                      currentCustomerMobile,
 
-                payment_method:
-                  paymentMode
+                    installment_no:
+                      Number(installment),
 
-              })
-            }
-          );
+                    amount:
+                      Number(amount),
+
+                    payment_method:
+                      paymentMode
+
+                  })
+              }
+            );
 
 
           const data =
@@ -1190,6 +1455,7 @@ document.addEventListener(
 
           paymentForm.reset();
 
+
           await refreshCustomerLoan();
 
           await refreshPaymentHistory();
@@ -1204,10 +1470,13 @@ document.addEventListener(
             "Unable to process payment."
           );
 
+
         } finally {
 
           if (button) {
+
             button.disabled = false;
+
             button.textContent =
               "Pay EMI";
           }
@@ -1234,34 +1503,42 @@ async function refreshCustomerLoan() {
 
   try {
 
-    const response = await fetch(
-      `${API_BASE}/api/customer/loan`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
+    const response =
+      await fetch(
+        `${API_BASE}/api/customer/loan`,
+        {
+          method: "POST",
 
-          mobile:
-            currentCustomerMobile,
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-          application_id:
-            currentApplicationId
+          body:
+            JSON.stringify({
 
-        })
-      }
-    );
+              mobile:
+                currentCustomerMobile,
+
+              application_id:
+                currentApplicationId
+
+            })
+        }
+      );
 
 
     const data =
       await response.json();
 
 
-    if (!response.ok) return;
+    if (!response.ok) {
+      return;
+    }
 
 
     displayLoan(data);
+
 
   } catch (error) {
 
@@ -1279,8 +1556,10 @@ async function refreshCustomerLoan() {
 
 async function refreshPaymentHistory() {
 
-  if (!currentApplicationId &&
-      !currentLoanAccountId) {
+  if (
+    !currentApplicationId &&
+    !currentLoanAccountId
+  ) {
     return;
   }
 
@@ -1291,32 +1570,39 @@ async function refreshPaymentHistory() {
     );
 
 
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
 
   try {
 
-    const response = await fetch(
-      `${API_BASE}/api/customer/payment-history`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
+    const response =
+      await fetch(
+        `${API_BASE}/api/customer/payment-history`,
+        {
+          method: "POST",
 
-          application_id:
-            currentApplicationId,
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-          loan_account_id:
-            currentLoanAccountId,
+          body:
+            JSON.stringify({
 
-          mobile:
-            currentCustomerMobile
+              application_id:
+                currentApplicationId,
 
-        })
-      }
-    );
+              loan_account_id:
+                currentLoanAccountId,
+
+              mobile:
+                currentCustomerMobile
+
+            })
+        }
+      );
 
 
     const data =
@@ -1335,8 +1621,10 @@ async function refreshPaymentHistory() {
       [];
 
 
-    if (!Array.isArray(history) ||
-        history.length === 0) {
+    if (
+      !Array.isArray(history) ||
+      history.length === 0
+    ) {
 
       container.innerHTML =
         "<p>No payment history found.</p>";
@@ -1354,7 +1642,10 @@ async function refreshPaymentHistory() {
 
               <div>
                 <strong>
-                  EMI ${item.installment_no || "-"}
+                  EMI ${
+                    item.installment_no ||
+                    "-"
+                  }
                 </strong>
               </div>
 
@@ -1365,13 +1656,18 @@ async function refreshPaymentHistory() {
               </div>
 
               <div>
-                ${item.payment_date ||
+                ${
+                  item.payment_date ||
                   item.created_at ||
-                  "-"}
+                  "-"
+                }
               </div>
 
               <div>
-                ${item.status || "paid"}
+                ${
+                  item.status ||
+                  "paid"
+                }
               </div>
 
             </div>
@@ -1404,7 +1700,9 @@ document.addEventListener(
       );
 
 
-    if (!documentForm) return;
+    if (!documentForm) {
+      return;
+    }
 
 
     documentForm.addEventListener(
@@ -1477,7 +1775,11 @@ document.addEventListener(
         ];
 
 
-        if (!allowedTypes.includes(file.type)) {
+        if (
+          !allowedTypes.includes(
+            file.type
+          )
+        ) {
 
           alert(
             "Only JPG, PNG or PDF files are allowed."
@@ -1487,7 +1789,10 @@ document.addEventListener(
         }
 
 
-        if (file.size > 5 * 1024 * 1024) {
+        if (
+          file.size >
+          5 * 1024 * 1024
+        ) {
 
           alert(
             "Maximum file size is 5 MB."
@@ -1504,7 +1809,9 @@ document.addEventListener(
 
 
         if (button) {
+
           button.disabled = true;
+
           button.textContent =
             "Uploading...";
         }
@@ -1519,27 +1826,31 @@ document.addEventListener(
               `${API_BASE}/api/documents/upload-url`,
               {
                 method: "POST",
+
                 headers: {
-                  "Content-Type": "application/json"
+                  "Content-Type":
+                    "application/json"
                 },
-                body: JSON.stringify({
 
-                  application_id:
-                    applicationId,
+                body:
+                  JSON.stringify({
 
-                  document_type:
-                    documentType,
+                    application_id:
+                      applicationId,
 
-                  file_name:
-                    file.name,
+                    document_type:
+                      documentType,
 
-                  file_type:
-                    file.type,
+                    file_name:
+                      file.name,
 
-                  file_size:
-                    file.size
+                    file_type:
+                      file.type,
 
-                })
+                    file_size:
+                      file.size
+
+                  })
               }
             );
 
@@ -1580,11 +1891,14 @@ document.addEventListener(
               uploadUrl,
               {
                 method: "PUT",
+
                 headers: {
                   "Content-Type":
                     file.type
                 },
-                body: file
+
+                body:
+                  file
               }
             );
 
@@ -1621,10 +1935,13 @@ document.addEventListener(
             "Unable to upload document."
           );
 
+
         } finally {
 
           if (button) {
+
             button.disabled = false;
+
             button.textContent =
               "Upload Document";
           }
