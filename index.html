@@ -6,78 +6,64 @@
 
   <title>Shyam Fincorp | Personal Loan</title>
 
-  <link rel="stylesheet" href="style-final.css?v=20260921" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <!-- PREMIUM HEADER -->
-  <div class="top-strip">
-    <div class="container top-strip-inner">
-      <span>जय श्री श्याम</span>
-      <span>Personal Loan Services</span>
-      <span>Simple • Secure • Transparent</span>
-    </div>
-  </div>
-
+  <!-- HEADER -->
   <header class="site-header">
     <div class="container header-inner">
-      <a class="brand-logo" href="#eligibility" data-screen="eligibility" aria-label="Shyam Fincorp Home">
-        <span class="logo-box">SF</span>
-        <span class="brand-text">
-          <strong>Shyam Fincorp</strong>
-          <small>Personal Loan Services</small>
-        </span>
+
+      <div>
+        <h1>Shyam Fincorp</h1>
+        <p>Simple • Fast • Transparent</p>
+      </div>
+
+      <a href="#eligibility" class="header-btn">
+        Check Loan
       </a>
 
-      <nav class="main-nav" aria-label="Main navigation">
-        <a href="#eligibility" data-screen="eligibility">Eligibility</a>
-        <a href="#loanApplication" data-screen="loanApplication">Apply Loan</a>
-        <a href="#customerPortal" data-screen="customerPortal">My Loan</a>
-        <a href="#contact" data-screen="contact">Contact</a>
-      </nav>
-
-      <div class="header-actions">
-        <a class="header-call" href="tel:+919118183794">Call</a>
-        <a class="header-email" href="mailto:yadavvinit416@gmail.com">Email</a>
-      </div>
     </div>
   </header>
+
 
   <main class="container">
 
     <!-- HERO -->
-    <section class="hero-card">
-      <div class="hero-glow"></div>
+    <section class="card hero-card">
+
       <div class="hero-content">
-        <span class="hero-badge">PERSONAL LOAN ASSISTANCE</span>
-        <h2>Financial support for your next important step.</h2>
-        <p>Check your preliminary eligibility, submit an application and track your loan journey from one secure customer flow.</p>
-        <div class="hero-actions">
-          <a href="#eligibility" class="primary-btn hero-btn" data-screen="eligibility">Check Eligibility</a>
-          <a href="#customerPortal" class="secondary-btn" data-screen="customerPortal">My Loan</a>
-        </div>
-        <div class="hero-points">
-          <span>✓ Digital application</span>
-          <span>✓ Document upload</span>
-          <span>✓ EMI tracking</span>
-        </div>
+
+        <span class="hero-badge">
+          Personal Loan
+        </span>
+
+        <h2>
+          Check Your Loan Eligibility
+        </h2>
+
+        <p>
+          Just enter a few details and get a
+          preliminary eligibility indication.
+        </p>
+
+        <a
+          href="#eligibility"
+          class="primary-btn hero-btn"
+        >
+          Check Eligibility
+        </a>
+
       </div>
-      <div class="hero-side-card">
-        <small>Loan journey</small>
-        <strong>4 simple steps</strong>
-        <div><span>01</span> Check eligibility</div>
-        <div><span>02</span> Apply online</div>
-        <div><span>03</span> Upload documents</div>
-        <div><span>04</span> Track your loan</div>
-      </div>
+
     </section>
 
 
     <!-- ELIGIBILITY -->
     <section
       id="eligibility"
-      class="card flow-screen flow-visible"
+      class="card"
     >
 
       <div class="section-heading">
@@ -373,6 +359,7 @@
             <a
               href="#loanApplication"
               class="primary-btn apply-now-btn"
+              id="applyNowButton"
             >
               Apply for Loan
             </a>
@@ -396,7 +383,7 @@
     <!-- APPLICATION -->
     <section
       id="loanApplication"
-      class="card flow-screen flow-hidden"
+      class="card"
     >
 
       <div class="section-heading">
@@ -580,7 +567,7 @@
     <!-- DOCUMENT UPLOAD -->
     <section
       id="documentUploadSection"
-      class="card flow-screen flow-hidden"
+      class="card"
       style="display:none;"
     >
 
@@ -673,7 +660,7 @@
     </section>
 
     <!-- CUSTOMER PORTAL -->
-    <section id="customerPortal" class="card customer-card flow-screen flow-hidden">
+    <section class="card customer-card">
 
       <div class="section-heading">
 
@@ -745,8 +732,6 @@
 
 
     <!-- LOAN SUMMARY -->
-    <div id="loanDashboard" class="flow-screen flow-hidden">
-
     <section
       id="loanSummarySection"
       class="card"
@@ -797,23 +782,6 @@
 
       </div>
 
-    </section>
-
-
-    <!-- PAYMENT SUMMARY -->
-    <section id="paymentSummarySection" class="card payment-summary-card">
-      <div class="section-heading compact-heading">
-        <h2>Payment Overview</h2>
-        <p>Track total payable, paid amount and outstanding balance.</p>
-      </div>
-      <div class="payment-summary-grid">
-        <div><span>Total Payable</span><strong>₹<b id="totalPayableAmount">0</b></strong></div>
-        <div><span>Total Paid</span><strong>₹<b id="totalPaidAmount">0</b></strong></div>
-        <div><span>Outstanding</span><strong>₹<b id="totalPendingAmount">0</b></strong></div>
-        <div><span>EMI Paid</span><strong id="paidEmiCount">0</strong></div>
-        <div><span>EMI Pending</span><strong id="pendingEmiCount">0</strong></div>
-        <div><span>Progress</span><strong><b id="paymentProgress">0</b>%</strong></div>
-      </div>
     </section>
 
 
@@ -957,40 +925,57 @@
 
     </section>
 
-    </div><!-- /loanDashboard -->
+
+    <!-- CONTACT -->
+    <section id="contact" class="card contact-section">
+
+      <div class="section-heading">
+        <h2>Contact Shyam Fincorp</h2>
+        <p>For customer assistance and loan-related queries.</p>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-item">
+          <strong>📍 Address</strong>
+          <p>Gorakhpur, Uttar Pradesh, India</p>
+        </div>
+
+        <div class="contact-item">
+          <strong>📞 Phone</strong>
+          <p><a href="tel:+919118183794">+91 9118183794</a></p>
+        </div>
+
+        <div class="contact-item">
+          <strong>✉️ Email</strong>
+          <p><a href="mailto:yadavvinit416@gmail.com">yadavvinit416@gmail.com</a></p>
+        </div>
+      </div>
+
+    </section>
 
   </main>
 
-
-    <!-- CONTACT -->
-    <section id="contact" class="card contact-section flow-screen flow-hidden">
-      <div class="section-heading">
-        <span class="eyebrow">GET IN TOUCH</span>
-        <h2>Need help with your loan journey?</h2>
-        <p>Our customer assistance team can help with application and account-related queries.</p>
-      </div>
-      <div class="contact-grid">
-        <a href="tel:+919118183794" class="contact-item"><span>☎</span><div><small>Phone</small><strong>+91 9118183794</strong></div></a>
-        <a href="mailto:yadavvinit416@gmail.com" class="contact-item"><span>✉</span><div><small>Email</small><strong>yadavvinit416@gmail.com</strong></div></a>
-        <div class="contact-item"><span>⌖</span><div><small>Office</small><strong>Gorakhpur, Uttar Pradesh, India</strong></div></div>
-      </div>
-    </section>
 
   <!-- FOOTER -->
   <footer class="site-footer">
 
     <div class="container">
 
-      <div class="footer-brand"><strong>Shyam Fincorp</strong><span>Personal Loan Services</span></div>
-      <p>© 2026 Shyam Fincorp. All rights reserved.</p>
-      <p>Eligibility results are preliminary and subject to verification, documentation and final assessment.</p>
+      <p>
+        © 2026 Shyam Fincorp
+      </p>
+
+      <p>
+        Eligibility results are preliminary and subject
+        to verification and final assessment.
+      </p>
 
     </div>
 
   </footer>
 
 
-  <script src="app.js?v=20260921"></script>
+  <script src="app.js"></script>
 
 </body>
 </html>

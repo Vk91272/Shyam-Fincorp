@@ -428,6 +428,32 @@ if (eligibilityForm) {
 
 
 // =====================================================
+// APPLY NOW / SCREEN NAVIGATION
+// =====================================================
+
+const applyNowButton = document.getElementById("applyNowButton");
+
+if (applyNowButton) {
+  applyNowButton.addEventListener("click", function (event) {
+    event.preventDefault();
+
+    const applicationSection = document.getElementById("loanApplication");
+    if (!applicationSection) return;
+
+    // Make sure the application section is visible even if an older CSS
+    // version has a hidden-state rule.
+    applicationSection.style.display = "block";
+    applicationSection.hidden = false;
+
+    applicationSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+}
+
+
+// =====================================================
 // LOAN APPLICATION
 // =====================================================
 
@@ -641,7 +667,7 @@ function showDocumentUpload(applicationId) {
 
   if (!documentUploadSection) return;
 
-  showFlowScreen("documentUploadSection");
+  documentUploadSection.style.display = "block";
 
   if (documentApplicationId) {
     documentApplicationId.value = applicationId || "";
@@ -710,9 +736,40 @@ async function uploadSingleDocument(applicationId, config, file) {
   }
 
 
-  // The file is now safely stored in Supabase Storage via the signed URL.
-  // No extra database table is required for the customer upload flow.
-  return { success: true, path: uploadData.path };
+  const recordResponse =
+    await fetch(
+      `${API_BASE}/api/documents/record`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          application_id: applicationId,
+          document_type: config.type,
+          file_name: file.name,
+          storage_path: uploadData.path,
+          file_type: file.type,
+          file_size: file.size
+        })
+      }
+    );
+
+
+  const recordData =
+    await recordResponse.json();
+
+
+  if (!recordResponse.ok) {
+    throw new Error(
+      recordData.error ||
+      `${config.label} record could not be saved.`
+    );
+  }
+
+  return recordData;
 }
 
 
@@ -841,10 +898,6 @@ if (uploadDocumentsButton) {
             documentUploadStatus.textContent =
               "All selected documents have been uploaded successfully. They are now pending verification.";
           }
-
-          setTimeout(function () {
-            showFlowScreen("customerPortal");
-          }, 500);
 
         }
 
@@ -1000,9 +1053,6 @@ if (lookupForm) {
         }
 
 
-        currentApplicationId = applicationId;
-        currentMobile = mobile;
-
         displayLoan(data);
 
 
@@ -1036,8 +1086,6 @@ if (lookupForm) {
 // =====================================================
 
 function displayLoan(data) {
-
-  showFlowScreen("loanDashboard");
 
   const loan =
     data.loan ||
@@ -1740,43 +1788,3 @@ document.addEventListener(
 
   }
 );
-
-// =====================================================
-// PREMIUM SCREEN-BY-SCREEN NAVIGATION
-// =====================================================
-
-function showFlowScreen(screenId) {
-  const screens = document.querySelectorAll(".flow-screen");
-
-  screens.forEach(function (screen) {
-    screen.classList.remove("flow-visible");
-    screen.classList.add("flow-hidden");
-  });
-
-  const target = document.getElementById(screenId);
-  if (!target) return;
-
-  target.classList.remove("flow-hidden");
-  target.classList.add("flow-visible");
-
-  document.querySelectorAll("[data-screen]").forEach(function (link) {
-    link.classList.toggle("active", link.getAttribute("data-screen") === screenId);
-  });
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-// Keep the first customer screen visible when the site opens.
-showFlowScreen("eligibility");
-
-// Navigation buttons and cards.
-document.addEventListener("click", function (event) {
-  const link = event.target.closest("[data-screen]");
-  if (!link) return;
-
-  const screenId = link.getAttribute("data-screen");
-  if (!screenId) return;
-
-  event.preventDefault();
-  showFlowScreen(screenId);
-});
