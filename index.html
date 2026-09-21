@@ -1,68 +1,109 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Shyam Fincorp Loan | Personal Loan</title>
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <meta
     name="description"
-    content="Shyam Fincorp - Simple, Fast and Transparent Loan Services"
-  />
+    content="Shyam Fincorp - Personal Loan Services"
+  >
 
-  <link rel="stylesheet" href="style-final.css?v=20260922" />
+  <title>Shyam Fincorp Loan</title>
+
+  <link
+    rel="stylesheet"
+    href="style-final.css?v=20260922"
+  >
 </head>
 
 <body>
 
-  <!-- ================= TOP MOVING BAR ================= -->
-  <div class="top-marquee">
-    <div class="marquee-content">
-      🙏 Jai Shree Shyam &nbsp; • &nbsp;
-      Simple • Fast • Transparent &nbsp; • &nbsp;
-      Easy Loan Process &nbsp; • &nbsp;
-      Customer Support
+  <!-- =====================================================
+       TOP BAR
+       ===================================================== -->
+
+  <div class="top-bar">
+    <div class="container">
+      <span>जय श्री श्याम 🙏</span>
+      <span>Personal Loan Assistance</span>
     </div>
   </div>
 
-  <!-- ================= HEADER ================= -->
+
+  <!-- =====================================================
+       HEADER
+       ===================================================== -->
+
   <header class="main-header">
 
-    <div class="header-container">
+    <div class="container header-container">
 
-      <a href="#" class="brand">
-        <div class="brand-logo">
-          <span>SF</span>
+      <a
+        href="#"
+        class="brand-logo"
+        onclick="openScreen('eligibility'); return false;"
+      >
+
+        <div class="logo-mark">
+          SF
         </div>
 
         <div class="brand-text">
           <strong>Shyam Fincorp</strong>
-          <small>Simple • Fast • Transparent</small>
+          <small>Loan Services</small>
         </div>
+
       </a>
 
+
       <nav class="main-nav">
-        <a href="#eligibility">Eligibility</a>
-        <a href="#loanApplication">Apply Loan</a>
-        <a href="#customerPortal">My Loan</a>
-        <a href="#contact">Contact</a>
+
+        <a
+          href="#"
+          onclick="openScreen('eligibility'); return false;"
+        >
+          Eligibility
+        </a>
+
+        <a
+          href="#"
+          onclick="openScreen('loanApplication'); return false;"
+        >
+          Apply Loan
+        </a>
+
+        <a
+          href="#"
+          onclick="openScreen('customerPortal'); return false;"
+        >
+          My Loan
+        </a>
+
       </nav>
 
+
       <div class="header-actions">
+
         <a
           href="tel:+919118183794"
-          class="header-call"
+          class="header-btn"
         >
-          📞 Call Now
+          Call Now
         </a>
 
         <a
           href="mailto:yadavvinit416@gmail.com"
-          class="header-email"
+          class="header-btn"
         >
-          📧 Email Us
+          Email Us
         </a>
+
       </div>
 
     </div>
@@ -70,169 +111,117 @@
   </header>
 
 
-  <!-- ================= HERO ================= -->
+  <!-- =====================================================
+       MAIN
+       ===================================================== -->
+
   <main>
 
-    <section class="hero-section">
 
-      <div class="hero-container">
+    <!-- ===================================================
+         SCREEN 1 - ELIGIBILITY
+         =================================================== -->
 
-        <div class="hero-content">
+    <section
+      id="eligibility"
+      class="section eligibility-section flow-visible"
+    >
 
-          <span class="hero-badge">
-            TRUSTED LOAN SERVICE
-          </span>
+      <div class="container">
 
-          <h1>
-            Personal Loan
-            <span>Made Simple</span>
-          </h1>
+        <div class="eligibility-card">
 
-          <p>
-            Shyam Fincorp ke saath apni loan eligibility check karein
-            aur simple digital process ke through application submit karein.
-          </p>
+          <div class="section-heading">
 
-          <div class="hero-buttons">
-            <a href="#eligibility" class="btn btn-primary">
-              Check Eligibility
-            </a>
+            <span class="section-label">
+              SHYAM FINCORP
+            </span>
 
-            <a href="#loanApplication" class="btn btn-secondary">
-              Apply for Loan
-            </a>
+            <h1>
+              Check Your Loan Eligibility
+            </h1>
+
+            <p>
+              Check your preliminary loan eligibility
+              in just a few simple steps.
+            </p>
+
           </div>
 
-          <div class="hero-contact">
-            <div>
-              <strong>📞 +91 9118183794</strong>
-              <small>Customer Support</small>
+
+          <!-- Progress -->
+
+          <div class="eligibility-progress">
+
+            <div
+              id="eligibilityProgress"
+              class="eligibility-progress-bar"
+            ></div>
+
+          </div>
+
+
+          <div class="eligibility-indicators">
+
+            <div
+              id="eligibilityIndicator1"
+              class="eligibility-indicator active"
+            >
+              <span>1</span>
+              <small>Basic Details</small>
             </div>
 
-            <div>
-              <strong>📧 yadavvinit416@gmail.com</strong>
-              <small>Email Support</small>
+            <div
+              id="eligibilityIndicator2"
+              class="eligibility-indicator"
+            >
+              <span>2</span>
+              <small>Financial Details</small>
             </div>
+
+            <div
+              id="eligibilityIndicator3"
+              class="eligibility-indicator"
+            >
+              <span>3</span>
+              <small>Result</small>
+            </div>
+
           </div>
 
-        </div>
+
+          <!-- =============================================
+               ELIGIBILITY FORM
+               ============================================= -->
+
+          <form
+            id="eligibilityForm"
+            class="professional-form"
+          >
 
 
-        <div class="hero-card">
+            <!-- STEP 1 -->
 
-          <div class="hero-card-top">
-            <span>Loan Assistance</span>
-            <span class="status-dot">● Online</span>
-          </div>
+            <div
+              id="eligibilityStep1"
+              class="eligibility-step"
+            >
 
-          <div class="hero-card-icon">
-            ₹
-          </div>
+              <div class="form-heading">
 
-          <h2>Need Financial Assistance?</h2>
+                <h2>
+                  Basic Details
+                </h2>
 
-          <p>
-            Start with our preliminary eligibility inquiry.
-          </p>
+                <p>
+                  Please enter your basic information.
+                </p>
 
-          <a href="#eligibility" class="btn btn-primary full-width">
-            Check Your Eligibility
-          </a>
+              </div>
 
-          <div class="hero-card-note">
-            *Eligibility inquiry is preliminary and does not guarantee loan approval.
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= TRUST STRIP ================= -->
-    <section class="trust-strip">
-
-      <div class="trust-item">
-        <strong>✓</strong>
-        <span>Simple Process</span>
-      </div>
-
-      <div class="trust-item">
-        <strong>✓</strong>
-        <span>Transparent Information</span>
-      </div>
-
-      <div class="trust-item">
-        <strong>✓</strong>
-        <span>Digital Application</span>
-      </div>
-
-      <div class="trust-item">
-        <strong>✓</strong>
-        <span>Customer Support</span>
-      </div>
-
-    </section>
-
-
-    <!-- ================= ELIGIBILITY ================= -->
-    <section class="section" id="eligibility">
-
-      <div class="section-heading">
-
-        <span>01 • ELIGIBILITY</span>
-
-        <h2>Check Your Loan Eligibility</h2>
-
-        <p>
-          Complete the preliminary inquiry to view an estimated result.
-        </p>
-
-      </div>
-
-
-      <div class="card eligibility-card">
-
-        <div class="step-indicator">
-
-          <div class="step active" id="stepIndicator1">
-            <span>1</span>
-            <small>Basic Details</small>
-          </div>
-
-          <div class="step-line"></div>
-
-          <div class="step" id="stepIndicator2">
-            <span>2</span>
-            <small>Financial Details</small>
-          </div>
-
-          <div class="step-line"></div>
-
-          <div class="step" id="stepIndicator3">
-            <span>3</span>
-            <small>Result</small>
-          </div>
-
-        </div>
-
-
-        <div class="progress-wrapper">
-          <div class="progress-bar" id="progressBar"></div>
-        </div>
-
-
-        <form id="eligibilityForm">
-
-          <!-- STEP 1 -->
-          <div class="eligibility-step active" id="eligibilityStep1">
-
-            <h3>Basic Information</h3>
-
-            <div class="form-grid">
 
               <div class="form-group">
+
                 <label for="eligibilityName">
                   Full Name
                 </label>
@@ -240,13 +229,17 @@
                 <input
                   type="text"
                   id="eligibilityName"
+                  name="full_name"
                   placeholder="Enter your full name"
+                  autocomplete="name"
                   required
-                />
+                >
+
               </div>
 
 
               <div class="form-group">
+
                 <label for="eligibilityMobile">
                   Mobile Number
                 </label>
@@ -254,736 +247,1142 @@
                 <input
                   type="tel"
                   id="eligibilityMobile"
-                  placeholder="10 digit mobile number"
+                  name="mobile"
+                  placeholder="Enter 10 digit mobile number"
                   maxlength="10"
+                  inputmode="numeric"
                   required
-                />
+                >
+
               </div>
+
+
+              <button
+                type="button"
+                class="btn btn-primary next-screen-btn"
+                onclick="nextStep1()"
+              >
+                Continue →
+              </button>
 
             </div>
 
-            <button
-              type="button"
-              id="nextStep1"
-              class="btn btn-primary"
+
+            <!-- STEP 2 -->
+
+            <div
+              id="eligibilityStep2"
+              class="eligibility-step"
+              style="display:none;"
             >
-              Continue →
-            </button>
 
-          </div>
+              <div class="form-heading">
 
+                <h2>
+                  Financial Details
+                </h2>
 
-          <!-- STEP 2 -->
-          <div class="eligibility-step" id="eligibilityStep2">
+                <p>
+                  Enter your financial details for
+                  preliminary eligibility.
+                </p>
 
-            <h3>Financial Information</h3>
+              </div>
 
-            <div class="form-grid">
 
               <div class="form-group">
-                <label for="monthlyIncome">
+
+                <label for="eligibilityIncome">
                   Monthly Income
                 </label>
 
                 <input
                   type="number"
-                  id="monthlyIncome"
-                  placeholder="₹ Monthly income"
-                  min="0"
+                  id="eligibilityIncome"
+                  name="monthly_income"
+                  placeholder="Example: 30000"
+                  min="1"
                   required
-                />
+                >
+
               </div>
 
 
               <div class="form-group">
-                <label for="requestedAmount">
-                  Requested Loan Amount
+
+                <label for="eligibilityExistingEmi">
+                  Existing Monthly EMI
                 </label>
 
                 <input
                   type="number"
-                  id="requestedAmount"
-                  placeholder="₹ Loan amount"
+                  id="eligibilityExistingEmi"
+                  name="existing_emi"
+                  placeholder="Example: 5000"
                   min="0"
-                  required
-                />
+                  value="0"
+                >
+
               </div>
 
 
               <div class="form-group">
+
+                <label for="eligibilityAmount">
+                  Required Loan Amount
+                </label>
+
+                <input
+                  type="number"
+                  id="eligibilityAmount"
+                  name="requested_amount"
+                  placeholder="Example: 100000"
+                  min="1"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
                 <label for="eligibilityTenure">
                   Loan Tenure
                 </label>
 
-                <select id="eligibilityTenure" required>
-                  <option value="">Select tenure</option>
-                  <option value="12">12 Months</option>
-                  <option value="24">24 Months</option>
-                  <option value="36">36 Months</option>
-                  <option value="48">48 Months</option>
-                  <option value="60">60 Months</option>
+                <select
+                  id="eligibilityTenure"
+                  name="tenure_months"
+                  required
+                >
+
+                  <option value="">
+                    Select Tenure
+                  </option>
+
+                  <option value="12">
+                    12 Months
+                  </option>
+
+                  <option value="18">
+                    18 Months
+                  </option>
+
+                  <option value="24">
+                    24 Months
+                  </option>
+
+                  <option value="36">
+                    36 Months
+                  </option>
+
+                  <option value="48">
+                    48 Months
+                  </option>
+
+                  <option value="60">
+                    60 Months
+                  </option>
+
                 </select>
+
+              </div>
+
+
+              <div class="form-buttons">
+
+                <button
+                  type="button"
+                  class="btn back-screen-btn"
+                  onclick="backStep2()"
+                >
+                  ← Back
+                </button>
+
+                <button
+                  type="submit"
+                  id="eligibilityButton"
+                  class="btn btn-primary next-screen-btn"
+                >
+                  Check Eligibility
+                </button>
+
               </div>
 
             </div>
 
 
-            <div class="button-row">
+            <!-- STEP 3 -->
 
-              <button
-                type="button"
-                id="backStep2"
-                class="btn btn-outline"
+            <div
+              id="eligibilityStep3"
+              class="eligibility-step"
+              style="display:none;"
+            >
+
+              <div
+                id="eligibilityResult"
+                class="eligibility-result"
               >
-                ← Back
-              </button>
 
-              <button
-                type="button"
-                id="eligibilityButton"
-                class="btn btn-primary"
-              >
-                Check Eligibility
-              </button>
+                <div
+                  id="eligibilityResultIcon"
+                  class="result-icon"
+                >
+                  ✓
+                </div>
+
+
+                <h2 id="eligibilityResultTitle">
+                  Eligibility Result
+                </h2>
+
+
+                <p id="eligibilityResultMessage">
+                  Your preliminary eligibility result
+                  will appear here.
+                </p>
+
+
+                <div class="result-details">
+
+
+                  <div class="result-item">
+
+                    <span>
+                      Inquiry ID
+                    </span>
+
+                    <strong id="inquiryId">
+                      -
+                    </strong>
+
+                  </div>
+
+
+                  <div class="result-item">
+
+                    <span>
+                      Estimated Interest
+                    </span>
+
+                    <strong id="estimatedRate">
+                      -
+                    </strong>
+
+                  </div>
+
+
+                  <div class="result-item">
+
+                    <span>
+                      Estimated EMI
+                    </span>
+
+                    <strong id="estimatedEmi">
+                      -
+                    </strong>
+
+                  </div>
+
+
+                </div>
+
+
+                <div class="result-disclaimer">
+
+                  <small>
+                    This is a preliminary eligibility
+                    inquiry only. Final loan approval,
+                    interest rate and terms are subject
+                    to verification and applicable
+                    policies.
+                  </small>
+
+                </div>
+
+              </div>
 
             </div>
 
-          </div>
+          </form>
 
-
-          <!-- STEP 3 -->
-          <div class="eligibility-step" id="eligibilityStep3">
-
-            <div id="eligibilityResult">
-
-              <div class="result-icon">
-                ✓
-              </div>
-
-              <h3 id="eligibilityTitle">
-                Eligibility Result
-              </h3>
-
-              <p id="eligibilityMessage">
-                Your preliminary eligibility result will appear here.
-              </p>
-
-
-              <div class="result-grid">
-
-                <div>
-                  <span>Estimated EMI</span>
-                  <strong id="estimatedEmi">₹0</strong>
-                </div>
-
-                <div>
-                  <span>Estimated Rate</span>
-                  <strong id="estimatedRate">0%</strong>
-                </div>
-
-                <div>
-                  <span>Inquiry ID</span>
-                  <strong id="inquiryId">-</strong>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </form>
+        </div>
 
       </div>
 
     </section>
 
 
-    <!-- ================= LOAN APPLICATION ================= -->
-    <section class="section section-light" id="loanApplication">
+    <!-- ===================================================
+         SCREEN 2 - LOAN APPLICATION
+         =================================================== -->
 
-      <div class="section-heading">
+    <section
+      id="loanApplication"
+      class="section flow-hidden"
+    >
 
-        <span>02 • APPLICATION</span>
+      <div class="container">
 
-        <h2>Apply for a Loan</h2>
+        <div class="form-card">
 
-        <p>
-          Fill in your details to submit your loan application.
-        </p>
+          <div class="section-heading">
 
-      </div>
+            <span class="section-label">
+              STEP 2
+            </span>
+
+            <h2>
+              Loan Application
+            </h2>
+
+            <p>
+              Please provide your details to submit
+              your loan application.
+            </p>
+
+          </div>
 
 
-      <div class="card form-card">
+          <form
+            id="loanApplicationForm"
+            class="professional-form"
+          >
 
-        <form id="loanApplicationForm">
-
-          <div class="form-grid">
 
             <div class="form-group">
-              <label for="fullName">Full Name</label>
+
+              <label for="applicationName">
+                Full Name
+              </label>
 
               <input
                 type="text"
-                id="fullName"
+                id="applicationName"
+                name="full_name"
                 placeholder="Enter full name"
                 required
-              />
+              >
+
             </div>
 
 
             <div class="form-group">
-              <label for="mobile">Mobile Number</label>
+
+              <label for="applicationMobile">
+                Mobile Number
+              </label>
 
               <input
                 type="tel"
-                id="mobile"
-                placeholder="10 digit mobile number"
+                id="applicationMobile"
+                name="mobile"
                 maxlength="10"
+                inputmode="numeric"
+                placeholder="Enter mobile number"
                 required
-              />
+              >
+
             </div>
 
 
             <div class="form-group">
-              <label for="email">Email Address</label>
+
+              <label for="applicationEmail">
+                Email
+              </label>
 
               <input
                 type="email"
-                id="email"
+                id="applicationEmail"
+                name="email"
                 placeholder="Enter email address"
-                required
-              />
+              >
+
+            </div>
+
+
+            <div class="form-row">
+
+
+              <div class="form-group">
+
+                <label for="applicationIncome">
+                  Monthly Income
+                </label>
+
+                <input
+                  type="number"
+                  id="applicationIncome"
+                  name="monthly_income"
+                  placeholder="Monthly income"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label for="applicationAmount">
+                  Loan Amount
+                </label>
+
+                <input
+                  type="number"
+                  id="applicationAmount"
+                  name="requested_amount"
+                  placeholder="Required amount"
+                  required
+                >
+
+              </div>
+
             </div>
 
 
             <div class="form-group">
-              <label for="monthlyIncomeApplication">
-                Monthly Income
+
+              <label for="applicationTenure">
+                Loan Tenure
               </label>
 
-              <input
-                type="number"
-                id="monthlyIncomeApplication"
-                placeholder="₹ Monthly income"
+              <select
+                id="applicationTenure"
+                name="tenure_months"
                 required
-              />
-            </div>
+              >
 
+                <option value="">
+                  Select Tenure
+                </option>
 
-            <div class="form-group">
-              <label for="requestedAmountApplication">
-                Requested Amount
-              </label>
+                <option value="12">
+                  12 Months
+                </option>
 
-              <input
-                type="number"
-                id="requestedAmountApplication"
-                placeholder="₹ Loan amount"
-                required
-              />
-            </div>
+                <option value="18">
+                  18 Months
+                </option>
 
+                <option value="24">
+                  24 Months
+                </option>
 
-            <div class="form-group">
-              <label for="tenureApplication">
-                Tenure
-              </label>
+                <option value="36">
+                  36 Months
+                </option>
 
-              <select id="tenureApplication" required>
-                <option value="">Select tenure</option>
-                <option value="12">12 Months</option>
-                <option value="24">24 Months</option>
-                <option value="36">36 Months</option>
-                <option value="48">48 Months</option>
-                <option value="60">60 Months</option>
+                <option value="48">
+                  48 Months
+                </option>
+
+                <option value="60">
+                  60 Months
+                </option>
+
               </select>
+
             </div>
 
 
-            <div class="form-group full">
-              <label for="address">Address</label>
+            <div class="form-group">
+
+              <label for="applicationAddress">
+                Address
+              </label>
 
               <textarea
-                id="address"
+                id="applicationAddress"
+                name="address"
                 rows="4"
                 placeholder="Enter complete address"
                 required
               ></textarea>
+
             </div>
 
+
+            <button
+              type="submit"
+              class="btn btn-primary next-screen-btn"
+            >
+              Submit Loan Application
+            </button>
+
+
+            <button
+              type="button"
+              class="btn back-screen-btn"
+              onclick="openScreen('eligibility')"
+            >
+              ← Back to Eligibility
+            </button>
+
+
+          </form>
+
+
+          <div class="application-success">
+
+            <p>
+              Application ID:
+            </p>
+
+            <strong id="applicationSuccessId">
+              -
+            </strong>
+
           </div>
 
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-          >
-            Submit Loan Application
-          </button>
-
-        </form>
-
-
-        <div id="applicationResult"></div>
+        </div>
 
       </div>
 
     </section>
 
 
-    <!-- ================= DOCUMENT UPLOAD ================= -->
+    <!-- ===================================================
+         SCREEN 3 - DOCUMENT UPLOAD
+         =================================================== -->
+
     <section
-      class="section"
       id="documentUploadSection"
+      class="section flow-hidden"
     >
 
-      <div class="section-heading">
+      <div class="container">
 
-        <span>03 • DOCUMENTS</span>
+        <div class="form-card">
 
-        <h2>Upload Documents</h2>
+          <div class="section-heading">
 
-        <p>
-          Upload your required documents against your Application ID.
-        </p>
+            <span class="section-label">
+              STEP 3
+            </span>
 
-      </div>
+            <h2>
+              Upload Your Documents
+            </h2>
 
+            <p>
+              Upload the required documents for your
+              loan application.
+            </p>
 
-      <div class="card form-card">
-
-        <div class="form-group">
-
-          <label for="documentApplicationId">
-            Application ID
-          </label>
-
-          <input
-            type="text"
-            id="documentApplicationId"
-            placeholder="Example: SFL-12345678"
-          />
-
-        </div>
-
-
-        <div class="document-grid">
-
-          <div class="form-group">
-            <label for="identityProof">
-              Identity Proof
-            </label>
-
-            <input
-              type="file"
-              id="identityProof"
-              accept=".jpg,.jpeg,.png,.pdf"
-            />
           </div>
 
 
-          <div class="form-group">
-            <label for="panCard">
-              PAN Card
-            </label>
+          <form
+            id="documentUploadForm"
+            class="professional-form"
+          >
 
-            <input
-              type="file"
-              id="panCard"
-              accept=".jpg,.jpeg,.png,.pdf"
-            />
-          </div>
-
-
-          <div class="form-group">
-            <label for="addressProof">
-              Address Proof
-            </label>
-
-            <input
-              type="file"
-              id="addressProof"
-              accept=".jpg,.jpeg,.png,.pdf"
-            />
-          </div>
-
-
-          <div class="form-group">
-            <label for="incomeProof">
-              Income Proof
-            </label>
-
-            <input
-              type="file"
-              id="incomeProof"
-              accept=".jpg,.jpeg,.png,.pdf"
-            />
-          </div>
-
-
-          <div class="form-group">
-            <label for="applicantPhoto">
-              Applicant Photo
-            </label>
-
-            <input
-              type="file"
-              id="applicantPhoto"
-              accept=".jpg,.jpeg,.png"
-            />
-          </div>
-
-        </div>
-
-
-        <button
-          type="button"
-          id="uploadDocumentsButton"
-          class="btn btn-primary"
-        >
-          Upload Documents
-        </button>
-
-
-        <div id="documentUploadMessage"></div>
-
-        <div id="documentUploadStatus"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= CUSTOMER PORTAL ================= -->
-    <section
-      class="section section-light"
-      id="customerPortal"
-    >
-
-      <div class="section-heading">
-
-        <span>04 • CUSTOMER PORTAL</span>
-
-        <h2>My Loan</h2>
-
-        <p>
-          Enter your Application ID and registered mobile number
-          to view your loan details.
-        </p>
-
-      </div>
-
-
-      <div class="card portal-card">
-
-        <form id="lookupForm">
-
-          <div class="form-grid">
 
             <div class="form-group">
 
-              <label for="lookupApplicationId">
+              <label for="documentApplicationId">
                 Application ID
               </label>
 
               <input
                 type="text"
-                id="lookupApplicationId"
-                placeholder="Example: SFL-12345678"
+                id="documentApplicationId"
+                name="application_id"
+                placeholder="Application ID"
                 required
-              />
+              >
 
             </div>
 
 
             <div class="form-group">
 
-              <label for="lookupMobile">
-                Registered Mobile
+              <label for="documentType">
+                Document Type
+              </label>
+
+              <select
+                id="documentType"
+                name="document_type"
+                required
+              >
+
+                <option value="">
+                  Select Document
+                </option>
+
+                <option value="identity_proof">
+                  Identity Proof
+                </option>
+
+                <option value="pan_card">
+                  PAN Card
+                </option>
+
+                <option value="address_proof">
+                  Address Proof
+                </option>
+
+                <option value="income_proof">
+                  Income Proof
+                </option>
+
+                <option value="applicant_photo">
+                  Applicant Photo
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label for="documentFile">
+                Select File
+              </label>
+
+              <input
+                type="file"
+                id="documentFile"
+                name="document"
+                accept=".jpg,.jpeg,.png,.pdf"
+                required
+              >
+
+              <small>
+                JPG, PNG or PDF only. Maximum size 5 MB.
+              </small>
+
+            </div>
+
+
+            <button
+              type="submit"
+              class="btn btn-primary next-screen-btn"
+            >
+              Upload Document
+            </button>
+
+
+          </form>
+
+
+          <div class="document-info">
+
+            <p>
+              After uploading your documents,
+              you can access your customer loan portal.
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="btn back-screen-btn"
+            onclick="openScreen('loanApplication')"
+          >
+            ← Back to Application
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         SCREEN 4 - CUSTOMER PORTAL
+         =================================================== -->
+
+    <section
+      id="customerPortal"
+      class="section flow-hidden"
+    >
+
+      <div class="container">
+
+        <div class="form-card">
+
+          <div class="section-heading">
+
+            <span class="section-label">
+              CUSTOMER PORTAL
+            </span>
+
+            <h2>
+              My Loan
+            </h2>
+
+            <p>
+              Enter your mobile number and application
+              ID to view your loan details.
+            </p>
+
+          </div>
+
+
+          <form
+            id="lookupForm"
+            class="professional-form"
+          >
+
+
+            <div class="form-group">
+
+              <label for="customerMobile">
+                Mobile Number
               </label>
 
               <input
                 type="tel"
-                id="lookupMobile"
+                id="customerMobile"
                 maxlength="10"
-                placeholder="10 digit mobile"
-                required
-              />
-
-            </div>
-
-          </div>
-
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-          >
-            View My Loan
-          </button>
-
-        </form>
-
-
-        <div id="lookupMessage"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= LOAN SUMMARY ================= -->
-    <section
-      class="section"
-      id="loanSummarySection"
-    >
-
-      <div class="section-heading">
-
-        <span>05 • LOAN DETAILS</span>
-
-        <h2>Loan Summary</h2>
-
-      </div>
-
-
-      <div class="summary-grid">
-
-        <div class="summary-card">
-          <span>Loan Account</span>
-          <strong id="loanAccountNo">-</strong>
-        </div>
-
-        <div class="summary-card">
-          <span>Principal Amount</span>
-          <strong id="loanPrincipal">₹0</strong>
-        </div>
-
-        <div class="summary-card">
-          <span>Interest Rate</span>
-          <strong id="loanRate">0%</strong>
-        </div>
-
-        <div class="summary-card">
-          <span>Tenure</span>
-          <strong id="loanTenure">-</strong>
-        </div>
-
-        <div class="summary-card">
-          <span>Monthly EMI</span>
-          <strong id="loanEmi">₹0</strong>
-        </div>
-
-        <div class="summary-card">
-          <span>Status</span>
-          <strong id="loanStatus">-</strong>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= PAYMENT SUMMARY ================= -->
-    <section
-      class="section section-light"
-      id="paymentSummarySection"
-    >
-
-      <div class="section-heading">
-
-        <span>06 • PAYMENT OVERVIEW</span>
-
-        <h2>EMI Payment Summary</h2>
-
-      </div>
-
-
-      <div class="summary-grid">
-
-        <div class="summary-card">
-          <span>Total Payable</span>
-          <strong id="totalPayableAmount">₹0</strong>
-        </div>
-
-        <div class="summary-card">
-          <span>Total Paid</span>
-          <strong id="totalPaidAmount">₹0</strong>
-        </div>
-
-        <div class="summary-card">
-          <span>Total Pending</span>
-          <strong id="totalPendingAmount">₹0</strong>
-        </div>
-
-        <div class="summary-card">
-          <span>Paid EMI</span>
-          <strong id="paidEmiCount">0</strong>
-        </div>
-
-        <div class="summary-card">
-          <span>Pending EMI</span>
-          <strong id="pendingEmiCount">0</strong>
-        </div>
-
-      </div>
-
-
-      <div class="payment-progress-card">
-
-        <div class="payment-progress-heading">
-          <span>Payment Progress</span>
-          <strong id="paymentProgress">0%</strong>
-        </div>
-
-        <div class="payment-progress">
-          <div
-            class="payment-progress-fill"
-            id="paymentProgressBar"
-          ></div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= EMI SCHEDULE ================= -->
-    <section
-      class="section"
-      id="emiScheduleSection"
-    >
-
-      <div class="section-heading">
-
-        <span>07 • EMI SCHEDULE</span>
-
-        <h2>Your EMI Schedule</h2>
-
-      </div>
-
-
-      <div class="card table-card">
-
-        <div class="table-wrapper">
-
-          <table>
-
-            <thead>
-
-              <tr>
-                <th>EMI</th>
-                <th>Due Date</th>
-                <th>Principal</th>
-                <th>Interest</th>
-                <th>Total Due</th>
-                <th>Paid</th>
-                <th>Status</th>
-              </tr>
-
-            </thead>
-
-            <tbody id="emiTableBody">
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= PAY EMI ================= -->
-    <section
-      class="section section-light"
-      id="paymentSection"
-    >
-
-      <div class="section-heading">
-
-        <span>08 • EMI PAYMENT</span>
-
-        <h2>Pay Your EMI</h2>
-
-        <p>
-          Select your pending EMI and payment method.
-        </p>
-
-      </div>
-
-
-      <div class="card payment-card">
-
-        <form id="paymentForm">
-
-          <div class="form-grid">
-
-            <div class="form-group">
-
-              <label for="paymentInstallment">
-                Select EMI
-              </label>
-
-              <select
-                id="paymentInstallment"
+                inputmode="numeric"
+                placeholder="Enter registered mobile number"
                 required
               >
-                <option value="">
-                  Select pending EMI
-                </option>
-              </select>
 
             </div>
 
 
             <div class="form-group">
 
-              <label for="paymentAmount">
-                Payment Amount
+              <label for="customerApplicationId">
+                Application ID
               </label>
 
               <input
-                type="number"
-                id="paymentAmount"
-                placeholder="₹ Amount"
-                min="1"
+                type="text"
+                id="customerApplicationId"
+                placeholder="Example: SFL-12345678"
                 required
-              />
+              >
 
             </div>
 
 
-            <div class="form-group">
+            <button
+              type="submit"
+              class="btn btn-primary next-screen-btn"
+            >
+              View My Loan
+            </button>
 
-              <label for="paymentMethod">
-                Payment Method
-              </label>
 
-              <select
-                id="paymentMethod"
-                required
+          </form>
+
+
+          <button
+            type="button"
+            class="btn back-screen-btn"
+            onclick="openScreen('eligibility')"
+          >
+            ← Back to Home
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         LOAN DASHBOARD
+         =================================================== -->
+
+    <div
+      id="loanDashboard"
+      class="flow-hidden"
+    >
+
+
+      <!-- ===============================================
+           LOAN SUMMARY
+           =============================================== -->
+
+      <section
+        id="loanSummarySection"
+        class="section dashboard-section"
+      >
+
+        <div class="container">
+
+          <div class="section-heading">
+
+            <span class="section-label">
+              MY LOAN
+            </span>
+
+            <h2>
+              Loan Summary
+            </h2>
+
+          </div>
+
+
+          <div class="dashboard-card">
+
+            <div class="dashboard-grid">
+
+
+              <div class="dashboard-item">
+
+                <span>
+                  Loan Account
+                </span>
+
+                <strong id="displayLoanAccount">
+                  -
+                </strong>
+
+              </div>
+
+
+              <div class="dashboard-item">
+
+                <span>
+                  Application ID
+                </span>
+
+                <strong id="displayApplicationId">
+                  -
+                </strong>
+
+              </div>
+
+
+              <div class="dashboard-item">
+
+                <span>
+                  Customer Name
+                </span>
+
+                <strong id="displayCustomerName">
+                  -
+                </strong>
+
+              </div>
+
+
+              <div class="dashboard-item">
+
+                <span>
+                  Loan Amount
+                </span>
+
+                <strong id="displayLoanAmount">
+                  ₹0
+                </strong>
+
+              </div>
+
+
+              <div class="dashboard-item">
+
+                <span>
+                  Interest Rate
+                </span>
+
+                <strong id="displayInterestRate">
+                  -
+                </strong>
+
+              </div>
+
+
+              <div class="dashboard-item">
+
+                <span>
+                  Tenure
+                </span>
+
+                <strong id="displayTenure">
+                  -
+                </strong>
+
+              </div>
+
+
+              <div class="dashboard-item">
+
+                <span>
+                  Monthly EMI
+                </span>
+
+                <strong id="displayEmi">
+                  ₹0
+                </strong>
+
+              </div>
+
+
+              <div class="dashboard-item">
+
+                <span>
+                  Outstanding
+                </span>
+
+                <strong id="displayOutstanding">
+                  ₹0
+                </strong>
+
+              </div>
+
+
+              <div class="dashboard-item">
+
+                <span>
+                  Loan Status
+                </span>
+
+                <strong id="displayLoanStatus">
+                  -
+                </strong>
+
+              </div>
+
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===============================================
+           PAYMENT SUMMARY
+           =============================================== -->
+
+      <section
+        id="paymentSummarySection"
+        class="section dashboard-section"
+      >
+
+        <div class="container">
+
+          <div class="section-heading">
+
+            <h2>
+              EMI Payment Summary
+            </h2>
+
+          </div>
+
+
+          <div class="dashboard-card">
+
+            <div class="payment-summary-box">
+
+              <p>
+                Your current EMI details are shown below.
+              </p>
+
+              <strong id="paymentSummaryAmount">
+                -
+              </strong>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===============================================
+           EMI SCHEDULE
+           =============================================== -->
+
+      <section
+        id="emiScheduleSection"
+        class="section dashboard-section"
+      >
+
+        <div class="container">
+
+          <div class="section-heading">
+
+            <h2>
+              EMI Schedule
+            </h2>
+
+          </div>
+
+
+          <div class="dashboard-card">
+
+            <div
+              id="emiScheduleContainer"
+              class="emi-schedule-container"
+            >
+
+              <p>
+                EMI schedule will appear here.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===============================================
+           PAY EMI
+           =============================================== -->
+
+      <section
+        id="paymentSection"
+        class="section dashboard-section"
+      >
+
+        <div class="container">
+
+          <div class="form-card">
+
+            <div class="section-heading">
+
+              <span class="section-label">
+                EMI PAYMENT
+              </span>
+
+              <h2>
+                Pay Your EMI
+              </h2>
+
+              <p>
+                Select your EMI and make the payment.
+              </p>
+
+            </div>
+
+
+            <form
+              id="paymentForm"
+              class="professional-form"
+            >
+
+
+              <div class="form-group">
+
+                <label for="paymentInstallment">
+                  Select EMI
+                </label>
+
+                <select
+                  id="paymentInstallment"
+                  required
+                >
+
+                  <option value="">
+                    Select EMI
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label for="paymentAmount">
+                  Payment Amount
+                </label>
+
+                <input
+                  type="number"
+                  id="paymentAmount"
+                  placeholder="Payment amount"
+                  min="1"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label for="paymentMode">
+                  Payment Mode
+                </label>
+
+                <select id="paymentMode">
+
+                  <option value="test">
+                    Online Payment
+                  </option>
+
+                  <option value="upi">
+                    UPI
+                  </option>
+
+                  <option value="bank_transfer">
+                    Bank Transfer
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <button
+                type="submit"
+                class="btn btn-primary next-screen-btn"
               >
-                <option value="">
-                  Select payment method
-                </option>
+                Pay EMI
+              </button>
 
-                <option value="UPI">
-                  UPI
-                </option>
 
-                <option value="Bank Transfer">
-                  Bank Transfer
-                </option>
+            </form>
 
-                <option value="Cash">
-                  Cash
-                </option>
-              </select>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===============================================
+           PAYMENT HISTORY
+           =============================================== -->
+
+      <section
+        id="paymentHistorySection"
+        class="section dashboard-section"
+      >
+
+        <div class="container">
+
+          <div class="section-heading">
+
+            <h2>
+              Payment History
+            </h2>
+
+          </div>
+
+
+          <div class="dashboard-card">
+
+            <div
+              id="paymentHistoryContainer"
+              class="payment-history-container"
+            >
+
+              <p>
+                Payment history will appear here.
+              </p>
 
             </div>
 
@@ -991,285 +1390,150 @@
 
 
           <button
-            type="submit"
-            class="btn btn-primary"
+            type="button"
+            class="btn back-screen-btn"
+            onclick="openScreen('customerPortal')"
           >
-            Submit EMI Payment
+            ← Back to My Loan
           </button>
 
-        </form>
-
-
-        <div id="paymentMessage"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= PAYMENT HISTORY ================= -->
-    <section
-      class="section"
-      id="paymentHistorySection"
-    >
-
-      <div class="section-heading">
-
-        <span>09 • PAYMENT HISTORY</span>
-
-        <h2>Payment History</h2>
-
-      </div>
-
-
-      <div class="card table-card">
-
-        <div class="table-wrapper">
-
-          <table>
-
-            <thead>
-
-              <tr>
-                <th>Payment Date</th>
-                <th>EMI</th>
-                <th>Amount</th>
-                <th>Method</th>
-                <th>Status</th>
-              </tr>
-
-            </thead>
-
-            <tbody id="paymentHistoryBody">
-
-            </tbody>
-
-          </table>
-
         </div>
 
-      </div>
-
-    </section>
-
-
-    <!-- ================= CONTACT ================= -->
-    <section
-      class="contact-section"
-      id="contact"
-    >
-
-      <div class="section-heading">
-
-        <span>10 • CONTACT US</span>
-
-        <h2>Shyam Fincorp se sampark karein</h2>
-
-        <p>
-          Loan related information aur customer support ke liye
-          humse contact karein.
-        </p>
-
-      </div>
-
-
-      <div class="contact-grid">
-
-        <!-- ADDRESS -->
-        <div class="contact-card">
-
-          <div class="contact-icon">
-            📍
-          </div>
-
-          <h3>Office Address</h3>
-
-          <p>
-            Gorakhpur,<br />
-            Uttar Pradesh, India
-          </p>
-
-        </div>
-
-
-        <!-- PHONE -->
-        <div class="contact-card">
-
-          <div class="contact-icon">
-            📞
-          </div>
-
-          <h3>Contact Number</h3>
-
-          <p>
-            <a href="tel:+919118183794">
-              +91 9118183794
-            </a>
-          </p>
-
-          <a
-            href="tel:+919118183794"
-            class="contact-button"
-          >
-            Call Now
-          </a>
-
-        </div>
-
-
-        <!-- EMAIL -->
-        <div class="contact-card">
-
-          <div class="contact-icon">
-            📧
-          </div>
-
-          <h3>Email Address</h3>
-
-          <p>
-            <a href="mailto:yadavvinit416@gmail.com">
-              yadavvinit416@gmail.com
-            </a>
-          </p>
-
-          <a
-            href="mailto:yadavvinit416@gmail.com"
-            class="contact-button"
-          >
-            Send Email
-          </a>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= COMPANY VALUES ================= -->
-    <section class="values-section">
-
-      <div class="section-heading">
-
-        <span>WHY SHYAM FINCORP</span>
-
-        <h2>Simple & Transparent Service</h2>
-
-      </div>
-
-
-      <div class="values-grid">
-
-        <div class="value-card">
-          <div>✓</div>
-          <h3>Simple Process</h3>
-          <p>
-            Easy digital loan application process.
-          </p>
-        </div>
-
-        <div class="value-card">
-          <div>✓</div>
-          <h3>Transparent</h3>
-          <p>
-            Clear information throughout the process.
-          </p>
-        </div>
-
-        <div class="value-card">
-          <div>✓</div>
-          <h3>Customer Support</h3>
-          <p>
-            Contact us for assistance with your application.
-          </p>
-        </div>
-
-        <div class="value-card">
-          <div>✓</div>
-          <h3>Digital Service</h3>
-          <p>
-            Manage your application and EMI information online.
-          </p>
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- ================= FOOTER ================= -->
-  <footer class="main-footer">
-
-    <div class="footer-container">
-
-      <div class="footer-brand">
-
-        <div class="footer-logo">
-          SF
-        </div>
-
-        <div>
-          <h3>Shyam Fincorp</h3>
-
-          <p>
-            Simple • Fast • Transparent
-          </p>
-        </div>
-
-      </div>
-
-
-      <div class="footer-contact">
-
-        <p>
-          📍 Gorakhpur, Uttar Pradesh
-        </p>
-
-        <p>
-          📞
-          <a href="tel:+919118183794">
-            +91 9118183794
-          </a>
-        </p>
-
-        <p>
-          📧
-          <a href="mailto:yadavvinit416@gmail.com">
-            yadavvinit416@gmail.com
-          </a>
-        </p>
-
-      </div>
-
-
-      <div class="footer-jai">
-        🙏 Jai Shree Shyam
-      </div>
+      </section>
 
     </div>
 
 
-    <div class="footer-bottom">
+    <!-- ===================================================
+         CONTACT
+         =================================================== -->
 
-      <p>
-        © 2026 Shyam Fincorp. All Rights Reserved.
-      </p>
+    <section
+      id="contact"
+      class="section contact-section flow-hidden"
+    >
 
-      <p>
-        Loan eligibility is subject to applicable terms and conditions.
-      </p>
+      <div class="container">
+
+        <div class="section-heading">
+
+          <span class="section-label">
+            CONTACT
+          </span>
+
+          <h2>
+            Contact Shyam Fincorp
+          </h2>
+
+          <p>
+            We are here to assist you.
+          </p>
+
+        </div>
+
+
+        <div class="contact-grid">
+
+
+          <div class="contact-card">
+
+            <h3>
+              Location
+            </h3>
+
+            <p>
+              Gorakhpur, Uttar Pradesh, India
+            </p>
+
+          </div>
+
+
+          <div class="contact-card">
+
+            <h3>
+              Phone
+            </h3>
+
+            <p>
+              <a href="tel:+919118183794">
+                +91 9118183794
+              </a>
+            </p>
+
+          </div>
+
+
+          <div class="contact-card">
+
+            <h3>
+              Email
+            </h3>
+
+            <p>
+              <a href="mailto:yadavvinit416@gmail.com">
+                yadavvinit416@gmail.com
+              </a>
+            </p>
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+  </main>
+
+
+  <!-- =====================================================
+       FOOTER
+       ===================================================== -->
+
+  <footer class="main-footer">
+
+    <div class="container">
+
+      <div class="footer-content">
+
+        <div>
+
+          <strong>
+            Shyam Fincorp
+          </strong>
+
+          <p>
+            Personal Loan Services
+          </p>
+
+        </div>
+
+
+        <div>
+
+          <p>
+            © 2026 Shyam Fincorp.
+            All Rights Reserved.
+          </p>
+
+        </div>
+
+      </div>
 
     </div>
 
   </footer>
 
 
-  <!-- ================= JAVASCRIPT ================= -->
+  <!-- =====================================================
+       JAVASCRIPT
+       ===================================================== -->
+
   <script src="app.js?v=20260922"></script>
 
 </body>
+
 </html>
-```
 
