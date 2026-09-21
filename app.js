@@ -1,1790 +1,209 @@
 const API_BASE = "https://shyam-fincorp.onrender.com";
-
-let currentLoanAccountId = null;
 let currentApplicationId = "";
-let currentMobile = "";
+let currentLoanAccountId = "";
+let currentCustomerMobile = "";
+let currentSchedule = [];
 
+const $ = id => document.getElementById(id);
+const money = n => "₹" + Math.round(Number(n) || 0).toLocaleString("en-IN");
 
-// =====================================================
-// HELPERS
-// =====================================================
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const el = $(id);
+  if (el) {
+    el.classList.add("active");
+    window.scrollTo({top: 0, behavior: "smooth"});
+  }
+  document.querySelectorAll("#mainNav a").forEach(a => a.classList.toggle("active", a.dataset.screen === id));
+  document.getElementById("mainNav")?.classList.remove("open");
+}
 
-function formatMoney(value) {
-  return Number(value || 0).toLocaleString("en-IN", {
-    maximumFractionDigits: 2
+document.querySelectorAll("[data-screen]").forEach(el => {
+  el.addEventListener("click", e => {
+    const id = el.dataset.screen;
+    if (id) { e.preventDefault(); showScreen(id); }
   });
+});
+$("mobileMenu")?.addEventListener("click", () => $("mainNav")?.classList.toggle("open"));
+
+function calcEmi(P, annual, months) {
+  const r = Number(annual) / 12 / 100, n = Number(months);
+  if (!P || !n) return 0;
+  return r ? P * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1) : P/n;
 }
-
-
-function showMessage(elementId, message, type = "") {
-  const element = document.getElementById(elementId);
-
-  if (!element) return;
-
-  element.textContent = message;
-  element.className = "message " + type;
+function updateCalculator() {
+  const emi = calcEmi($("calcAmount")?.value, $("calcRate")?.value, $("calcMonths")?.value);
+  $("emiValue").textContent = money(emi);
+  $("heroEmi").textContent = money(emi);
 }
-
-
-// =====================================================
-// ELIGIBILITY - 3 STEP FLOW
-// =====================================================
-
-let currentEligibilityStep = 1;
-
-
-function showEligibilityStep(step) {
-
-  currentEligibilityStep = step;
-
-  const steps = [
-    document.getElementById("eligibilityStep1"),
-    document.getElementById("eligibilityStep2"),
-    document.getElementById("eligibilityStep3")
-  ];
-
-  steps.forEach((element, index) => {
-
-    if (!element) return;
-
-    element.classList.toggle(
-      "active",
-      index + 1 === step
-    );
-
-  });
-
-
-  const indicators = [
-    document.getElementById("stepIndicator1"),
-    document.getElementById("stepIndicator2"),
-    document.getElementById("stepIndicator3")
-  ];
-
-
-  indicators.forEach((element, index) => {
-
-    if (!element) return;
-
-    element.classList.toggle(
-      "active",
-      index + 1 <= step
-    );
-
-  });
-
-
-  const progressBar =
-    document.getElementById("progressBar");
-
-  if (progressBar) {
-
-    if (step === 1) {
-      progressBar.style.width = "0%";
-    }
-
-    else if (step === 2) {
-      progressBar.style.width = "50%";
-    }
-
-    else {
-      progressBar.style.width = "100%";
-    }
-
-  }
-
-}
-
-
-const nextStep1 =
-  document.getElementById("nextStep1");
-
-
-if (nextStep1) {
-
-  nextStep1.addEventListener(
-    "click",
-    function () {
-
-      const name =
-        document
-          .getElementById("eligibilityName")
-          .value.trim();
-
-      const mobile =
-        document
-          .getElementById("eligibilityMobile")
-          .value.trim();
-
-
-      if (!name) {
-
-        alert("Please enter your full name.");
-
-        return;
-
-      }
-
-
-      if (!/^[0-9]{10}$/.test(mobile)) {
-
-        alert(
-          "Please enter a valid 10 digit mobile number."
-        );
-
-        return;
-
-      }
-
-
-      showEligibilityStep(2);
-
-      document
-        .getElementById("requestedAmount")
-        .focus();
-
-    }
-  );
-
-}
-
-
-const backStep2 =
-  document.getElementById("backStep2");
-
-
-if (backStep2) {
-
-  backStep2.addEventListener(
-    "click",
-    function () {
-
-      showEligibilityStep(1);
-
-    }
-  );
-
-}
-
-
-// =====================================================
-// ELIGIBILITY SUBMIT
-// =====================================================
-
-const eligibilityForm =
-  document.getElementById("eligibilityForm");
-
-
-if (eligibilityForm) {
-
-  eligibilityForm.addEventListener(
-    "submit",
-    async function (event) {
-
-      event.preventDefault();
-
-
-      const button =
-        document.getElementById(
-          "eligibilityButton"
-        );
-
-
-      button.disabled = true;
-      button.textContent = "Checking...";
-
-
-      const payload = {
-
-        full_name:
-          document
-            .getElementById("eligibilityName")
-            .value.trim(),
-
-        mobile:
-          document
-            .getElementById("eligibilityMobile")
-            .value.trim(),
-
-        /*
-         * Backend currently expects these fields.
-         * We use safe demo/default values here because
-         * the simplified customer flow does not ask
-         * these questions at the first stage.
-         */
-
-        email: "",
-
-        age: 30,
-
-        employment_type: "other",
-
-        monthly_income:
-          Number(
-            document
-              .getElementById("monthlyIncome")
-              .value
-          ),
-
-        existing_emi: 0,
-
-        requested_amount:
-          Number(
-            document
-              .getElementById("requestedAmount")
-              .value
-          ),
-
-        tenure_months:
-          Number(
-            document
-              .getElementById("eligibilityTenure")
-              .value
-          )
-
-      };
-
-
-      if (
-        payload.monthly_income <= 0 ||
-        payload.requested_amount <= 0 ||
-        !payload.tenure_months
-      ) {
-
-        alert(
-          "Please enter all loan details."
-        );
-
-        button.disabled = false;
-        button.textContent =
-          "Check Eligibility";
-
-        return;
-
-      }
-
-
-      try {
-
-        const response =
-          await fetch(
-            `${API_BASE}/api/eligibility`,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify(payload)
-            }
-          );
-
-
-        const data =
-          await response.json();
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            data.error ||
-            "Eligibility check failed."
-          );
-
-        }
-
-
-        /*
-         * Display result
-         */
-
-        document.getElementById(
-          "inquiryId"
-        ).textContent =
-          data.inquiry_id || "-";
-
-
-        document.getElementById(
-          "estimatedRate"
-        ).textContent =
-          data.estimated_interest_rate || "-";
-
-
-        document.getElementById(
-          "estimatedEmi"
-        ).textContent =
-          formatMoney(
-            data.estimated_emi
-          );
-
-
-        const title =
-          document.getElementById(
-            "eligibilityTitle"
-          );
-
-
-        const message =
-          document.getElementById(
-            "eligibilityMessage"
-          );
-
-
-        const resultIcon =
-          document.querySelector(
-            ".result-icon"
-          );
-
-
-        if (
-          data.eligibility_status ===
-          "likely_eligible"
-        ) {
-
-          title.textContent =
-            "Preliminary Result: Likely Eligible";
-
-          message.textContent =
-            data.eligibility_reason ||
-            "Your preliminary eligibility looks positive.";
-
-          if (resultIcon) {
-            resultIcon.textContent = "✓";
-          }
-
-        }
-
-        else if (
-          data.eligibility_status ===
-          "needs_review"
-        ) {
-
-          title.textContent =
-            "Preliminary Result: Review Required";
-
-          message.textContent =
-            data.eligibility_reason ||
-            "Your details require further review.";
-
-          if (resultIcon) {
-            resultIcon.textContent = "!";
-          }
-
-        }
-
-        else {
-
-          title.textContent =
-            "Preliminary Result";
-
-          message.textContent =
-            data.eligibility_reason ||
-            "The preliminary criteria were not met.";
-
-          if (resultIcon) {
-            resultIcon.textContent = "i";
-          }
-
-        }
-
-
-        showEligibilityStep(3);
-
-
-        document
-          .getElementById("eligibility")
-          .scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-          });
-
-      }
-
-      catch (error) {
-
-        alert(
-          error.message ||
-          "Unable to check eligibility."
-        );
-
-      }
-
-      finally {
-
-        button.disabled = false;
-
-        button.textContent =
-          "Check Eligibility";
-
-      }
-
-    }
-  );
-
-}
-
-
-// =====================================================
-// APPLY NOW / SCREEN NAVIGATION
-// =====================================================
-
-const applyNowButton = document.getElementById("applyNowButton");
-
-if (applyNowButton) {
-  applyNowButton.addEventListener("click", function (event) {
-    event.preventDefault();
-
-    const applicationSection = document.getElementById("loanApplication");
-    if (!applicationSection) return;
-
-    // Make sure the application section is visible even if an older CSS
-    // version has a hidden-state rule.
-    applicationSection.style.display = "block";
-    applicationSection.hidden = false;
-
-    applicationSection.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-  });
-}
-
-
-// =====================================================
-// LOAN APPLICATION
-// =====================================================
-
-const loanApplicationForm =
-  document.getElementById(
-    "loanApplicationForm"
-  );
-
-
-if (loanApplicationForm) {
-
-  loanApplicationForm.addEventListener(
-    "submit",
-    async function (event) {
-
-      event.preventDefault();
-
-
-      const result =
-        document.getElementById(
-          "applicationResult"
-        );
-
-
-      result.style.display = "block";
-
-      result.className =
-        "result-box";
-
-      result.textContent =
-        "Submitting application...";
-
-
-      const payload = {
-
-        full_name:
-          document
-            .getElementById("fullName")
-            .value.trim(),
-
-        mobile:
-          document
-            .getElementById("mobile")
-            .value.trim(),
-
-        email:
-          document
-            .getElementById("email")
-            .value.trim(),
-
-        monthly_income:
-          Number(
-            document
-              .getElementById(
-                "monthlyIncomeApplication"
-              )
-              .value
-          ),
-
-        requested_amount:
-          Number(
-            document
-              .getElementById(
-                "requestedAmountApplication"
-              )
-              .value
-          ),
-
-        tenure_months:
-          Number(
-            document
-              .getElementById(
-                "tenureApplication"
-              )
-              .value
-          ),
-
-        address:
-          document
-            .getElementById("address")
-            .value.trim()
-
-      };
-
-
-      try {
-
-        const response =
-          await fetch(
-            `${API_BASE}/api/applications`,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify(payload)
-            }
-          );
-
-
-        const data =
-          await response.json();
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            data.error ||
-            "Application submission failed."
-          );
-
-        }
-
-
-        result.className =
-          "result-box success";
-
-
-        result.innerHTML = `
-          <strong>Application submitted successfully!</strong>
-          <br><br>
-          Your Application ID:
-          <strong>${data.application_id}</strong>
-          <br><br>
-          Please save this ID for future reference.
-          <br><br>
-          You can now upload your documents below.
-        `;
-
-
-        loanApplicationForm.reset();
-
-        showDocumentUpload(
-          data.application_id
-        );
-
-      }
-
-      catch (error) {
-
-        result.className =
-          "result-box error";
-
-        result.textContent =
-          error.message ||
-          "Unable to submit application.";
-
-      }
-
-    }
-  );
-
-}
-
-
-
-// =====================================================
-// DOCUMENT UPLOAD
-// =====================================================
-
-const documentUploadSection =
-  document.getElementById("documentUploadSection");
-
-const uploadDocumentsButton =
-  document.getElementById("uploadDocumentsButton");
-
-const documentApplicationId =
-  document.getElementById("documentApplicationId");
-
-const documentUploadMessage =
-  document.getElementById("documentUploadMessage");
-
-const documentUploadStatus =
-  document.getElementById("documentUploadStatus");
-
-
-const DOCUMENT_UPLOADS = [
-  {
-    id: "identityProof",
-    type: "identity_proof",
-    label: "Identity Proof"
-  },
-  {
-    id: "panCard",
-    type: "pan_card",
-    label: "PAN Card"
-  },
-  {
-    id: "addressProof",
-    type: "address_proof",
-    label: "Address Proof"
-  },
-  {
-    id: "incomeProof",
-    type: "income_proof",
-    label: "Income Proof"
-  },
-  {
-    id: "applicantPhoto",
-    type: "applicant_photo",
-    label: "Applicant Photo"
-  }
-];
-
-
-function showDocumentUpload(applicationId) {
-
-  if (!documentUploadSection) return;
-
-  documentUploadSection.style.display = "block";
-
-  if (documentApplicationId) {
-    documentApplicationId.value = applicationId || "";
-  }
-
-  documentUploadSection.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-
-}
-
-
-async function uploadSingleDocument(applicationId, config, file) {
-
-  const uploadUrlResponse =
-    await fetch(
-      `${API_BASE}/api/documents/upload-url`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-          application_id: applicationId,
-          document_type: config.type,
-          file_name: file.name,
-          file_type: file.type,
-          file_size: file.size
-        })
-      }
-    );
-
-
-  const uploadData =
-    await uploadUrlResponse.json();
-
-
-  if (!uploadUrlResponse.ok) {
-    throw new Error(
-      uploadData.error ||
-      `Could not prepare ${config.label} upload.`
-    );
-  }
-
-
-  const uploadResponse =
-    await fetch(
-      uploadData.signedUrl,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": file.type
-        },
-        body: file
-      }
-    );
-
-
-  if (!uploadResponse.ok) {
-    throw new Error(
-      `${config.label} upload failed.`
-    );
-  }
-
-
-  const recordResponse =
-    await fetch(
-      `${API_BASE}/api/documents/record`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-          application_id: applicationId,
-          document_type: config.type,
-          file_name: file.name,
-          storage_path: uploadData.path,
-          file_type: file.type,
-          file_size: file.size
-        })
-      }
-    );
-
-
-  const recordData =
-    await recordResponse.json();
-
-
-  if (!recordResponse.ok) {
-    throw new Error(
-      recordData.error ||
-      `${config.label} record could not be saved.`
-    );
-  }
-
-  return recordData;
-}
-
-
-if (uploadDocumentsButton) {
-
-  uploadDocumentsButton.addEventListener(
-    "click",
-    async function () {
-
-      const applicationId =
-        documentApplicationId
-          ? documentApplicationId.value.trim()
-          : "";
-
-
-      if (!applicationId) {
-
-        showMessage(
-          "documentUploadMessage",
-          "Please submit your loan application first.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      const selectedFiles = [];
-
-
-      DOCUMENT_UPLOADS.forEach(function (config) {
-
-        const input =
-          document.getElementById(config.id);
-
-        const file =
-          input && input.files
-            ? input.files[0]
-            : null;
-
-        if (file) {
-          selectedFiles.push({
-            config,
-            file
-          });
-        }
-
-      });
-
-
-      if (selectedFiles.length === 0) {
-
-        showMessage(
-          "documentUploadMessage",
-          "Please select at least one document.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      uploadDocumentsButton.disabled = true;
-      uploadDocumentsButton.textContent =
-        "Uploading...";
-
-
-      if (documentUploadStatus) {
-        documentUploadStatus.style.display = "block";
-        documentUploadStatus.className =
-          "result-box";
-        documentUploadStatus.textContent =
-          "Document upload started...";
-      }
-
-
-      let successCount = 0;
-      const failed = [];
-
-
-      try {
-
-        for (const item of selectedFiles) {
-
-          if (documentUploadStatus) {
-            documentUploadStatus.textContent =
-              `Uploading ${item.config.label}...`;
-          }
-
-          try {
-
-            await uploadSingleDocument(
-              applicationId,
-              item.config,
-              item.file
-            );
-
-            successCount++;
-
-          }
-
-          catch (error) {
-
-            failed.push(
-              `${item.config.label}: ${error.message}`
-            );
-
-          }
-
-        }
-
-
-        if (failed.length === 0) {
-
-          showMessage(
-            "documentUploadMessage",
-            `${successCount} document(s) uploaded successfully.`,
-            "success"
-          );
-
-          if (documentUploadStatus) {
-            documentUploadStatus.className =
-              "result-box success";
-            documentUploadStatus.textContent =
-              "All selected documents have been uploaded successfully. They are now pending verification.";
-          }
-
-        }
-
-        else {
-
-          showMessage(
-            "documentUploadMessage",
-            `${successCount} document(s) uploaded. Some documents could not be uploaded.`,
-            "error"
-          );
-
-          if (documentUploadStatus) {
-            documentUploadStatus.className =
-              "result-box error";
-            documentUploadStatus.innerHTML =
-              "<strong>Upload completed with some errors.</strong><br><br>" +
-              failed
-                .map(function (message) {
-                  return message;
-                })
-                .join("<br>");
-          }
-
-        }
-
-
-        selectedFiles.forEach(function (item) {
-
-          const input =
-            document.getElementById(item.config.id);
-
-          if (input) {
-            input.value = "";
-          }
-
-        });
-
-      }
-
-      catch (error) {
-
-        showMessage(
-          "documentUploadMessage",
-          error.message ||
-          "Document upload failed.",
-          "error"
-        );
-
-      }
-
-      finally {
-
-        uploadDocumentsButton.disabled = false;
-        uploadDocumentsButton.textContent =
-          "Upload Documents";
-
-      }
-
-    }
-  );
-
-}
-
-
-// =====================================================
-// CUSTOMER LOAN LOOKUP
-// =====================================================
-
-const lookupForm =
-  document.getElementById(
-    "lookupForm"
-  );
-
-
-if (lookupForm) {
-
-  lookupForm.addEventListener(
-    "submit",
-    async function (event) {
-
-      event.preventDefault();
-
-
-      showMessage(
-        "lookupMessage",
-        "Searching your loan..."
-      );
-
-
-      const mobile =
-        document
-          .getElementById(
-            "lookupMobile"
-          )
-          .value.trim();
-
-
-      const applicationId =
-        document
-          .getElementById(
-            "lookupApplicationId"
-          )
-          .value.trim();
-
-
-      if (!/^[0-9]{10}$/.test(mobile)) {
-
-        showMessage(
-          "lookupMessage",
-          "Please enter a valid 10 digit mobile number.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        const response =
-          await fetch(
-            `${API_BASE}/api/customer/loan`,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify({
-                  mobile,
-                  application_id:
-                    applicationId
-                })
-            }
-          );
-
-
-        const data =
-          await response.json();
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            data.error ||
-            "Active loan account not found."
-          );
-
-        }
-
-
-        displayLoan(data);
-
-
-        showMessage(
-          "lookupMessage",
-          "Loan account found successfully.",
-          "success"
-        );
-
-      }
-
-      catch (error) {
-
-        showMessage(
-          "lookupMessage",
-          error.message ||
-          "Unable to find loan account.",
-          "error"
-        );
-
-      }
-
-    }
-  );
-
-}
-
-
-// =====================================================
-// DISPLAY LOAN
-// =====================================================
-
-function displayLoan(data) {
-
-  const loan =
-    data.loan ||
-    data.loan_account ||
-    data;
-
-
-  currentLoanAccountId =
-    loan.id ||
-    loan.loan_account_id ||
-    data.loan_account_id;
-
-
-  const accountNo =
-    document.getElementById(
-      "loanAccountNo"
-    );
-
-  if (accountNo) {
-    accountNo.textContent =
-      loan.loan_account_no || "-";
-  }
-
-
-  document.getElementById(
-    "loanPrincipal"
-  ).textContent =
-    formatMoney(loan.principal);
-
-
-  document.getElementById(
-    "loanRate"
-  ).textContent =
-    loan.annual_interest_rate || 0;
-
-
-  document.getElementById(
-    "loanTenure"
-  ).textContent =
-    loan.tenure_months || 0;
-
-
-  document.getElementById(
-    "loanEmi"
-  ).textContent =
-    formatMoney(loan.emi);
-
-
-  document.getElementById(
-    "loanStatus"
-  ).textContent =
-    loan.status || "-";
-
-
-  document.getElementById(
-    "loanSummarySection"
-  ).style.display =
-    "block";
-
-
-  const emiSchedule =
-    data.emi_schedule ||
-    data.schedule ||
-    [];
-
-  currentEmiSchedule =
-    Array.isArray(emiSchedule)
-      ? emiSchedule
-      : [];
-
-  updatePaymentSummary(
-    emiSchedule
-  );
-
-  displayEmiSchedule(
-    emiSchedule
-  );
-
-  const nextPending =
-    currentEmiSchedule.find(function (emi) {
-
-      const total =
-        Number(emi.total_due || 0);
-
-      const paid =
-        Number(emi.paid_amount || 0);
-
-      return (
-        String(emi.status || "").toLowerCase() !== "paid" &&
-        paid < total
-      );
-
-    });
-
-  const paymentAmountInput =
-    document.getElementById("paymentAmount");
-
-  if (paymentAmountInput && nextPending) {
-
-    paymentAmountInput.value =
-      Number(nextPending.total_due || 0) -
-      Number(nextPending.paid_amount || 0);
-
-  }
-
-
-  document.getElementById(
-    "paymentSection"
-  ).style.display =
-    "block";
-
-
-  document.getElementById(
-    "paymentHistorySection"
-  ).style.display =
-    "block";
-
-
-  refreshPaymentHistory();
-
-}
-
-
-
-// =====================================================
-// PAYMENT SUMMARY
-// =====================================================
-
-function updatePaymentSummary(schedule) {
-
-  const section =
-    document.getElementById("paymentSummarySection");
-
-  if (!section) return;
-
-  const emiList =
-    Array.isArray(schedule) ? schedule : [];
-
-  if (emiList.length === 0) {
-    section.style.display = "none";
+["calcAmount","calcRate","calcMonths"].forEach(id => $(id)?.addEventListener("input", updateCalculator));
+
+$("eligNext")?.addEventListener("click", () => {
+  if (!$("eligName").value.trim() || !/^\d{10}$/.test($("eligMobile").value.trim()) || !$("eligAge").value) {
+    alert("Please enter valid basic details.");
     return;
   }
-
-  let totalPayable = 0;
-  let totalPaid = 0;
-  let paidEmiCount = 0;
-  let pendingEmiCount = 0;
-
-  emiList.forEach(function (emi) {
-
-    const totalDue = Number(emi.total_due || 0);
-    const paidAmount = Number(emi.paid_amount || 0);
-
-    const safePaid =
-      Math.min(
-        Math.max(paidAmount, 0),
-        Math.max(totalDue, 0)
-      );
-
-    totalPayable += totalDue;
-    totalPaid += safePaid;
-
-    if (
-      String(emi.status || "").toLowerCase() === "paid" ||
-      (totalDue > 0 && safePaid >= totalDue)
-    ) {
-      paidEmiCount++;
-    } else {
-      pendingEmiCount++;
-    }
-
-  });
-
-  const totalPending =
-    Math.max(totalPayable - totalPaid, 0);
-
-  const progress =
-    totalPayable > 0
-      ? Math.min((totalPaid / totalPayable) * 100, 100)
-      : 0;
-
-  const totalPayableElement =
-    document.getElementById("totalPayableAmount");
-
-  const totalPaidElement =
-    document.getElementById("totalPaidAmount");
-
-  const totalPendingElement =
-    document.getElementById("totalPendingAmount");
-
-  const paidEmiElement =
-    document.getElementById("paidEmiCount");
-
-  const pendingEmiElement =
-    document.getElementById("pendingEmiCount");
-
-  const progressElement =
-    document.getElementById("paymentProgress");
-
-  if (totalPayableElement) {
-    totalPayableElement.textContent =
-      formatMoney(totalPayable);
-  }
-
-  if (totalPaidElement) {
-    totalPaidElement.textContent =
-      formatMoney(totalPaid);
-  }
-
-  if (totalPendingElement) {
-    totalPendingElement.textContent =
-      formatMoney(totalPending);
-  }
-
-  if (paidEmiElement) {
-    paidEmiElement.textContent =
-      paidEmiCount;
-  }
-
-  if (pendingEmiElement) {
-    pendingEmiElement.textContent =
-      pendingEmiCount;
-  }
-
-  if (progressElement) {
-    progressElement.textContent =
-      progress.toFixed(1);
-  }
-
-  section.style.display = "block";
-}
-
-
-// =====================================================
-// EMI SCHEDULE
-// =====================================================
-
-function displayEmiSchedule(schedule) {
-
-  const section =
-    document.getElementById(
-      "emiScheduleSection"
-    );
-
-  const tbody =
-    document.getElementById(
-      "emiTableBody"
-    );
-
-
-  if (!schedule || schedule.length === 0) {
-
-    section.style.display = "none";
-
-    tbody.innerHTML = "";
-
-    return;
-
-  }
-
-
-  tbody.innerHTML = "";
-
-
-  schedule.forEach(function (emi) {
-
-    const row =
-      document.createElement("tr");
-
-
-    row.innerHTML = `
-
-      <td>
-        ${emi.installment_no || "-"}
-      </td>
-
-      <td>
-        ${emi.due_date || "-"}
-      </td>
-
-      <td>
-        ₹${formatMoney(
-          emi.principal_due
-        )}
-      </td>
-
-      <td>
-        ₹${formatMoney(
-          emi.interest_due
-        )}
-      </td>
-
-      <td>
-        ₹${formatMoney(
-          emi.total_due
-        )}
-      </td>
-
-      <td>
-        ₹${formatMoney(
-          emi.paid_amount
-        )}
-      </td>
-
-      <td>
-        ${emi.status || "-"}
-      </td>
-
-    `;
-
-
-    tbody.appendChild(row);
-
-  });
-
-
-  section.style.display = "block";
-
-}
-
-
-// =====================================================
-// DEMO PAYMENT
-// =====================================================
-
-let currentEmiSchedule = [];
-
-function getNextPendingInstallment() {
-
-  const pending =
-    currentEmiSchedule.find(function (emi) {
-
-      const total =
-        Number(emi.total_due || 0);
-
-      const paid =
-        Number(emi.paid_amount || 0);
-
-      return (
-        String(emi.status || "").toLowerCase() !== "paid" &&
-        paid < total
-      );
-
-    });
-
-  return pending
-    ? Number(pending.installment_no)
-    : null;
-}
-
-
-const paymentForm =
-  document.getElementById(
-    "paymentForm"
-  );
-
-
-if (paymentForm) {
-
-  paymentForm.addEventListener(
-    "submit",
-    async function (event) {
-
-      event.preventDefault();
-
-
-      if (!currentLoanAccountId) {
-
-        showMessage(
-          "paymentMessage",
-          "Please view your loan first.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      const amount =
-        Number(
-          document.getElementById(
-            "paymentAmount"
-          ).value
-        );
-
-
-      const nextInstallment =
-        getNextPendingInstallment();
-
-      if (!nextInstallment) {
-
-        showMessage(
-          "paymentMessage",
-          "All EMI payments are already completed.",
-          "error"
-        );
-
-        return;
-
-      }
-
-      if (amount <= 0) {
-
-        showMessage(
-          "paymentMessage",
-          "Please enter a valid amount.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      showMessage(
-        "paymentMessage",
-        "Processing payment..."
-      );
-
-
-      try {
-
-        const response =
-          await fetch(
-            `${API_BASE}/api/customer/pay-emi-test`,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify({
-                  application_id:
-                    currentApplicationId,
-
-                  mobile:
-                    currentMobile,
-
-                  installment_no:
-                    getNextPendingInstallment(),
-
-                  payment_method:
-                    paymentMethod
-                })
-            }
-          );
-
-
-        const data =
-          await response.json();
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            data.error ||
-            "Payment failed."
-          );
-
-        }
-
-
-        showMessage(
-          "paymentMessage",
-          `Payment successful. Reference: ${
-            data.transaction_reference ||
-            data.payment?.transaction_reference ||
-            "TEST"
-          }`,
-          "success"
-        );
-
-
-        document.getElementById(
-          "paymentAmount"
-        ).value = "";
-
-
-
-        refreshPaymentHistory();
-
-        // Refresh loan/EMI data so Paid and Pending amounts update immediately.
-        const lookupMobileElement =
-          document.getElementById("lookupMobile");
-
-        const lookupApplicationElement =
-          document.getElementById("lookupApplicationId");
-
-        if (
-          lookupMobileElement &&
-          lookupApplicationElement &&
-          lookupMobileElement.value.trim() &&
-          lookupApplicationElement.value.trim()
-        ) {
-
-          try {
-
-            const refreshResponse =
-              await fetch(
-                `${API_BASE}/api/customer/loan`,
-                {
-                  method: "POST",
-
-                  headers: {
-                    "Content-Type":
-                      "application/json"
-                  },
-
-                  body: JSON.stringify({
-                    mobile:
-                      lookupMobileElement.value.trim(),
-
-                    application_id:
-                      lookupApplicationElement.value.trim()
-                  })
-                }
-              );
-
-            const refreshData =
-              await refreshResponse.json();
-
-            if (refreshResponse.ok) {
-              displayLoan(refreshData);
-            }
-
-          }
-
-          catch (refreshError) {
-            console.error(
-              "Loan summary refresh error:",
-              refreshError
-            );
-          }
-
-        }
-
-      }
-
-      catch (error) {
-
-        showMessage(
-          "paymentMessage",
-          error.message ||
-          "Payment failed.",
-          "error"
-        );
-
-      }
-
-    }
-  );
-
-}
-
-
-// =====================================================
-// PAYMENT HISTORY
-// =====================================================
-
-async function refreshPaymentHistory() {
-
-  if (!currentLoanAccountId) {
-    return;
-  }
-
-
-  const tbody =
-    document.getElementById(
-      "paymentHistoryBody"
-    );
-
-
+  $("eligibilityStep1").classList.add("hidden");
+  $("eligibilityStep2").classList.remove("hidden");
+  document.querySelectorAll(".stepper span")[0].classList.remove("active");
+  document.querySelectorAll(".stepper span")[1].classList.add("active");
+});
+$("eligBack")?.addEventListener("click", () => {
+  $("eligibilityStep2").classList.add("hidden");
+  $("eligibilityStep1").classList.remove("hidden");
+  document.querySelectorAll(".stepper span")[1].classList.remove("active");
+  document.querySelectorAll(".stepper span")[0].classList.add("active");
+});
+
+$("eligibilityForm")?.addEventListener("submit", async e => {
+  e.preventDefault();
+  const result = $("eligibilityResult");
+  result.classList.remove("hidden");
+  result.innerHTML = `<div class="loading">Checking your preliminary eligibility…</div>`;
+  const payload = {
+    full_name: $("eligName").value.trim(), mobile: $("eligMobile").value.trim(),
+    email: "", age: Number($("eligAge").value), employment_type: $("eligEmployment").value,
+    monthly_income: Number($("eligIncome").value), existing_emi: Number($("eligExistingEmi").value),
+    requested_amount: Number($("eligAmount").value), tenure_months: Number($("eligTenure").value)
+  };
   try {
-
-    const response =
-      await fetch(
-        `${API_BASE}/api/customer/payment-history`,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body: JSON.stringify({
-              application_id:
-                currentApplicationId,
-
-              mobile:
-                currentMobile
-            })
-        }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    if (!response.ok) {
-      return;
-    }
-
-
-    const payments =
-      data.payments ||
-      data ||
-      [];
-
-
-    tbody.innerHTML = "";
-
-
-    if (payments.length === 0) {
-
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="5">
-            No payments found.
-          </td>
-        </tr>
-      `;
-
-      return;
-
-    }
-
-
-    payments.forEach(function (payment) {
-
-      const row =
-        document.createElement("tr");
-
-
-      const date =
-        payment.payment_date
-          ? new Date(
-              payment.payment_date
-            ).toLocaleString("en-IN")
-          : "-";
-
-
-      row.innerHTML = `
-
-        <td>${date}</td>
-
-        <td>
-          ₹${formatMoney(
-            payment.amount
-          )}
-        </td>
-
-        <td>
-          ${payment.payment_method || "-"}
-        </td>
-
-        <td>
-          ${payment.transaction_reference || "-"}
-        </td>
-
-        <td>
-          ${payment.status || "-"}
-        </td>
-
-      `;
-
-
-      tbody.appendChild(row);
-
-    });
-
+    const r = await fetch(API_BASE + "/api/eligibility", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Eligibility inquiry failed");
+    result.innerHTML = `<div class="result-icon">✓</div><div><span>INQUIRY ID: ${data.inquiry_id || "—"}</span><h3>${data.eligibility_status || "Inquiry received"}</h3><p>${data.eligibility_reason || data.message || "Your inquiry has been received."}</p><div class="result-metrics"><div><b>${data.estimated_interest_rate ? data.estimated_interest_rate+"%" : "—"}</b><small>Estimated rate</small></div><div><b>${data.estimated_emi ? money(data.estimated_emi) : "—"}</b><small>Estimated EMI</small></div></div><button type="button" class="btn btn-gold" id="continueApply">Continue to Loan Application →</button></div>`;
+    $("continueApply").onclick = () => {
+      $("appName").value = payload.full_name; $("appMobile").value = payload.mobile;
+      $("appIncome").value = payload.monthly_income; $("appAmount").value = payload.requested_amount; $("appTenure").value = payload.tenure_months;
+      showScreen("apply");
+    };
+  } catch(err) {
+    result.innerHTML = `<div class="error-box">${err.message || "Could not connect to server."}</div>`;
   }
+});
 
-  catch (error) {
-
-    console.error(
-      "Payment history error:",
-      error
-    );
-
+$("loanForm")?.addEventListener("submit", async e => {
+  e.preventDefault();
+  $("applicationMessage").textContent = "Submitting application…";
+  const payload = {full_name:$("appName").value.trim(), mobile:$("appMobile").value.trim(), email:$("appEmail").value.trim(), monthly_income:Number($("appIncome").value), requested_amount:Number($("appAmount").value), tenure_months:Number($("appTenure").value), address:$("appAddress").value.trim()};
+  try {
+    const r = await fetch(API_BASE + "/api/applications", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Application submission failed");
+    currentApplicationId = data.application_id || "";
+    $("documentApplicationId").textContent = currentApplicationId || "—";
+    $("applicationMessage").innerHTML = `<span class="success">Application submitted successfully. ID: <b>${currentApplicationId}</b></span>`;
+    showScreen("documents");
+  } catch(err) {
+    $("applicationMessage").innerHTML = `<span class="error">${err.message || "Backend connection failed."}</span>`;
   }
+});
 
+$("documentForm")?.addEventListener("submit", async e => {
+  e.preventDefault();
+  const file = $("documentFile").files[0];
+  if (!currentApplicationId) { $("documentMessage").textContent = "Application ID not found. Please submit the application first."; return; }
+  if (!file) return;
+  if (file.size > 5*1024*1024) { $("documentMessage").textContent = "File must be 5 MB or smaller."; return; }
+  $("documentMessage").textContent = "Preparing secure upload…";
+  try {
+    const p = new URLSearchParams({application_id:currentApplicationId,document_type:$("documentType").value,file_name:file.name,file_type:file.type,file_size:String(file.size)});
+    const r = await fetch(API_BASE + "/api/documents/upload-url", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({application_id:currentApplicationId,document_type:$("documentType").value,file_name:file.name,file_type:file.type,file_size:file.size})});
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Could not create upload URL");
+    const signedUrl = data.signedUrl || data.signed_url || data.url;
+    if (!signedUrl) throw new Error("Upload URL was not returned by server.");
+    const up = await fetch(signedUrl, {method:"PUT",headers:{"Content-Type":file.type},body:file});
+    if (!up.ok) throw new Error("File upload failed.");
+    if (data.storagePath || data.storage_path) {
+      await fetch(API_BASE + "/api/documents/record", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({application_id:currentApplicationId,document_type:$("documentType").value,file_name:file.name,storage_path:data.storagePath||data.storage_path,file_type:file.type,file_size:file.size})});
+    }
+    $("documentMessage").innerHTML = `<span class="success">Document uploaded successfully.</span>`;
+    $("documentFile").value = "";
+  } catch(err) {
+    $("documentMessage").innerHTML = `<span class="error">${err.message}</span>`;
+  }
+});
+
+function renderSchedule(schedule) {
+  currentSchedule = Array.isArray(schedule) ? schedule : [];
+  const box = $("emiScheduleContainer");
+  if (!currentSchedule.length) { box.innerHTML = `<div class="empty">No EMI schedule found.</div>`; return; }
+  box.innerHTML = currentSchedule.map((x,i) => {
+    const due = Number(x.total_due || x.emi || 0), paid = Number(x.paid_amount || 0), pending = Math.max(0,due-paid);
+    return `<div class="schedule-row"><div class="installment"><b>EMI ${x.installment_no || i+1}</b><small>${x.due_date || "—"}</small></div><strong>${money(due)}</strong><span class="status ${(x.status||"pending").toLowerCase()}">${x.status || "pending"}</span></div>`;
+  }).join("");
+  const pending = currentSchedule.reduce((s,x)=>s+Math.max(0,Number(x.total_due||x.emi||0)-Number(x.paid_amount||0)),0);
+  $("paymentSummaryAmount").textContent = money(pending) + " pending";
+  $("paymentInstallment").innerHTML = currentSchedule.filter(x => (x.status||"pending") !== "paid" && Math.max(0,Number(x.total_due||x.emi||0)-Number(x.paid_amount||0)) > 0).map((x,i) => {
+    const no = x.installment_no || i+1, amt = Math.max(0,Number(x.total_due||x.emi||0)-Number(x.paid_amount||0));
+    return `<option value="${no}" data-amount="${amt}">EMI ${no} — ${money(amt)}</option>`;
+  }).join("") || `<option value="">No pending EMI</option>`;
+  updatePaymentAmount();
+}
+function updatePaymentAmount() {
+  const o = $("paymentInstallment")?.selectedOptions[0];
+  if (o?.dataset.amount) $("paymentAmount").value = Math.round(Number(o.dataset.amount));
+}
+$("paymentInstallment")?.addEventListener("change", updatePaymentAmount);
+
+function renderHistory(items) {
+  const box = $("paymentHistoryContainer");
+  if (!items?.length) { box.innerHTML = `<div class="empty">No payment history found.</div>`; return; }
+  box.innerHTML = items.map(x => `<div class="history-row"><div><b>${x.payment_id || x.id || "Payment"}</b><small>${x.paid_at || x.created_at || "—"}</small></div><strong>${money(x.amount)}</strong><span>${x.status || "success"}</span></div>`).join("");
 }
 
+async function loadLoan() {
+  const mobile = $("loanMobile").value.trim();
+  if (!/^\d{10}$/.test(mobile)) { $("loanMessage").textContent = "Please enter a valid 10-digit mobile number."; return; }
+  $("loanMessage").textContent = "Loading loan details…";
+  try {
+    let r = await fetch(API_BASE + "/api/customer/loan", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mobile})});
+    if (!r.ok) {
+      r = await fetch(API_BASE + "/api/customer/loan?mobile=" + encodeURIComponent(mobile));
+    }
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Loan details not found");
+    currentCustomerMobile = mobile;
+    currentApplicationId = data.application_id || currentApplicationId;
+    currentLoanAccountId = data.loan_account_id || data.loan_account_no || "";
+    $("displayLoanAccount").textContent = data.loan_account_no || data.loan_account_id || "—";
+    $("displayCustomerName").textContent = data.full_name || data.customer_name || "Customer";
+    $("displayLoanAmount").textContent = money(data.loan_amount || data.principal || data.requested_amount);
+    $("displayEmi").textContent = money(data.emi);
+    $("displayTenure").textContent = (data.tenure_months || "—") + " months";
+    $("displayOutstanding").textContent = money(data.outstanding_amount || data.outstanding || 0);
+    $("displayLoanStatus").textContent = data.status || "Active";
+    renderSchedule(data.emi_schedule || data.schedule || []);
+    await loadHistory();
+    $("loanMessage").textContent = "";
+    showScreen("dashboard");
+  } catch(err) { $("loanMessage").textContent = err.message || "Unable to load loan."; }
+}
+$("loadLoanBtn")?.addEventListener("click", loadLoan);
 
-// =====================================================
-// INITIAL STATE
-// =====================================================
+async function loadHistory() {
+  if (!currentApplicationId && !currentLoanAccountId) return;
+  try {
+    const r = await fetch(API_BASE + "/api/customer/payment-history", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({application_id:currentApplicationId,loan_account_id:currentLoanAccountId,mobile:currentCustomerMobile})});
+    const data = await r.json();
+    if (r.ok) renderHistory(data.payments || data.history || data || []);
+  } catch(e) {}
+}
 
-document.addEventListener(
-  "DOMContentLoaded",
-  function () {
+$("paymentForm")?.addEventListener("submit", async e => {
+  e.preventDefault();
+  const installment_no = Number($("paymentInstallment").value);
+  const amount = Number($("paymentAmount").value);
+  if (!installment_no || !amount) { $("paymentMessage").textContent = "Select a pending EMI."; return; }
+  $("paymentMessage").textContent = "Processing payment request…";
+  try {
+    const r = await fetch(API_BASE + "/api/customer/pay-emi-test", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({application_id:currentApplicationId,loan_account_id:currentLoanAccountId,mobile:currentCustomerMobile,installment_no,amount,payment_method:$("paymentMode").value})});
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Payment failed");
+    $("paymentMessage").innerHTML = `<span class="success">Payment recorded successfully.</span>`;
+    await loadLoan();
+  } catch(err) { $("paymentMessage").innerHTML = `<span class="error">${err.message}</span>`; }
+});
 
-    showEligibilityStep(1);
-
-  }
-);
+updateCalculator();
+showScreen("home");
