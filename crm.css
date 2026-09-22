@@ -2419,3 +2419,203 @@ td strong {
   }
 
 }
+/* =====================================================
+   FINAL SHYAM FINCORP CRM FIX
+===================================================== */
+
+.nav-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #9cafc3;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 11px 12px;
+
+  border-radius: 10px;
+
+  margin-bottom: 4px;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  transition: .2s ease;
+}
+
+.nav-item span {
+  width: 22px;
+  flex: 0 0 22px;
+
+  text-align: center;
+
+  font-size: 15px;
+}
+
+.nav-item b {
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,.06);
+  color: #ffffff;
+}
+
+.nav-item.active {
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(37,99,235,.95),
+      rgba(37,99,235,.55)
+    );
+
+  box-shadow:
+    0 8px 20px
+    rgba(37,99,235,.16);
+}
+
+
+/* SIDEBAR MENU TITLE */
+
+.crm-menu-label {
+  color: #60748b;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+
+  padding:
+    20px 11px 8px;
+}
+
+
+/* DASHBOARD SPACING */
+
+.crm-dashboard {
+  width: 100%;
+}
+
+
+/* RECENT APPLICATION HEADER */
+
+.crm-recent-list::before {
+  content:
+    "APPLICATION ID        CUSTOMER        AMOUNT        STATUS";
+
+  display: grid;
+
+  grid-template-columns:
+    1.1fr 1.3fr .8fr .8fr;
+
+  gap: 10px;
+
+  padding:
+    0 13px 8px;
+
+  color: #98a4b4;
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: .6px;
+}
+
+
+/* BETTER DASHBOARD BACKGROUND */
+
+.crm-content {
+  background:
+    linear-gradient(
+      180deg,
+      #f7f9fc 0%,
+      #f4f7fb 100%
+    );
+
+  min-height:
+    calc(100vh - 72px);
+}
+
+
+/* KPI NUMBER */
+
+.crm-kpi-card strong {
+  white-space: nowrap;
+}
+
+
+/* PANEL HOVER */
+
+.crm-premium-panel {
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.crm-premium-panel:hover {
+  box-shadow:
+    0 12px 35px
+    rgba(15,35,60,.075);
+}
+
+
+/* COLLECTION */
+
+.crm-collection-box strong {
+  white-space: nowrap;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 760px) {
+
+  .crm-menu-label {
+    padding-top: 15px;
+  }
+
+  .crm-recent-list::before {
+    display: none;
+  }
+
+  .crm-recent-row {
+    grid-template-columns:
+      1fr 1fr;
+
+    gap: 8px;
+  }
+
+  .crm-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* SMALL MOBILE */
+
+@media (max-width: 480px) {
+
+  .crm-content {
+    padding:
+      18px 12px;
+  }
+
+  .crm-kpi-card {
+    min-height: 105px;
+  }
+
+  .crm-dashboard-header h1 {
+    font-size: 23px;
+  }
+
+}
