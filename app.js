@@ -1,5 +1,4 @@
 const API_BASE = "https://shyam-fincorp.onrender.com";
-hyam-fincorp.onrender.com";
 
 let currentApplicationId =
   localStorage.getItem("shyam_application_id") || "";
