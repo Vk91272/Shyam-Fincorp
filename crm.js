@@ -1706,3 +1706,382 @@ document.addEventListener(
 
   }
 );
+// =====================================================
+// SHYAM FINCORP PREMIUM CRM DASHBOARD
+// =====================================================
+
+async function loadPremiumCRMDashboard() {
+
+  try {
+
+    const [
+      customersResponse,
+      applicationsResponse,
+      loansResponse,
+      paymentsResponse
+    ] = await Promise.all([
+
+      apiRequest(
+        "/api/admin/report/customers"
+      ),
+
+      apiRequest(
+        "/api/admin/report/applications"
+      ),
+
+      apiRequest(
+        "/api/admin/report/loans"
+      ),
+
+      apiRequest(
+        "/api/admin/report/payments"
+      )
+
+    ]);
+
+
+    const customers =
+      customersResponse.data ||
+      customersResponse ||
+      [];
+
+    const applications =
+      applicationsResponse.data ||
+      applicationsResponse ||
+      [];
+
+    const loans =
+      loansResponse.data ||
+      loansResponse ||
+      [];
+
+    const payments =
+      paymentsResponse.data ||
+      paymentsResponse ||
+      [];
+
+
+    // -----------------------------------------------
+    // CUSTOMERS
+    // -----------------------------------------------
+
+    setCRMText(
+      "crmTotalCustomers",
+      customers.length
+    );
+
+
+    // -----------------------------------------------
+    // APPLICATIONS
+    // -----------------------------------------------
+
+    setCRMText(
+      "crmTotalApplications",
+      applications.length
+    );
+
+
+    const pendingApplications =
+      applications.filter(function(app) {
+
+        return [
+          "submitted",
+          "under_review"
+        ].includes(
+          String(app.status || "")
+            .toLowerCase()
+        );
+
+      });
+
+
+    setCRMText(
+      "crmPendingApplications",
+      pendingApplications.length
+    );
+
+
+    // -----------------------------------------------
+    // LOANS
+    // -----------------------------------------------
+
+    const activeLoans =
+      loans.filter(function(loan) {
+
+        return [
+          "active",
+          "disbursed"
+        ].includes(
+          String(loan.status || "")
+            .toLowerCase()
+        );
+
+      });
+
+
+    setCRMText(
+      "crmActiveLoans",
+      activeLoans.length
+    );
+
+
+    const closedLoans =
+      loans.filter(function(loan) {
+
+        return String(
+          loan.status || ""
+        ).toLowerCase() === "closed";
+
+      });
+
+
+    const disbursedLoans =
+      loans.filter(function(loan) {
+
+        return String(
+          loan.status || ""
+        ).toLowerCase() === "disbursed";
+
+      });
+
+
+    setCRMText(
+      "crmPortfolioActive",
+      activeLoans.length
+    );
+
+    setCRMText(
+      "crmPortfolioClosed",
+      closedLoans.length
+    );
+
+    setCRMText(
+      "crmPortfolioDisbursed",
+      disbursedLoans.length
+    );
+
+
+    // -----------------------------------------------
+    // PORTFOLIO AMOUNT
+    // -----------------------------------------------
+
+    const portfolio =
+      loans.reduce(function(total, loan) {
+
+        return total +
+          Number(
+            loan.principal ||
+            loan.loan_amount ||
+            loan.amount ||
+            0
+          );
+
+      }, 0);
+
+
+    setCRMText(
+      "crmPortfolioAmount",
+      formatCRMAmount(portfolio)
+    );
+
+
+    setCRMText(
+      "crmOutstandingAmount",
+      formatCRMAmount(portfolio)
+    );
+
+
+    // -----------------------------------------------
+    // PAYMENTS
+    // -----------------------------------------------
+
+    const collection =
+      payments.reduce(function(total, payment) {
+
+        return total +
+          Number(
+            payment.amount ||
+            payment.payment_amount ||
+            0
+          );
+
+      }, 0);
+
+
+    setCRMText(
+      "crmCollectionAmount",
+      formatCRMAmount(collection)
+    );
+
+
+    setCRMText(
+      "crmCollectedAmount",
+      formatCRMAmount(collection)
+    );
+
+
+    setCRMText(
+      "crmPaymentCount",
+      payments.length
+    );
+
+
+    // -----------------------------------------------
+    // RECENT APPLICATIONS
+    // -----------------------------------------------
+
+    renderRecentCRMApplications(
+      applications.slice(0, 6)
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "CRM dashboard error:",
+      error
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// HELPERS
+// =====================================================
+
+function setCRMText(id, value) {
+
+  const element =
+    document.getElementById(id);
+
+  if (element) {
+    element.textContent = value;
+  }
+
+}
+
+
+function formatCRMAmount(value) {
+
+  const amount =
+    Number(value || 0);
+
+  return amount.toLocaleString(
+    "en-IN",
+    {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0
+    }
+  );
+
+}
+
+
+// =====================================================
+// RECENT APPLICATIONS
+// =====================================================
+
+function renderRecentCRMApplications(
+  applications
+) {
+
+  const container =
+    document.getElementById(
+      "crmRecentApplications"
+    );
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!applications.length) {
+
+    container.innerHTML = `
+      <div class="crm-empty-state">
+        No loan applications found.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    applications.map(function(app) {
+
+      const applicationId =
+        app.application_id ||
+        "-";
+
+      const name =
+        app.full_name ||
+        "Customer";
+
+      const amount =
+        formatCRMAmount(
+          app.requested_amount || 0
+        );
+
+      const status =
+        String(
+          app.status || "submitted"
+        )
+        .replace(/_/g, " ")
+        .toUpperCase();
+
+
+      return `
+
+        <div class="crm-recent-row">
+
+          <strong>
+            ${escapeHtml(
+              applicationId
+            )}
+          </strong>
+
+          <span>
+            ${escapeHtml(name)}
+          </span>
+
+          <span>
+            ${amount}
+          </span>
+
+          <span class="crm-status">
+            ${escapeHtml(status)}
+          </span>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+// =====================================================
+// LOAD DASHBOARD
+// =====================================================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    if (
+      document.querySelector(
+        ".crm-dashboard"
+      )
+    ) {
+
+      loadPremiumCRMDashboard();
+
+    }
+
+  }
+);
