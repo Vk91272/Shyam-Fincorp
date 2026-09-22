@@ -1201,14 +1201,14 @@ function displayLoan(data) {
     );
 
   const status =
-    getValue(
-      loan,
-      [
-        "status",
-        "loan_status"
-      ],
-      "active"
-    );
+  getValue(
+    loan,
+    [
+      "status",
+      "loan_status"
+    ],
+    "unknown"
+  );
 
   const outstanding =
     Number(
@@ -1255,11 +1255,16 @@ function displayLoan(data) {
   }
 
   if ($("displayLoanStatus")) {
-    $("displayLoanStatus").textContent =
-      String(status)
-        .replace(/_/g, " ")
-        .toUpperCase();
+  let statusText = String(status || "unknown")
+    .replace(/_/g, " ")
+    .toUpperCase();
+
+  if (statusText === "UNKNOWN") {
+    statusText = "STATUS NOT AVAILABLE";
   }
+
+  $("displayLoanStatus").textContent = statusText;
+}
 
   if ($("dashboardWelcomeName")) {
     $("dashboardWelcomeName").textContent =
