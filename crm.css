@@ -3239,3 +3239,438 @@ td strong {
   }
 
 }
+/* =====================================================
+   SHYAM FINCORP - FINAL DASHBOARD DESIGN
+===================================================== */
+
+#overviewPage {
+  width: 100%;
+}
+
+/* ---------- KPI AREA ---------- */
+
+#overviewPage .crm-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 0 0 22px;
+}
+
+#overviewPage .crm-kpi-card {
+  position: relative;
+  min-height: 125px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #e8edf3;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(15, 35, 60, 0.06);
+  overflow: hidden;
+  transition: transform 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+#overviewPage .crm-kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 35px rgba(15, 35, 60, 0.10);
+}
+
+#overviewPage .crm-kpi-card::after {
+  content: "";
+  position: absolute;
+  right: -25px;
+  top: -25px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.05);
+}
+
+#overviewPage .crm-kpi-icon {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+#overviewPage .crm-kpi-card.blue .crm-kpi-icon {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+#overviewPage .crm-kpi-card.purple .crm-kpi-icon {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+#overviewPage .crm-kpi-card.green .crm-kpi-icon {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+#overviewPage .crm-kpi-card.orange .crm-kpi-icon {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+#overviewPage .crm-kpi-card span {
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #718096;
+  margin-bottom: 7px;
+}
+
+#overviewPage .crm-kpi-card strong {
+  display: block;
+  font-size: 25px;
+  line-height: 1.1;
+  color: #142033;
+  margin-bottom: 6px;
+}
+
+#overviewPage .crm-kpi-card small {
+  display: block;
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+
+/* ---------- MAIN DASHBOARD ROW ---------- */
+
+#overviewPage .crm-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+
+/* ---------- PANELS ---------- */
+
+#overviewPage .crm-premium-panel {
+  background: #ffffff;
+  border: 1px solid #e8edf3;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(15, 35, 60, 0.05);
+  overflow: hidden;
+}
+
+#overviewPage .crm-panel-header {
+  min-height: 72px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+#overviewPage .crm-panel-header span {
+  display: block;
+  color: #2563eb;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+}
+
+#overviewPage .crm-panel-header h2 {
+  margin: 0;
+  color: #162033;
+  font-size: 17px;
+}
+
+
+/* ---------- LINK BUTTON ---------- */
+
+#overviewPage .crm-link-btn {
+  border: none;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 8px 12px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#overviewPage .crm-link-btn:hover {
+  background: #dbeafe;
+}
+
+
+/* ---------- PORTFOLIO ---------- */
+
+#overviewPage .crm-portfolio-box {
+  padding: 22px;
+}
+
+#overviewPage .crm-portfolio-main {
+  padding: 20px;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    #071525,
+    #12365a
+  );
+  color: #ffffff;
+}
+
+#overviewPage .crm-portfolio-main small {
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+#overviewPage .crm-portfolio-main strong {
+  display: block;
+  font-size: 30px;
+  line-height: 1;
+  margin-bottom: 9px;
+}
+
+#overviewPage .crm-portfolio-main p {
+  margin: 0;
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+
+/* ---------- PORTFOLIO STATS ---------- */
+
+#overviewPage .crm-portfolio-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+#overviewPage .crm-portfolio-stats > div {
+  padding: 14px 10px;
+  text-align: center;
+  border: 1px solid #edf1f5;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+#overviewPage .crm-portfolio-stats span {
+  display: block;
+  font-size: 8px;
+  font-weight: 800;
+  color: #94a3b8;
+  margin-bottom: 5px;
+}
+
+#overviewPage .crm-portfolio-stats strong {
+  display: block;
+  font-size: 19px;
+  color: #162033;
+}
+
+
+/* ---------- COLLECTION ---------- */
+
+#overviewPage .crm-collection-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 22px;
+}
+
+#overviewPage .crm-collection-box > div {
+  padding: 20px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #edf1f5;
+}
+
+#overviewPage .crm-collection-box small {
+  display: block;
+  color: #718096;
+  font-size: 9px;
+  font-weight: 800;
+  margin-bottom: 9px;
+}
+
+#overviewPage .crm-collection-box strong {
+  display: block;
+  color: #162033;
+  font-size: 25px;
+}
+
+
+/* ---------- RECENT APPLICATIONS ---------- */
+
+#overviewPage .crm-recent-panel {
+  margin-bottom: 18px;
+}
+
+#overviewPage .crm-recent-list {
+  padding: 5px 22px 12px;
+}
+
+#overviewPage .crm-recent-row {
+  min-height: 65px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr auto;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 10px;
+  border-bottom: 1px solid #eef2f6;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#overviewPage .crm-recent-row:last-child {
+  border-bottom: none;
+}
+
+#overviewPage .crm-recent-row:hover {
+  background: #f8fbff;
+  border-radius: 10px;
+}
+
+#overviewPage .crm-recent-row strong {
+  display: block;
+  color: #162033;
+  font-size: 11px;
+}
+
+#overviewPage .crm-recent-row small {
+  display: block;
+  color: #94a3b8;
+  font-size: 9px;
+  margin-top: 4px;
+}
+
+
+/* ---------- STATUS ---------- */
+
+#overviewPage .crm-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+
+/* ---------- QUICK ACTIONS ---------- */
+
+#overviewPage .crm-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 20px 22px 22px;
+}
+
+#overviewPage .crm-quick-actions button {
+  min-height: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px;
+  background: #f8fafc;
+  border: 1px solid #e8edf3;
+  border-radius: 13px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#overviewPage .crm-quick-actions button:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  transform: translateY(-2px);
+}
+
+#overviewPage .crm-quick-actions strong {
+  font-size: 18px;
+  color: #2563eb;
+}
+
+#overviewPage .crm-quick-actions span {
+  color: #334155;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+
+/* ---------- EMPTY ---------- */
+
+#overviewPage .crm-empty-state {
+  padding: 30px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 1100px) {
+
+  #overviewPage .crm-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  #overviewPage .crm-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  #overviewPage .crm-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #overviewPage .crm-quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  #overviewPage .crm-recent-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  #overviewPage .crm-collection-box {
+    grid-template-columns: 1fr;
+  }
+
+  #overviewPage .crm-portfolio-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  #overviewPage .crm-quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+}
