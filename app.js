@@ -117,7 +117,10 @@ async function getJson(response) {
 
 function setupNavigation() {
 
-  /* Normal data-screen buttons */
+  /* =========================
+     NORMAL DATA-SCREEN BUTTONS
+  ========================= */
+
   document.querySelectorAll("[data-screen]").forEach((button) => {
 
     button.addEventListener("click", (event) => {
@@ -134,6 +137,195 @@ function setupNavigation() {
     });
 
   });
+
+
+  /* =========================
+     NORMAL #SCREEN LINKS
+  ========================= */
+
+  document.querySelectorAll("a[href^='#']").forEach((link) => {
+
+    link.addEventListener("click", (event) => {
+
+      const target =
+        link.getAttribute("href");
+
+      if (!target || target === "#") {
+        return;
+      }
+
+      const screen =
+        target.substring(1);
+
+      if ($(screen)) {
+
+        event.preventDefault();
+
+        openScreen(screen);
+
+      }
+
+    });
+
+  });
+
+
+  /* =========================
+     DASHBOARD SIDEBAR
+  ========================= */
+
+  document.querySelectorAll(
+    ".sidebar button[data-dashboard]"
+  ).forEach((button) => {
+
+    button.addEventListener("click", (event) => {
+
+      event.preventDefault();
+
+      const dashboard =
+        button.getAttribute("data-dashboard");
+
+
+      /* Remove active from all sidebar buttons */
+
+      document.querySelectorAll(
+        ".sidebar button[data-dashboard]"
+      ).forEach((item) => {
+
+        item.classList.remove("active");
+
+      });
+
+
+      /* Add active to clicked button */
+
+      button.classList.add("active");
+
+
+      /* Dashboard Home */
+
+      if (dashboard === "home") {
+
+        openScreen("dashboard");
+
+        return;
+      }
+
+
+      /* My Loan */
+
+      if (dashboard === "loan") {
+
+        openScreen("myloan");
+
+        return;
+      }
+
+
+      /* EMI Schedule */
+
+      if (dashboard === "schedule") {
+
+        openScreen("dashboard");
+
+        setTimeout(() => {
+
+          $("emiScheduleContainer")
+            ?.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+
+        }, 200);
+
+        return;
+      }
+
+
+      /* Pay EMI */
+
+      if (dashboard === "payment") {
+
+        openScreen("dashboard");
+
+        setTimeout(() => {
+
+          $("paymentForm")
+            ?.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+
+        }, 200);
+
+        return;
+      }
+
+
+      /* Payment History */
+
+      if (dashboard === "history") {
+
+        openScreen("dashboard");
+
+        setTimeout(() => {
+
+          $("paymentHistoryContainer")
+            ?.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+
+        }, 200);
+
+        return;
+      }
+
+
+      /* Documents */
+
+      if (dashboard === "documents") {
+
+        openScreen("documents");
+
+        return;
+      }
+
+
+      /* Profile */
+
+      if (dashboard === "profile") {
+
+        openScreen("dashboard");
+
+        setTimeout(() => {
+
+          $("dashboardNameHeading")
+            ?.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+
+        }, 200);
+
+        return;
+      }
+
+
+      /* Support */
+
+      if (dashboard === "support") {
+
+        openScreen("contact");
+
+        return;
+      }
+
+    });
+
+  });
+
+}
 
 
   /* Normal #screen links */
