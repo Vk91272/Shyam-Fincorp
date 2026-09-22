@@ -202,7 +202,9 @@ function setupNavigation() {
       button.classList.add("active");
 
 
-      /* Dashboard Home */
+      /* =========================
+         DASHBOARD HOME
+      ========================= */
 
       if (dashboard === "home") {
 
@@ -212,7 +214,9 @@ function setupNavigation() {
       }
 
 
-      /* My Loan */
+      /* =========================
+         MY LOAN
+      ========================= */
 
       if (dashboard === "loan") {
 
@@ -222,7 +226,9 @@ function setupNavigation() {
       }
 
 
-      /* EMI Schedule */
+      /* =========================
+         EMI SCHEDULE
+      ========================= */
 
       if (dashboard === "schedule") {
 
@@ -230,11 +236,15 @@ function setupNavigation() {
 
         setTimeout(() => {
 
-          $("emiScheduleContainer")
-            ?.scrollIntoView({
+          const element =
+            $("emiScheduleContainer");
+
+          if (element) {
+            element.scrollIntoView({
               behavior: "smooth",
               block: "start"
             });
+          }
 
         }, 200);
 
@@ -242,7 +252,9 @@ function setupNavigation() {
       }
 
 
-      /* Pay EMI */
+      /* =========================
+         PAY EMI
+      ========================= */
 
       if (dashboard === "payment") {
 
@@ -250,11 +262,15 @@ function setupNavigation() {
 
         setTimeout(() => {
 
-          $("paymentForm")
-            ?.scrollIntoView({
+          const element =
+            $("paymentForm");
+
+          if (element) {
+            element.scrollIntoView({
               behavior: "smooth",
               block: "start"
             });
+          }
 
         }, 200);
 
@@ -262,7 +278,9 @@ function setupNavigation() {
       }
 
 
-      /* Payment History */
+      /* =========================
+         PAYMENT HISTORY
+      ========================= */
 
       if (dashboard === "history") {
 
@@ -270,11 +288,15 @@ function setupNavigation() {
 
         setTimeout(() => {
 
-          $("paymentHistoryContainer")
-            ?.scrollIntoView({
+          const element =
+            $("paymentHistoryContainer");
+
+          if (element) {
+            element.scrollIntoView({
               behavior: "smooth",
               block: "start"
             });
+          }
 
         }, 200);
 
@@ -282,7 +304,9 @@ function setupNavigation() {
       }
 
 
-      /* Documents */
+      /* =========================
+         DOCUMENTS
+      ========================= */
 
       if (dashboard === "documents") {
 
@@ -292,7 +316,9 @@ function setupNavigation() {
       }
 
 
-      /* Profile */
+      /* =========================
+         PROFILE
+      ========================= */
 
       if (dashboard === "profile") {
 
@@ -300,11 +326,15 @@ function setupNavigation() {
 
         setTimeout(() => {
 
-          $("dashboardNameHeading")
-            ?.scrollIntoView({
+          const element =
+            $("dashboardNameHeading");
+
+          if (element) {
+            element.scrollIntoView({
               behavior: "smooth",
               block: "start"
             });
+          }
 
         }, 200);
 
@@ -312,7 +342,9 @@ function setupNavigation() {
       }
 
 
-      /* Support */
+      /* =========================
+         SUPPORT
+      ========================= */
 
       if (dashboard === "support") {
 
@@ -326,173 +358,6 @@ function setupNavigation() {
   });
 
 }
-
-
-  /* Normal #screen links */
-  document.querySelectorAll("a[href^='#']").forEach((link) => {
-
-    link.addEventListener("click", (event) => {
-
-      const target =
-        link.getAttribute("href");
-
-      if (!target || target === "#") {
-        return;
-      }
-
-      const screen =
-        target.substring(1);
-
-      if ($(screen)) {
-
-        event.preventDefault();
-
-        openScreen(screen);
-
-      }
-
-    });
-
-  });
-
-
-  /* Dashboard sidebar buttons */
-  document.querySelectorAll(
-    ".dashboard-sidebar a, .dashboard-sidebar button, .sidebar a, .sidebar button"
-  ).forEach((button) => {
-
-    button.addEventListener("click", (event) => {
-
-      const text =
-        button.textContent
-          .trim()
-          .toLowerCase();
-
-      let target = "";
-
-
-      if (text.includes("dashboard")) {
-
-        target = "dashboard";
-
-      }
-
-      else if (text.includes("my loan")) {
-
-        target = "myloan";
-
-      }
-
-      else if (text.includes("emi schedule")) {
-
-        target = "dashboard";
-
-      }
-
-      else if (text.includes("pay emi")) {
-
-        target = "dashboard";
-
-      }
-
-      else if (text.includes("payment history")) {
-
-        target = "dashboard";
-
-      }
-
-      else if (text.includes("documents")) {
-
-        target = "documents";
-
-      }
-
-      else if (text.includes("profile")) {
-
-        target = "dashboard";
-
-      }
-
-      else if (text.includes("support")) {
-
-        target = "contact";
-
-      }
-
-
-      if (target && $(target)) {
-
-        event.preventDefault();
-
-        openScreen(target);
-
-
-        /* EMI Schedule par scroll */
-        setTimeout(() => {
-
-          if (text.includes("emi schedule")) {
-
-            $("emiScheduleContainer")
-              ?.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-              });
-
-          }
-
-
-          /* Pay EMI par scroll */
-          else if (text.includes("pay emi")) {
-
-            $("paymentForm")
-              ?.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-              });
-
-          }
-
-
-          /* Payment History par scroll */
-          else if (text.includes("payment history")) {
-
-            $("paymentHistoryContainer")
-              ?.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-              });
-
-          }
-
-        }, 200);
-
-      }
-
-    });
-
-  });
-
-}
-  document.querySelectorAll("a[href^='#']").forEach((link) => {
-    link.addEventListener("click", (event) => {
-      const target = link.getAttribute("href");
-
-      if (!target || target === "#") return;
-
-      const screen = target.substring(1);
-
-      if ($(screen)) {
-        event.preventDefault();
-        openScreen(screen);
-      }
-    });
-  });
-}
-
-
-/* =========================
-   MOBILE MENU
-========================= */
 
 function setupMobileMenu() {
   const menuButton =
