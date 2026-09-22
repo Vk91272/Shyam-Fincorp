@@ -460,13 +460,15 @@ async function loadPremiumCRMDashboard() {
     );
 
 
-  document
-    .querySelectorAll("#crmPortfolioAmount")
-    .forEach(element => {
-      element.textContent =
-        money(portfolio);
-    });
+  if ($("crmPortfolioKpi")) {
+  $("crmPortfolioKpi").textContent =
+    money(portfolio);
+}
 
+if ($("crmPortfolioAmount")) {
+  $("crmPortfolioAmount").textContent =
+    money(portfolio);
+}
 
   const activeCount =
     loans.filter(loan =>
