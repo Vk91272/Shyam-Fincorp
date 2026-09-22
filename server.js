@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const crypto = require("crypto");
 const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
@@ -13,6 +14,10 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY;
 const ADMIN_KEY = process.env.ADMIN_KEY;
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_SESSION_SECRET =
+  process.env.ADMIN_SESSION_SECRET || ADMIN_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   console.warn(
@@ -41,17 +46,93 @@ function makeInquiryId() {
   return "INQ-" + Date.now().toString().slice(-8);
 }
 
-function requireAdmin(req, res, next) {
-  if (
-    !ADMIN_KEY ||
-    req.headers["x-admin-key"] !== ADMIN_KEY
-  ) {
-    return res.status(401).json({
-      error: "Unauthorized"
-    });
+function createAdminToken() {
+  const expiresAt =
+    Date.now() + 8 * 60 * 60 * 1000;
+
+  const payload = `admin.${expiresAt}`;
+
+  const signature = crypto
+    .createHmac(
+      "sha256",
+      ADMIN_SESSION_SECRET
+    )
+    .update(payload)
+    .digest("hex");
+
+  return `${payload}.${signature}`;
+}
+
+function verifyAdminToken(token) {
+  if (!token) {
+    return false;
   }
 
-  next();
+  const parts = token.split(".");
+
+  if (parts.length !== 3) {
+    return false;
+  }
+
+  const role = parts[0];
+  const expiresAt = Number(parts[1]);
+  const signature = parts[2];
+
+  if (role !== "admin") {
+    return false;
+  }
+
+  if (!expiresAt || Date.now() > expiresAt) {
+    return false;
+  }
+
+  const payload = `${role}.${expiresAt}`;
+
+  const expectedSignature = crypto
+    .createHmac(
+      "sha256",
+      ADMIN_SESSION_SECRET
+    )
+    .update(payload)
+    .digest("hex");
+
+  if (signature.length !== expectedSignature.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expectedSignature)
+  );
+}
+
+function requireAdmin(req, res, next) {
+  // Existing ADMIN_KEY support
+  if (
+    ADMIN_KEY &&
+    req.headers["x-admin-key"] === ADMIN_KEY
+  ) {
+    return next();
+  }
+
+  // CRM login token support
+  const authorization =
+    req.headers.authorization || "";
+
+  if (
+    authorization.startsWith("Bearer ")
+  ) {
+    const token =
+      authorization.substring(7);
+
+    if (verifyAdminToken(token)) {
+      return next();
+    }
+  }
+
+  return res.status(401).json({
+    error: "Unauthorized"
+  });
 }
 
 // ==================================================
