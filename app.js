@@ -116,18 +116,171 @@ async function getJson(response) {
 ========================= */
 
 function setupNavigation() {
+
+  /* Normal data-screen buttons */
   document.querySelectorAll("[data-screen]").forEach((button) => {
+
     button.addEventListener("click", (event) => {
+
       event.preventDefault();
 
-      const screen = button.getAttribute("data-screen");
+      const screen =
+        button.getAttribute("data-screen");
 
-      if (screen) {
+      if (screen && $(screen)) {
         openScreen(screen);
       }
+
     });
+
   });
 
+
+  /* Normal #screen links */
+  document.querySelectorAll("a[href^='#']").forEach((link) => {
+
+    link.addEventListener("click", (event) => {
+
+      const target =
+        link.getAttribute("href");
+
+      if (!target || target === "#") {
+        return;
+      }
+
+      const screen =
+        target.substring(1);
+
+      if ($(screen)) {
+
+        event.preventDefault();
+
+        openScreen(screen);
+
+      }
+
+    });
+
+  });
+
+
+  /* Dashboard sidebar buttons */
+  document.querySelectorAll(
+    ".dashboard-sidebar a, .dashboard-sidebar button, .sidebar a, .sidebar button"
+  ).forEach((button) => {
+
+    button.addEventListener("click", (event) => {
+
+      const text =
+        button.textContent
+          .trim()
+          .toLowerCase();
+
+      let target = "";
+
+
+      if (text.includes("dashboard")) {
+
+        target = "dashboard";
+
+      }
+
+      else if (text.includes("my loan")) {
+
+        target = "myloan";
+
+      }
+
+      else if (text.includes("emi schedule")) {
+
+        target = "dashboard";
+
+      }
+
+      else if (text.includes("pay emi")) {
+
+        target = "dashboard";
+
+      }
+
+      else if (text.includes("payment history")) {
+
+        target = "dashboard";
+
+      }
+
+      else if (text.includes("documents")) {
+
+        target = "documents";
+
+      }
+
+      else if (text.includes("profile")) {
+
+        target = "dashboard";
+
+      }
+
+      else if (text.includes("support")) {
+
+        target = "contact";
+
+      }
+
+
+      if (target && $(target)) {
+
+        event.preventDefault();
+
+        openScreen(target);
+
+
+        /* EMI Schedule par scroll */
+        setTimeout(() => {
+
+          if (text.includes("emi schedule")) {
+
+            $("emiScheduleContainer")
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+
+          }
+
+
+          /* Pay EMI par scroll */
+          else if (text.includes("pay emi")) {
+
+            $("paymentForm")
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+
+          }
+
+
+          /* Payment History par scroll */
+          else if (text.includes("payment history")) {
+
+            $("paymentHistoryContainer")
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+
+          }
+
+        }, 200);
+
+      }
+
+    });
+
+  });
+
+}
   document.querySelectorAll("a[href^='#']").forEach((link) => {
     link.addEventListener("click", (event) => {
       const target = link.getAttribute("href");
