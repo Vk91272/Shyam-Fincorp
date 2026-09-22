@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Shyam Fincorp | Admin Login</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family:
+        Inter,
+        Arial,
+        sans-serif;
+
+      background:
+        radial-gradient(
+          circle at top right,
+          #1e3a5f,
+          transparent 35%
+        ),
+        linear-gradient(
+          135deg,
+          #06101f,
+          #0b1728
+        );
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: #ffffff;
+
+      padding: 20px;
+    }
+
+    .login-wrapper {
+      width: 100%;
+      max-width: 1050px;
+
+      display: grid;
+      grid-template-columns:
+        1.05fr
+        0.95fr;
+
+      border-radius: 28px;
+
+      overflow: hidden;
+
+      background:
+        rgba(255,255,255,0.05);
+
+      border:
+        1px solid
+        rgba(255,255,255,0.12);
+
+      box-shadow:
+        0 30px 80px
+        rgba(0,0,0,0.45);
+
+      backdrop-filter:
+        blur(18px);
+    }
+
+    .login-brand {
+      padding: 60px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(18,45,76,0.9),
+          rgba(7,20,37,0.95)
+        );
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .logo {
+      width: 62px;
+      height: 62px;
+
+      border-radius: 18px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background:
+        linear-gradient(
+          135deg,
+          #ffffff,
+          #c8d7e8
+        );
+
+      color: #0a1b2f;
+
+      font-size: 26px;
+      font-weight: 900;
+
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      color: #8fb7df;
+
+      font-size: 12px;
+      font-weight: 800;
+
+      letter-spacing: 2px;
+
+      margin-bottom: 12px;
+    }
+
+    .login-brand h1 {
+      font-size: 44px;
+      line-height: 1.05;
+
+      margin-bottom: 18px;
+    }
+
+    .login-brand p {
+      color: #a9b9ca;
+
+      font-size: 16px;
+
+      line-height: 1.7;
+
+      max-width: 470px;
+    }
+
+    .security-list {
+      margin-top: 32px;
+
+      display: grid;
+
+      gap: 14px;
+    }
+
+    .security-item {
+      display: flex;
+      align-items: center;
+
+      gap: 12px;
+
+      color: #d7e2ee;
+
+      font-size: 14px;
+    }
+
+    .security-item span {
+      width: 30px;
+      height: 30px;
+
+      border-radius: 10px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background:
+        rgba(255,255,255,0.08);
+    }
+
+    .login-card {
+      padding: 55px 45px;
+
+      background:
+        rgba(255,255,255,0.97);
+
+      color: #102033;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-card h2 {
+      font-size: 30px;
+
+      margin-bottom: 8px;
+    }
+
+    .login-card > p {
+      color: #728096;
+
+      margin-bottom: 30px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field label {
+      display: block;
+
+      font-size: 13px;
+
+      font-weight: 800;
+
+      margin-bottom: 8px;
+
+      color: #314155;
+    }
+
+    .field input {
+      width: 100%;
+
+      height: 52px;
+
+      border-radius: 13px;
+
+      border:
+        1px solid
+        #d8e0e9;
+
+      padding:
+        0 15px;
+
+      font-size: 15px;
+
+      outline: none;
+
+      transition:
+        0.2s;
+    }
+
+    .field input:focus {
+      border-color:
+        #315b85;
+
+      box-shadow:
+        0 0 0 4px
+        rgba(49,91,133,0.1);
+    }
+
+    .login-button {
+      width: 100%;
+
+      height: 54px;
+
+      border: none;
+
+      border-radius: 14px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #102b49,
+          #1d4c77
+        );
+
+      color: #ffffff;
+
+      font-size: 15px;
+
+      font-weight: 800;
+
+      cursor: pointer;
+
+      transition:
+        0.2s;
+    }
+
+    .login-button:hover {
+      transform:
+        translateY(-1px);
+
+      box-shadow:
+        0 12px 25px
+        rgba(16,43,73,0.25);
+    }
+
+    .login-button:disabled {
+      opacity: 0.65;
+
+      cursor:
+        not-allowed;
+    }
+
+    .login-message {
+      min-height: 22px;
+
+      margin-top: 16px;
+
+      font-size: 13px;
+
+      text-align: center;
+    }
+
+    .error {
+      color: #c0392b;
+    }
+
+    .success {
+      color: #16845b;
+    }
+
+    .footer-note {
+      margin-top: 25px;
+
+      color: #8b98a8;
+
+      text-align: center;
+
+      font-size: 11px;
+    }
+
+    @media(max-width: 800px) {
+
+      .login-wrapper {
+        grid-template-columns:
+          1fr;
+      }
+
+      .login-brand {
+        padding: 35px;
+      }
+
+      .login-brand h1 {
+        font-size: 34px;
+      }
+
+      .login-card {
+        padding: 35px 25px;
+      }
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="login-wrapper">
+
+    <section class="login-brand">
+
+      <div class="logo">
+        SF
+      </div>
+
+      <div class="eyebrow">
+        SHYAM FINCORP
+      </div>
+
+      <h1>
+        Admin Control Center
+      </h1>
+
+      <p>
+        Securely manage customers, loan applications,
+        collections, EMI operations, documents and
+        business reports from one powerful CRM.
+      </p>
+
+      <div class="security-list">
+
+        <div class="security-item">
+          <span>🔐</span>
+          Secure administrator authentication
+        </div>
+
+        <div class="security-item">
+          <span>📊</span>
+          Lending operations dashboard
+        </div>
+
+        <div class="security-item">
+          <span>📁</span>
+          Customer & document management
+        </div>
+
+        <div class="security-item">
+          <span>📥</span>
+          Business reports & analytics
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <section class="login-card">
+
+      <h2>
+        Welcome back
+      </h2>
+
+      <p>
+        Sign in to your CRM administrator account.
+      </p>
+
+
+      <form id="adminLoginForm">
+
+        <div class="field">
+
+          <label>
+            Admin Username
+          </label>
+
+          <input
+            id="adminUsername"
+            type="text"
+            placeholder="Enter admin username"
+            autocomplete="username"
+            required
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Password
+          </label>
+
+          <input
+            id="adminPassword"
+            type="password"
+            placeholder="Enter admin password"
+            autocomplete="current-password"
+            required
+          >
+
+        </div>
+
+
+        <button
+          id="loginButton"
+          class="login-button"
+          type="submit"
+        >
+          Sign In to CRM
+        </button>
+
+        <div
+          id="loginMessage"
+          class="login-message"
+        ></div>
+
+      </form>
+
+
+      <div class="footer-note">
+        Shyam Fincorp • Secure Admin Console
+      </div>
+
+    </section>
+
+  </div>
+
+
+  <script>
+
+    const API_BASE =
+      "https://shyam-fincorp.onrender.com";
+
+    const TOKEN_KEY =
+      "shyam_admin_token";
+
+    const USER_KEY =
+      "shyam_admin_user";
+
+
+    if (
+      localStorage.getItem(
+        TOKEN_KEY
+      )
+    ) {
+
+      window.location.href =
+        "crm.html";
+    }
+
+
+    document
+      .getElementById(
+        "adminLoginForm"
+      )
+      .addEventListener(
+        "submit",
+        async (event) => {
+
+          event.preventDefault();
+
+          const username =
+            document
+              .getElementById(
+                "adminUsername"
+              )
+              .value
+              .trim();
+
+          const password =
+            document
+              .getElementById(
+                "adminPassword"
+              )
+              .value;
+
+          const button =
+            document
+              .getElementById(
+                "loginButton"
+              );
+
+          const message =
+            document
+              .getElementById(
+                "loginMessage"
+              );
+
+
+          message.textContent =
+            "";
+
+          message.className =
+            "login-message";
+
+
+          button.disabled =
+            true;
+
+          button.textContent =
+            "Signing in...";
+
+
+          try {
+
+            const response =
+              await fetch(
+                `${API_BASE}/api/admin/login`,
+                {
+                  method: "POST",
+
+                  headers: {
+                    "Content-Type":
+                      "application/json"
+                  },
+
+                  body: JSON.stringify({
+                    username,
+                    password
+                  })
+                }
+              );
+
+
+            const data =
+              await response.json();
+
+
+            if (!response.ok) {
+
+              throw new Error(
+                data.error ||
+                "Invalid login"
+              );
+            }
+
+
+            if (!data.token) {
+
+              throw new Error(
+                "Authentication token missing"
+              );
+            }
+
+
+            localStorage.setItem(
+              TOKEN_KEY,
+              data.token
+            );
+
+            localStorage.setItem(
+              USER_KEY,
+              username
+            );
+
+
+            message.textContent =
+              "Login successful. Opening CRM...";
+
+            message.classList.add(
+              "success"
+            );
+
+
+            setTimeout(
+              () => {
+
+                window.location.href =
+                  "crm.html";
+
+              },
+              500
+            );
+
+
+          } catch (error) {
+
+            message.textContent =
+              error.message;
+
+            message.classList.add(
+              "error"
+            );
+
+          } finally {
+
+            button.disabled =
+              false;
+
+            button.textContent =
+              "Sign In to CRM";
+          }
+
+        }
+      );
+
+  </script>
+
+</body>
+
+</html>
