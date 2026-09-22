@@ -844,3 +844,714 @@ footer{background:#06162d;color:#aebbd0;padding:45px 0 20px}.footer-grid{display
   }
 
 }
+/* =====================================================
+   SHYAM FINCORP - PROFESSIONAL NBFC DASHBOARD
+===================================================== */
+
+.dashboard-screen {
+  max-width: 1450px;
+  margin: 0 auto;
+  padding: 34px 28px 60px;
+  background: #f5f7fb;
+}
+
+
+/* =========================
+   TOP BAR
+========================= */
+
+.dashboard-topbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.dashboard-eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #7d8798;
+  margin-bottom: 7px;
+}
+
+.dashboard-topbar h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  color: #0b1f3a;
+}
+
+.dashboard-welcome {
+  margin: 8px 0 0;
+  color: #6c7688;
+  font-size: 14px;
+}
+
+.dashboard-welcome strong {
+  color: #0b1f3a;
+}
+
+.dashboard-account-box {
+  min-width: 190px;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid #e4e9f0;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(11, 31, 58, 0.05);
+}
+
+.dashboard-account-box span {
+  display: block;
+  font-size: 11px;
+  color: #8993a4;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom: 5px;
+}
+
+.dashboard-account-box strong {
+  font-size: 15px;
+  color: #0b1f3a;
+}
+
+
+/* =========================
+   OVERVIEW CARDS
+========================= */
+
+.loan-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.loan-overview-card {
+  min-height: 105px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #ffffff;
+  border: 1px solid #e5eaf1;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(11, 31, 58, 0.05);
+}
+
+.loan-overview-card.primary-card {
+  border-top: 3px solid #d9ad3f;
+}
+
+.overview-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #f7f0df;
+  color: #a57913;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.loan-overview-card span {
+  display: block;
+  font-size: 12px;
+  color: #7c8798;
+  margin-bottom: 7px;
+}
+
+.loan-overview-card strong {
+  display: block;
+  color: #0b1f3a;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+
+/* =========================
+   ACCOUNT SUMMARY
+========================= */
+
+.dashboard-account-summary {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 1px;
+  background: #e4e9f0;
+  border: 1px solid #e4e9f0;
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+
+.dashboard-account-summary > div {
+  background: #ffffff;
+  padding: 18px 22px;
+}
+
+.summary-label {
+  display: block;
+  color: #8993a4;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  margin-bottom: 6px;
+}
+
+.dashboard-account-summary strong {
+  color: #0b1f3a;
+  font-size: 15px;
+}
+
+
+/* =========================
+   MAIN GRID
+========================= */
+
+.dashboard-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(320px, .85fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.dashboard-left-column,
+.dashboard-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+
+/* =========================
+   PANELS
+========================= */
+
+.dashboard-panel {
+  background: #ffffff;
+  border: 1px solid #e3e8ef;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(11, 31, 58, 0.06);
+}
+
+.panel-header,
+.payment-panel-header {
+  min-height: 92px;
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.panel-kicker {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  color: #8b96a7;
+  letter-spacing: 1.3px;
+  margin-bottom: 6px;
+}
+
+.panel-header h3,
+.payment-panel-header h3 {
+  margin: 0;
+  color: #0b1f3a;
+  font-size: 20px;
+}
+
+.panel-header p,
+.payment-panel-header p {
+  margin: 5px 0 0;
+  color: #7b8595;
+  font-size: 12px;
+}
+
+.panel-amount {
+  color: #0b1f3a;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.history-status {
+  font-size: 11px;
+  color: #7d8798;
+  background: #f4f6f9;
+  border-radius: 20px;
+  padding: 7px 11px;
+}
+
+
+/* =========================
+   EMI TABLE
+========================= */
+
+.emi-table-head {
+  display: grid;
+  grid-template-columns: .55fr 1.1fr 1fr 1fr 1fr .75fr;
+  gap: 10px;
+  padding: 13px 20px;
+  background: #f8f9fb;
+  border-bottom: 1px solid #e8edf2;
+  color: #7d8796;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.emi-schedule-list {
+  padding: 0 20px;
+}
+
+
+/* JS generated EMI items */
+.emi-row,
+.emi-schedule-row {
+  display: grid;
+  grid-template-columns: .55fr 1.1fr 1fr 1fr 1fr .75fr;
+  gap: 10px;
+  align-items: center;
+  padding: 17px 0;
+  border-bottom: 1px solid #edf0f4;
+  color: #26364d;
+  font-size: 13px;
+}
+
+.emi-row:last-child,
+.emi-schedule-row:last-child {
+  border-bottom: 0;
+}
+
+.emi-number {
+  font-weight: 800;
+  color: #0b1f3a;
+}
+
+.emi-status,
+.status-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.emi-status.paid,
+.status-paid {
+  color: #16704a;
+  background: #e6f5ed;
+}
+
+.emi-status.pending,
+.status-pending {
+  color: #946b13;
+  background: #fff3d8;
+}
+
+
+/* =========================
+   PAYMENT PANEL
+========================= */
+
+.payment-panel {
+  position: sticky;
+  top: 20px;
+}
+
+.payment-panel-header {
+  padding: 22px 24px 18px;
+}
+
+.secure-badge {
+  white-space: nowrap;
+  font-size: 11px;
+  color: #477052;
+  background: #edf7ef;
+  border-radius: 20px;
+  padding: 7px 10px;
+}
+
+.payment-highlight {
+  margin: 22px 24px;
+  padding: 17px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #faf7ed;
+  border: 1px solid #f0e5c7;
+  border-radius: 14px;
+}
+
+.payment-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e0b442;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.payment-highlight span {
+  display: block;
+  font-size: 11px;
+  color: #7d8797;
+  margin-bottom: 4px;
+}
+
+.payment-highlight strong {
+  display: block;
+  color: #0b1f3a;
+  font-size: 20px;
+}
+
+
+/* =========================
+   PAYMENT FORM
+========================= */
+
+#paymentForm {
+  padding: 0 24px 22px;
+}
+
+#paymentForm .form-group {
+  margin-bottom: 17px;
+}
+
+#paymentForm label {
+  display: block;
+  margin-bottom: 7px;
+  color: #1b2b42;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#paymentForm input,
+#paymentForm select {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 15px;
+  border: 1px solid #dce2ea;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #162a44;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+#paymentForm input:focus,
+#paymentForm select:focus {
+  border-color: #c59b31;
+  box-shadow: 0 0 0 3px rgba(197, 155, 49, .10);
+}
+
+.payment-submit-btn {
+  width: 100%;
+  min-height: 54px;
+  border: 0;
+  border-radius: 11px;
+  background: #d9ad3f;
+  color: #071a32;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.payment-submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(190, 147, 43, .25);
+}
+
+.payment-submit-btn:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.payment-message {
+  margin-top: 10px;
+  min-height: 20px;
+  font-size: 13px;
+}
+
+.payment-message.success {
+  color: #157044;
+}
+
+.payment-message.error {
+  color: #b3261e;
+}
+
+.payment-security-note {
+  margin: 0 24px 22px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f5f7fa;
+  color: #758195;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* =========================
+   PAYMENT HISTORY
+========================= */
+
+.history-list {
+  padding: 0 20px;
+}
+
+.payment-history-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 18px;
+  padding: 17px 0;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.payment-history-row:last-child {
+  border-bottom: 0;
+}
+
+.payment-history-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.payment-history-main strong {
+  color: #0b1f3a;
+  font-size: 14px;
+}
+
+.payment-history-main span {
+  color: #7b8595;
+  font-size: 11px;
+}
+
+.payment-history-amount {
+  color: #0b1f3a;
+  font-size: 16px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.payment-history-info {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  color: #7c8797;
+  font-size: 10px;
+}
+
+
+/* =========================
+   HELP CARD
+========================= */
+
+.dashboard-help-card {
+  padding: 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: #0b1f3a;
+  border-radius: 18px;
+  color: #ffffff;
+  box-shadow: 0 12px 30px rgba(11, 31, 58, .15);
+}
+
+.help-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #d9ad3f;
+  color: #0b1f3a;
+  font-weight: 900;
+}
+
+.dashboard-help-card span {
+  display: block;
+  color: #d8dee8;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.dashboard-help-card strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.dashboard-help-card p {
+  margin: 0;
+  color: #b9c3d1;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* =========================
+   LOADING / EMPTY
+========================= */
+
+.loading-state,
+.empty-state {
+  padding: 28px 10px;
+  text-align: center;
+  color: #8993a3;
+  font-size: 13px;
+}
+
+
+/* =========================
+   FOOTER NOTE
+========================= */
+
+.dashboard-footer-note {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  margin-top: 24px;
+  color: #8993a4;
+  font-size: 10px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1050px) {
+
+  .loan-overview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-panel {
+    position: relative;
+    top: auto;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .dashboard-screen {
+    padding: 20px 12px 40px;
+  }
+
+  .dashboard-topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-topbar h2 {
+    font-size: 25px;
+  }
+
+  .dashboard-account-box {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .loan-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-account-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-account-summary > div {
+    padding: 15px 17px;
+  }
+
+  .panel-header,
+  .payment-panel-header {
+    padding: 18px;
+  }
+
+  .emi-table-head {
+    display: none;
+  }
+
+  .emi-schedule-list {
+    padding: 0 16px;
+  }
+
+  .emi-row,
+  .emi-schedule-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 16px 0;
+  }
+
+  .history-list {
+    padding: 0 16px;
+  }
+
+  #paymentForm {
+    padding: 0 18px 20px;
+  }
+
+  .payment-security-note {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+
+  .dashboard-footer-note {
+    text-align: center;
+    flex-wrap: wrap;
+  }
+
+}
+
+
+@media (max-width: 430px) {
+
+  .dashboard-topbar h2 {
+    font-size: 22px;
+  }
+
+  .loan-overview-card {
+    min-height: 90px;
+    padding: 16px;
+  }
+
+  .loan-overview-card strong {
+    font-size: 18px;
+  }
+
+  .panel-header h3,
+  .payment-panel-header h3 {
+    font-size: 18px;
+  }
+
+}
