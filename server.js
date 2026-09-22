@@ -1768,32 +1768,59 @@ app.post(
       }
 
 
-      res.json({
-        customer: {
-          full_name:
-            application.full_name,
-          mobile:
-            application.mobile
-        },
+     res.json({
+  success: true,
 
-        loan: {
-          loan_account_no:
-            loan.loan_account_no,
-          principal:
-            loan.principal,
-          annual_interest_rate:
-            loan.annual_interest_rate,
-          tenure_months:
-            loan.tenure_months,
-          emi:
-            loan.emi,
-          status:
-            loan.status
-        },
+  customer: {
+    full_name:
+      application.full_name || "",
+    mobile:
+      application.mobile || "",
+    email:
+      application.email || ""
+  },
 
-        emi_schedule:
-          schedule
-      });
+  application: {
+    application_id:
+      application.application_id
+  },
+
+  loan: {
+    loan_account_no:
+      loan.loan_account_no || "",
+
+    principal:
+      Number(
+        loan.principal || 0
+      ),
+
+    annual_interest_rate:
+      Number(
+        loan.annual_interest_rate || 0
+      ),
+
+    tenure_months:
+      Number(
+        loan.tenure_months || 0
+      ),
+
+    emi:
+      Number(
+        loan.emi || 0
+      ),
+
+    status:
+      loan.status || "active",
+
+    outstanding_amount:
+      Number(
+        loan.outstanding_amount || 0
+      )
+  },
+
+  emi_schedule:
+    schedule || []
+});
 
     } catch (err) {
       console.error(err);
