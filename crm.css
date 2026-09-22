@@ -1756,3 +1756,209 @@ td strong {
   }
 
 }
+/* =====================================================
+   FINAL CRM FIXES
+===================================================== */
+
+/* Search box with Search button */
+.search-box {
+  width: min(650px, 65%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-box input {
+  flex: 1;
+  min-width: 0;
+}
+
+.crm-search-button {
+  flex-shrink: 0;
+  border: none;
+  background: #102b49;
+  color: #ffffff;
+  padding: 9px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.crm-search-button:hover {
+  background: #1d4f7d;
+}
+
+
+/* Dynamic CRM content */
+#genericContent {
+  width: 100%;
+  margin-top: 20px;
+  text-align: left;
+}
+
+#genericContent .crm-feature-card {
+  margin-top: 15px;
+}
+
+
+/* Report cards */
+.report-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.report-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.report-card h3 {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.report-card p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+  min-height: 40px;
+}
+
+.report-card button {
+  margin-top: 15px;
+  width: 100%;
+}
+
+
+/* Search results */
+.crm-results {
+  margin-top: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.crm-result-item {
+  display: block;
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.crm-result-item:hover {
+  box-shadow:
+    0 8px 25px
+    rgba(15, 35, 55, 0.08);
+}
+
+.crm-result-item strong {
+  display: block;
+  font-size: 12px;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+
+.crm-result-item small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+
+/* Dynamic module tables */
+.crm-module-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.crm-module-table th,
+.crm-module-table td {
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.crm-module-table th {
+  color: #718096;
+  font-size: 10px;
+}
+
+.crm-module-table td {
+  font-size: 11px;
+}
+
+
+/* Toast */
+.crm-toast {
+  position: fixed;
+  right: 25px;
+  bottom: 25px;
+  z-index: 10000;
+
+  background: #102b49;
+  color: #ffffff;
+
+  padding: 13px 18px;
+  border-radius: 10px;
+
+  box-shadow:
+    0 12px 35px
+    rgba(0,0,0,0.20);
+
+  font-size: 12px;
+}
+
+
+/* Mobile sidebar fix */
+@media (max-width: 760px) {
+
+  .crm-sidebar.open,
+  .crm-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .crm-search-button {
+    padding: 8px 11px;
+    font-size: 10px;
+  }
+
+  .report-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #genericContent {
+    overflow-x: auto;
+  }
+
+}
+
+
+/* Very small screens */
+@media (max-width: 480px) {
+
+  .crm-search-button {
+    padding: 8px 9px;
+  }
+
+  .search-box {
+    gap: 5px;
+  }
+
+  .search-box span {
+    font-size: 17px;
+  }
+
+}
