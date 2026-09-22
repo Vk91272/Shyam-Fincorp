@@ -3674,3 +3674,169 @@ td strong {
   }
 
 }
+/* =========================================
+   UNIQUE CRM SIDEBAR MAIN MENU
+========================================= */
+
+.crm-sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: linear-gradient(180deg, #07152f 0%, #0b1f42 100%);
+  color: #fff;
+  padding: 22px 14px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Main Menu heading */
+.crm-sidebar .menu-title,
+.crm-sidebar h3 {
+  color: #8fa8ca;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin: 25px 12px 10px;
+}
+
+/* Menu container */
+.crm-sidebar nav,
+.crm-sidebar .sidebar-menu,
+.crm-sidebar .crm-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 100%;
+}
+
+/* Every menu button */
+.crm-sidebar nav button,
+.crm-sidebar .sidebar-menu button,
+.crm-sidebar .crm-menu button,
+.crm-sidebar nav a {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  padding: 0 15px;
+  border: 0;
+  border-radius: 12px;
+
+  background: transparent;
+  color: #b9c8dc;
+
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Hover */
+.crm-sidebar nav button:hover,
+.crm-sidebar .sidebar-menu button:hover,
+.crm-sidebar .crm-menu button:hover,
+.crm-sidebar nav a:hover {
+  background: rgba(255,255,255,0.08);
+  color: #ffffff;
+  transform: translateX(3px);
+}
+
+/* Active menu */
+.crm-sidebar nav button.active,
+.crm-sidebar .sidebar-menu button.active,
+.crm-sidebar .crm-menu button.active,
+.crm-sidebar nav a.active {
+  background: linear-gradient(90deg, #1769e0, #2485ff);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(23,105,224,0.25);
+}
+
+/* Icon */
+.crm-sidebar nav button span:first-child,
+.crm-sidebar .sidebar-menu button span:first-child,
+.crm-sidebar .crm-menu button span:first-child {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 17px;
+}
+
+/* Menu text */
+.crm-sidebar nav button span:last-child,
+.crm-sidebar .sidebar-menu button span:last-child,
+.crm-sidebar .crm-menu button span:last-child {
+  white-space: nowrap;
+}
+
+/* New Application button */
+.crm-sidebar .new-application,
+.crm-sidebar button.new-application {
+  margin-top: 15px;
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  color: #fff;
+  justify-content: center;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(34,197,94,0.20);
+}
+
+.crm-sidebar .new-application:hover,
+.crm-sidebar button.new-application:hover {
+  background: linear-gradient(90deg, #15803d, #16a34a);
+  transform: translateY(-1px);
+}
+
+/* Logout */
+.crm-sidebar .logout,
+.crm-sidebar button.logout {
+  margin-top: auto;
+  color: #ffb4b4;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  border-radius: 0;
+  padding-top: 18px;
+}
+
+.crm-sidebar .logout:hover,
+.crm-sidebar button.logout:hover {
+  background: rgba(239,68,68,0.10);
+  color: #ffdddd;
+  transform: none;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .crm-sidebar {
+    width: 240px;
+    min-width: 240px;
+  }
+}
+
+@media (max-width: 700px) {
+  .crm-sidebar {
+    width: 100%;
+    min-width: 100%;
+    min-height: auto;
+  }
+
+  .crm-sidebar nav,
+  .crm-sidebar .sidebar-menu,
+  .crm-sidebar .crm-menu {
+    gap: 5px;
+  }
+
+  .crm-sidebar nav button,
+  .crm-sidebar .sidebar-menu button,
+  .crm-sidebar .crm-menu button {
+    min-height: 44px;
+  }
+}
