@@ -291,6 +291,77 @@ app.get("/api/health", async (req, res) => {
     )
   });
 });
+// ==================================================
+// ADMIN LOGIN
+// ==================================================
+
+app.post(
+  "/api/admin/login",
+  async (req, res) => {
+    try {
+      const {
+        username,
+        password
+      } = req.body;
+
+      if (!username || !password) {
+        return res.status(400).json({
+          error:
+            "Username and password are required"
+        });
+      }
+
+      if (
+        !ADMIN_USERNAME ||
+        !ADMIN_PASSWORD ||
+        !ADMIN_SESSION_SECRET
+      ) {
+        return res.status(500).json({
+          error:
+            "Admin login is not configured on server"
+        });
+      }
+
+      const usernameMatch =
+        String(username) ===
+        String(ADMIN_USERNAME);
+
+      const passwordMatch =
+        String(password) ===
+        String(ADMIN_PASSWORD);
+
+      if (
+        !usernameMatch ||
+        !passwordMatch
+      ) {
+        return res.status(401).json({
+          error:
+            "Invalid username or password"
+        });
+      }
+
+      const token =
+        createAdminToken();
+
+      return res.json({
+        success: true,
+        token,
+        expiresIn: 8 * 60 * 60
+      });
+
+    } catch (error) {
+      console.error(
+        "Admin login error:",
+        error
+      );
+
+      return res.status(500).json({
+        error:
+          "Admin login failed"
+      });
+    }
+  }
+);
 
 // ==================================================
 // DOCUMENT UPLOAD
