@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
@@ -16,13 +17,15 @@
   >
 </head>
 
+
 <body>
 
 <div class="crm-app">
 
-  <!-- =========================
+
+  <!-- =====================================================
        SIDEBAR
-  ========================== -->
+  ====================================================== -->
 
   <aside class="crm-sidebar">
 
@@ -34,98 +37,117 @@
 
       <div>
         <h2>Shyam Fincorp</h2>
-        <span>CRM Console</span>
+        <span>Loan Operations CRM</span>
       </div>
 
     </div>
 
 
+    <div class="crm-menu-label">
+      MAIN MENU
+    </div>
+
+
     <nav class="crm-nav">
+
 
       <button
         class="nav-item active"
         data-page="overview"
       >
         <span>▦</span>
-        Dashboard
+        <b>Dashboard</b>
       </button>
+
 
       <button
         class="nav-item"
         data-page="customers"
       >
         <span>◉</span>
-        Customers
+        <b>Customers</b>
       </button>
+
 
       <button
         class="nav-item"
         data-page="applications"
       >
         <span>▤</span>
-        Applications
+        <b>Applications</b>
       </button>
+
 
       <button
         class="nav-item"
         data-page="loans"
       >
         <span>▣</span>
-        Loan Portfolio
+        <b>Loan Portfolio</b>
       </button>
+
 
       <button
         class="nav-item"
         data-page="collections"
       >
         <span>₹</span>
-        Collections
+        <b>Collections</b>
       </button>
+
 
       <button
         class="nav-item"
         data-page="emi"
       >
         <span>◫</span>
-        EMI Center
+        <b>EMI Center</b>
       </button>
+
 
       <button
         class="nav-item"
         data-page="documents"
       >
         <span>▧</span>
-        Documents
+        <b>Documents</b>
       </button>
+
 
       <button
         class="nav-item"
         data-page="inquiries"
       >
         <span>?</span>
-        Inquiries
+        <b>Eligibility</b>
       </button>
+
 
       <button
         class="nav-item"
         data-page="followups"
       >
         <span>↻</span>
-        Follow-ups
+        <b>Follow-ups</b>
       </button>
+
 
       <button
         class="nav-item"
         data-page="reports"
       >
         <span>▥</span>
-        Reports
+        <b>Reports</b>
       </button>
+
 
     </nav>
 
 
+    <!-- SIDEBAR BOTTOM -->
+
     <div class="sidebar-bottom">
+
 
       <div class="admin-mini">
 
@@ -134,6 +156,7 @@
         </div>
 
         <div>
+
           <strong data-admin-name>
             Administrator
           </strong>
@@ -141,6 +164,7 @@
           <small>
             Super Admin
           </small>
+
         </div>
 
       </div>
@@ -153,21 +177,24 @@
         ↪ Logout
       </button>
 
+
     </div>
 
   </aside>
 
 
-  <!-- =========================
+
+  <!-- =====================================================
        MAIN
-  ========================== -->
+  ====================================================== -->
 
   <main class="crm-main">
 
 
-    <!-- TOP BAR -->
+    <!-- TOPBAR -->
 
     <header class="crm-topbar">
+
 
       <button
         id="mobileMenu"
@@ -184,14 +211,13 @@
         <input
           type="search"
           id="globalSearch"
-          placeholder="Search customer, loan, application..."
+          placeholder="Search customer, application, loan..."
         >
 
         <button
           id="searchButton"
           class="crm-search-button"
           type="button"
-          onclick="performCRMSearch()"
         >
           Search
         </button>
@@ -200,6 +226,7 @@
 
 
       <div class="top-actions">
+
 
         <button
           class="icon-btn"
@@ -210,10 +237,7 @@
         </button>
 
 
-        <button
-          class="admin-profile"
-          type="button"
-        >
+        <div class="admin-profile">
 
           <div class="top-avatar">
             A
@@ -231,16 +255,18 @@
 
           </div>
 
-        </button>
+        </div>
+
 
       </div>
 
     </header>
 
 
-    <!-- =========================
+
+    <!-- =====================================================
          CONTENT
-    ========================== -->
+    ====================================================== -->
 
     <section class="crm-content">
 
@@ -251,12 +277,16 @@
 
         <div>
 
+          <span class="crm-eyebrow">
+            SHYAM FINCORP • LOAN OPERATIONS
+          </span>
+
           <h1 id="pageTitle">
             Dashboard
           </h1>
 
           <p id="pageSubtitle">
-            Welcome back. Here's what's happening today.
+            Monitor customers, applications, loans and collections.
           </p>
 
         </div>
@@ -272,63 +302,40 @@
       </div>
 
 
-      <!-- =========================
+
+      <!-- =====================================================
            DASHBOARD
-      ========================== -->
+      ====================================================== -->
 
       <div
         id="overviewPage"
         class="crm-page active"
       >
 
-        <!-- KPI -->
 
-        <div class="kpi-grid">
+        <!-- KPI CARDS -->
 
-
-          <div class="kpi-card">
-
-            <div class="kpi-icon">
-              ₹
-            </div>
-
-            <div>
-
-              <span>
-                Total Disbursed
-              </span>
-
-              <strong>
-                ₹12.48 Cr
-              </strong>
-
-              <small class="positive">
-                ↑ 12.4% this month
-              </small>
-
-            </div>
-
-          </div>
+        <div class="crm-kpi-grid">
 
 
-          <div class="kpi-card">
+          <div class="crm-kpi-card blue">
 
-            <div class="kpi-icon">
+            <div class="crm-kpi-icon">
               ◉
             </div>
 
             <div>
 
               <span>
-                Active Loans
+                TOTAL CUSTOMERS
               </span>
 
-              <strong>
-                1,248
+              <strong id="crmTotalCustomers">
+                —
               </strong>
 
-              <small class="positive">
-                ↑ 8.2%
+              <small>
+                Registered customers
               </small>
 
             </div>
@@ -336,24 +343,25 @@
           </div>
 
 
-          <div class="kpi-card">
 
-            <div class="kpi-icon">
+          <div class="crm-kpi-card purple">
+
+            <div class="crm-kpi-icon">
               ▤
             </div>
 
             <div>
 
               <span>
-                Applications
+                APPLICATIONS
               </span>
 
-              <strong>
-                326
+              <strong id="crmTotalApplications">
+                —
               </strong>
 
               <small>
-                This month
+                Total applications
               </small>
 
             </div>
@@ -361,276 +369,310 @@
           </div>
 
 
-          <div class="kpi-card">
 
-            <div class="kpi-icon">
-              %
+          <div class="crm-kpi-card green">
+
+            <div class="crm-kpi-icon">
+              ✓
             </div>
 
             <div>
 
               <span>
-                Collection Rate
+                ACTIVE LOANS
               </span>
 
-              <strong>
-                94.7%
+              <strong id="crmActiveLoans">
+                —
               </strong>
 
-              <small class="positive">
-                ↑ 1.8%
+              <small>
+                Active / disbursed
               </small>
 
             </div>
 
           </div>
 
-        </div>
 
 
-        <!-- MINI CARDS -->
+          <div class="crm-kpi-card blue">
 
-        <div class="mini-grid">
-
-
-          <div class="mini-card">
-
-            <span>
-              Today's Collection
-            </span>
-
-            <strong>
-              ₹4,82,500
-            </strong>
-
-          </div>
-
-
-          <div class="mini-card">
-
-            <span>
-              Pending Applications
-            </span>
-
-            <strong>
-              84
-            </strong>
-
-          </div>
-
-
-          <div class="mini-card">
-
-            <span>
-              Overdue Accounts
-            </span>
-
-            <strong>
-              37
-            </strong>
-
-          </div>
-
-
-          <div class="mini-card">
-
-            <span>
-              New Customers
-            </span>
-
-            <strong>
-              29
-            </strong>
-
-          </div>
-
-        </div>
-
-
-        <!-- CHARTS -->
-
-        <div class="dashboard-grid">
-
-
-          <div class="panel">
-
-            <div class="panel-header">
-
-              <div>
-
-                <h3>
-                  Collection Overview
-                </h3>
-
-                <p>
-                  Monthly collection performance
-                </p>
-
-              </div>
-
-              <select>
-                <option>
-                  This Year
-                </option>
-
-                <option>
-                  Last Year
-                </option>
-              </select>
-
+            <div class="crm-kpi-icon">
+              ₹
             </div>
-
-
-            <div class="bar-chart">
-
-              <div class="bar-item">
-                <span>Jan</span>
-                <div class="bar">
-                  <i style="height:45%"></i>
-                </div>
-              </div>
-
-              <div class="bar-item">
-                <span>Feb</span>
-                <div class="bar">
-                  <i style="height:58%"></i>
-                </div>
-              </div>
-
-              <div class="bar-item">
-                <span>Mar</span>
-                <div class="bar">
-                  <i style="height:65%"></i>
-                </div>
-              </div>
-
-              <div class="bar-item">
-                <span>Apr</span>
-                <div class="bar">
-                  <i style="height:52%"></i>
-                </div>
-              </div>
-
-              <div class="bar-item">
-                <span>May</span>
-                <div class="bar">
-                  <i style="height:78%"></i>
-                </div>
-              </div>
-
-              <div class="bar-item">
-                <span>Jun</span>
-                <div class="bar">
-                  <i style="height:88%"></i>
-                </div>
-              </div>
-
-              <div class="bar-item">
-                <span>Jul</span>
-                <div class="bar">
-                  <i style="height:72%"></i>
-                </div>
-              </div>
-
-              <div class="bar-item">
-                <span>Aug</span>
-                <div class="bar">
-                  <i style="height:92%"></i>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div class="panel">
-
-            <div class="panel-header">
-
-              <div>
-
-                <h3>
-                  Loan Portfolio
-                </h3>
-
-                <p>
-                  Current loan distribution
-                </p>
-
-              </div>
-
-            </div>
-
-
-            <div class="donut-wrapper">
-
-              <div class="donut-chart">
-
-                <div class="donut-center">
-
-                  <strong>
-                    ₹12.48Cr
-                  </strong>
-
-                  <span>
-                    Portfolio
-                  </span>
-
-                </div>
-
-              </div>
-
-
-              <div class="legend">
-
-                <div>
-                  <i></i>
-                  Personal Loan
-                  <strong>62%</strong>
-                </div>
-
-                <div>
-                  <i></i>
-                  Business Loan
-                  <strong>23%</strong>
-                </div>
-
-                <div>
-                  <i></i>
-                  Other
-                  <strong>15%</strong>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- RECENT APPLICATIONS -->
-
-        <div class="panel">
-
-          <div class="panel-header">
 
             <div>
 
-              <h3>
-                Recent Applications
-              </h3>
+              <span>
+                LOAN PORTFOLIO
+              </span>
 
-              <p>
-                Latest loan applications
-              </p>
+              <strong id="crmPortfolioAmount">
+                ₹0
+              </strong>
+
+              <small>
+                Total loan principal
+              </small>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="crm-kpi-card orange">
+
+            <div class="crm-kpi-icon">
+              !
+            </div>
+
+            <div>
+
+              <span>
+                PENDING
+              </span>
+
+              <strong id="crmPendingApplications">
+                —
+              </strong>
+
+              <small>
+                Awaiting review
+              </small>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="crm-kpi-card green">
+
+            <div class="crm-kpi-icon">
+              ₹
+            </div>
+
+            <div>
+
+              <span>
+                COLLECTION
+              </span>
+
+              <strong id="crmCollectionAmount">
+                ₹0
+              </strong>
+
+              <small>
+                Recorded payments
+              </small>
+
+            </div>
+
+          </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             PORTFOLIO + COLLECTION
+        ================================================== -->
+
+        <div class="crm-dashboard-grid">
+
+
+          <!-- PORTFOLIO -->
+
+          <div class="crm-premium-panel">
+
+
+            <div class="crm-panel-header">
+
+              <div>
+
+                <span>
+                  LOAN PORTFOLIO
+                </span>
+
+                <h2>
+                  Portfolio Overview
+                </h2>
+
+              </div>
+
+              <button
+                class="crm-link-btn"
+                data-page-link="loans"
+              >
+                View Loans →
+              </button>
+
+            </div>
+
+
+            <div class="crm-portfolio-box">
+
+
+              <div class="crm-portfolio-main">
+
+                <small>
+                  TOTAL PORTFOLIO
+                </small>
+
+                <strong id="crmPortfolioAmount">
+                  ₹0
+                </strong>
+
+                <p>
+                  Based on loan accounts recorded in CRM
+                </p>
+
+              </div>
+
+
+              <div class="crm-portfolio-stats">
+
+
+                <div>
+
+                  <span>
+                    ACTIVE
+                  </span>
+
+                  <strong id="crmPortfolioActive">
+                    0
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    DISBURSED
+                  </span>
+
+                  <strong id="crmPortfolioDisbursed">
+                    0
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    CLOSED
+                  </span>
+
+                  <strong id="crmPortfolioClosed">
+                    0
+                  </strong>
+
+                </div>
+
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- COLLECTION -->
+
+          <div class="crm-premium-panel">
+
+
+            <div class="crm-panel-header">
+
+              <div>
+
+                <span>
+                  COLLECTIONS
+                </span>
+
+                <h2>
+                  EMI Collection
+                </h2>
+
+              </div>
+
+              <button
+                class="crm-link-btn"
+                data-page-link="collections"
+              >
+                Open →
+              </button>
+
+            </div>
+
+
+            <div class="crm-collection-box">
+
+
+              <div>
+
+                <small>
+                  TOTAL PAYMENTS RECORDED
+                </small>
+
+                <strong id="crmCollectedAmount">
+                  ₹0
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <small>
+                  PAYMENT TRANSACTIONS
+                </small>
+
+                <strong id="crmPaymentCount">
+                  0
+                </strong>
+
+              </div>
+
+
+            </div>
+
+          </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             RECENT APPLICATIONS
+        ================================================== -->
+
+        <div class="crm-premium-panel crm-recent-panel">
+
+
+          <div class="crm-panel-header">
+
+            <div>
+
+              <span>
+                APPLICATION PIPELINE
+              </span>
+
+              <h2>
+                Recent Loan Applications
+              </h2>
 
             </div>
 
             <button
-              class="text-btn"
+              class="crm-link-btn"
               data-page-link="applications"
             >
               View All →
@@ -639,276 +681,152 @@
           </div>
 
 
-          <div class="table-wrap">
+          <div
+            class="crm-recent-list"
+            id="crmRecentApplications"
+          >
 
-            <table>
-
-              <thead>
-
-                <tr>
-
-                  <th>
-                    Application
-                  </th>
-
-                  <th>
-                    Customer
-                  </th>
-
-                  <th>
-                    Amount
-                  </th>
-
-                  <th>
-                    Tenure
-                  </th>
-
-                  <th>
-                    Status
-                  </th>
-
-                </tr>
-
-              </thead>
-
-
-              <tbody>
-
-                <tr>
-
-                  <td>
-                    SFL-08916074
-                  </td>
-
-                  <td>
-                    Sample Customer
-                  </td>
-
-                  <td>
-                    ₹2,50,000
-                  </td>
-
-                  <td>
-                    24 Months
-                  </td>
-
-                  <td>
-                    <span class="status pending">
-                      Under Review
-                    </span>
-                  </td>
-
-                </tr>
-
-
-                <tr>
-
-                  <td>
-                    SFL-08916075
-                  </td>
-
-                  <td>
-                    Demo Customer
-                  </td>
-
-                  <td>
-                    ₹1,50,000
-                  </td>
-
-                  <td>
-                    18 Months
-                  </td>
-
-                  <td>
-                    <span class="status approved">
-                      Approved
-                    </span>
-                  </td>
-
-                </tr>
-
-              </tbody>
-
-            </table>
+            <div class="crm-empty-state">
+              Loading applications...
+            </div>
 
           </div>
+
 
         </div>
 
 
-        <!-- ACTIVITY -->
 
-        <div class="dashboard-grid">
+        <!-- =================================================
+             QUICK ACTIONS
+        ================================================== -->
 
-          <div class="panel">
-
-            <div class="panel-header">
-
-              <div>
-
-                <h3>
-                  Recent Activity
-                </h3>
-
-                <p>
-                  Latest CRM activity
-                </p>
-
-              </div>
-
-            </div>
+        <div class="crm-premium-panel">
 
 
-            <div class="activity-list">
+          <div class="crm-panel-header">
 
-              <div class="activity-item">
+            <div>
 
-                <div class="activity-icon">
-                  ✓
-                </div>
+              <span>
+                OPERATIONS
+              </span>
 
-                <div>
-
-                  <strong>
-                    Application reviewed
-                  </strong>
-
-                  <small>
-                    SFL-08916075
-                  </small>
-
-                </div>
-
-                <span>
-                  10 min ago
-                </span>
-
-              </div>
-
-
-              <div class="activity-item">
-
-                <div class="activity-icon">
-                  ₹
-                </div>
-
-                <div>
-
-                  <strong>
-                    EMI payment received
-                  </strong>
-
-                  <small>
-                    Demo Account
-                  </small>
-
-                </div>
-
-                <span>
-                  35 min ago
-                </span>
-
-              </div>
-
-
-              <div class="activity-item">
-
-                <div class="activity-icon">
-                  +
-                </div>
-
-                <div>
-
-                  <strong>
-                    New customer registered
-                  </strong>
-
-                  <small>
-                    Mobile verified
-                  </small>
-
-                </div>
-
-                <span>
-                  1 hr ago
-                </span>
-
-              </div>
+              <h2>
+                Quick Actions
+              </h2>
 
             </div>
 
           </div>
 
 
-          <div class="panel">
-
-            <div class="panel-header">
-
-              <div>
-
-                <h3>
-                  Quick Actions
-                </h3>
-
-                <p>
-                  Frequently used modules
-                </p>
-
-              </div>
-
-            </div>
+          <div class="crm-quick-actions">
 
 
-            <div class="quick-actions">
+            <button
+              data-page-link="customers"
+            >
 
-              <button
-                data-page-link="customers"
-              >
+              <strong>
                 ◉
-                <span>
-                  Customers
-                </span>
-              </button>
+              </strong>
 
-              <button
-                data-page-link="applications"
-              >
+              <span>
+                Customer Management
+              </span>
+
+            </button>
+
+
+            <button
+              data-page-link="applications"
+            >
+
+              <strong>
                 ▤
-                <span>
-                  Applications
-                </span>
-              </button>
+              </strong>
 
-              <button
-                data-page-link="collections"
-              >
+              <span>
+                Loan Applications
+              </span>
+
+            </button>
+
+
+            <button
+              data-page-link="loans"
+            >
+
+              <strong>
+                ▣
+              </strong>
+
+              <span>
+                Loan Portfolio
+              </span>
+
+            </button>
+
+
+            <button
+              data-page-link="collections"
+            >
+
+              <strong>
                 ₹
-                <span>
-                  Collections
-                </span>
-              </button>
+              </strong>
 
-              <button
-                data-page-link="reports"
-              >
+              <span>
+                EMI Collections
+              </span>
+
+            </button>
+
+
+            <button
+              data-page-link="documents"
+            >
+
+              <strong>
+                ▧
+              </strong>
+
+              <span>
+                Documents
+              </span>
+
+            </button>
+
+
+            <button
+              data-page-link="reports"
+            >
+
+              <strong>
                 ▥
-                <span>
-                  Reports
-                </span>
-              </button>
+              </strong>
 
-            </div>
+              <span>
+                Reports
+              </span>
+
+            </button>
+
 
           </div>
 
+
         </div>
+
 
       </div>
 
 
-      <!-- =========================
-           GENERIC CRM MODULE
-      ========================== -->
+
+      <!-- =====================================================
+           GENERIC MODULE PAGE
+      ====================================================== -->
 
       <div
         id="genericPage"
@@ -917,20 +835,24 @@
 
         <div class="panel empty-panel">
 
+
           <div class="empty-icon">
             ◈
           </div>
+
 
           <h2 id="genericTitle">
             CRM Module
           </h2>
 
+
           <p id="genericText">
-            This module is ready for live data integration.
+            CRM module
           </p>
 
 
           <div id="genericContent"></div>
+
 
         </div>
 
@@ -939,14 +861,12 @@
 
     </section>
 
+
   </main>
+
 
 </div>
 
-
-<!-- =========================
-     JAVASCRIPT
-========================== -->
 
 <script src="crm.js"></script>
 
