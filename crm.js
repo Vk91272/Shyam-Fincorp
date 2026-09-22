@@ -18,7 +18,6 @@ function $(id) {
 
 
 function escapeHtml(value) {
-
   return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -29,24 +28,22 @@ function escapeHtml(value) {
 
 
 function money(value) {
-
-  return Number(value || 0)
-    .toLocaleString("en-IN", {
+  return Number(value || 0).toLocaleString(
+    "en-IN",
+    {
       style: "currency",
       currency: "INR",
       maximumFractionDigits: 0
-    });
+    }
+  );
 }
 
 
 function showToast(message) {
 
-  const old =
-    document.querySelector(".crm-toast");
-
-  if (old) {
-    old.remove();
-  }
+  document
+    .querySelectorAll(".crm-toast")
+    .forEach(el => el.remove());
 
   const toast =
     document.createElement("div");
@@ -65,6 +62,67 @@ function showToast(message) {
 }
 
 
+function formatDate(value) {
+
+  if (!value) {
+    return "-";
+  }
+
+  const date =
+    new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
+  return date.toLocaleDateString(
+    "en-IN",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    }
+  );
+}
+
+
+function getPaymentAmount(payment) {
+
+  return Number(
+    payment.amount ??
+    payment.payment_amount ??
+    payment.paid_amount ??
+    payment.emi_amount ??
+    payment.paidAmount ??
+    0
+  );
+}
+
+
+function getLoanAmount(loan) {
+
+  return Number(
+    loan.principal ??
+    loan.loan_amount ??
+    loan.loanAmount ??
+    loan.amount ??
+    0
+  );
+}
+
+
+function getLoanAccount(loan) {
+
+  return (
+    loan.loan_account_no ||
+    loan.loan_account_number ||
+    loan.account_number ||
+    loan.loanAccountNumber ||
+    "-"
+  );
+}
+
+
 /* =====================================================
    LOGIN
 ===================================================== */
@@ -72,9 +130,7 @@ function showToast(message) {
 function requireLogin() {
 
   const token =
-    localStorage.getItem(
-      TOKEN_KEY
-    );
+    localStorage.getItem(TOKEN_KEY);
 
   if (!token) {
 
@@ -94,17 +150,9 @@ function requireLogin() {
 
 function logoutAdmin() {
 
-  localStorage.removeItem(
-    TOKEN_KEY
-  );
-
-  localStorage.removeItem(
-    USER_KEY
-  );
-
-  localStorage.removeItem(
-    "admin_key"
-  );
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+  localStorage.removeItem("admin_key");
 
   window.location.href =
     "crm-login.html";
@@ -121,19 +169,13 @@ async function apiRequest(
 ) {
 
   const token =
-    localStorage.getItem(
-      TOKEN_KEY
-    );
+    localStorage.getItem(TOKEN_KEY);
 
   const headers = {
-
     "Content-Type":
       "application/json",
-
     ...(options.headers || {})
-
   };
-
 
   if (token) {
 
@@ -141,7 +183,6 @@ async function apiRequest(
       `Bearer ${token}`;
 
   }
-
 
   const response =
     await fetch(
@@ -152,10 +193,7 @@ async function apiRequest(
       }
     );
 
-
-  if (
-    response.status === 401
-  ) {
+  if (response.status === 401) {
 
     localStorage.removeItem(
       TOKEN_KEY
@@ -171,23 +209,16 @@ async function apiRequest(
     throw new Error(
       "Session expired"
     );
-
   }
-
 
   let data = {};
 
   try {
-
     data =
       await response.json();
-
   } catch {
-
     data = {};
-
   }
-
 
   if (!response.ok) {
 
@@ -195,9 +226,7 @@ async function apiRequest(
       data.error ||
       "Request failed"
     );
-
   }
-
 
   return data;
 }
@@ -282,75 +311,46 @@ function showPage(page) {
     pageData[page] ||
     pageData.overview;
 
-
   const overview =
     $("overviewPage");
 
   const generic =
     $("genericPage");
 
-
   if (overview) {
-
-    overview.classList.remove(
-      "active"
-    );
-
+    overview.classList.remove("active");
   }
-
 
   if (generic) {
-
-    generic.classList.remove(
-      "active"
-    );
-
+    generic.classList.remove("active");
   }
-
 
   if (page === "overview") {
 
     if (overview) {
-
-      overview.classList.add(
-        "active"
-      );
-
+      overview.classList.add("active");
     }
-
 
     loadPremiumCRMDashboard();
 
   } else {
 
     if (generic) {
-
-      generic.classList.add(
-        "active"
-      );
-
+      generic.classList.add("active");
     }
 
     renderPageContent(page);
-
   }
-
 
   if ($("pageTitle")) {
-
     $("pageTitle").textContent =
       data.title;
-
   }
-
 
   if ($("pageSubtitle")) {
-
     $("pageSubtitle").textContent =
       data.subtitle;
-
   }
-
 
   document
     .querySelectorAll(".nav-item")
@@ -363,9 +363,7 @@ function showPage(page) {
 
     });
 
-
   closeMobileMenu();
-
 }
 
 
@@ -378,11 +376,9 @@ async function renderPageContent(page) {
   const container =
     $("genericContent");
 
-
   if (!container) {
     return;
   }
-
 
   container.innerHTML = `
     <div class="crm-feature-card">
@@ -390,58 +386,37 @@ async function renderPageContent(page) {
     </div>
   `;
 
-
   try {
 
     if (page === "customers") {
 
-      await loadCustomers(
-        container
-      );
+      await loadCustomers(container);
 
-    }
+    } else if (page === "applications") {
 
-    else if (
-      page === "applications"
-    ) {
+      await loadApplications(container);
 
-      await loadApplications(
-        container
-      );
+    } else if (page === "loans") {
 
-    }
+      await loadLoans(container);
 
-    else if (
-      page === "loans"
-    ) {
+    } else if (page === "collections") {
 
-      await loadLoans(
-        container
-      );
+      await loadCollections(container);
 
-    }
+    } else if (page === "emi") {
 
-    else if (
-      page === "inquiries"
-    ) {
+      await loadCollections(container);
 
-      await loadInquiries(
-        container
-      );
+    } else if (page === "inquiries") {
 
-    }
+      await loadInquiries(container);
 
-    else if (
-      page === "reports"
-    ) {
+    } else if (page === "reports") {
 
-      renderReports(
-        container
-      );
+      renderReports(container);
 
-    }
-
-    else {
+    } else {
 
       renderComingSoon(
         container,
@@ -454,22 +429,14 @@ async function renderPageContent(page) {
 
     container.innerHTML = `
       <div class="crm-feature-card">
-
-        <h3>
-          Unable to load data
-        </h3>
+        <h3>Unable to load data</h3>
 
         <p class="error-text">
-          ${escapeHtml(
-            error.message
-          )}
+          ${escapeHtml(error.message)}
         </p>
-
       </div>
     `;
-
   }
-
 }
 
 
@@ -482,15 +449,10 @@ async function loadPremiumCRMDashboard() {
   try {
 
     const [
-
       customersResponse,
-
       applicationsResponse,
-
       loansResponse,
-
       paymentsResponse
-
     ] = await Promise.all([
 
       apiRequest(
@@ -511,25 +473,17 @@ async function loadPremiumCRMDashboard() {
 
     ]);
 
-
     const customers =
-      customersResponse.data ||
-      [];
-
+      customersResponse.data || [];
 
     const applications =
-      applicationsResponse.data ||
-      [];
-
+      applicationsResponse.data || [];
 
     const loans =
-      loansResponse.data ||
-      [];
-
+      loansResponse.data || [];
 
     const payments =
-      paymentsResponse.data ||
-      [];
+      paymentsResponse.data || [];
 
 
     /* CUSTOMERS */
@@ -549,22 +503,18 @@ async function loadPremiumCRMDashboard() {
 
 
     const pending =
-      applications.filter(
-        app => {
+      applications.filter(app => {
 
-          const status =
-            String(
-              app.status || ""
-            )
-            .toLowerCase();
+        const status =
+          String(
+            app.status || ""
+          ).toLowerCase();
 
-          return (
-            status === "submitted" ||
-            status === "under_review"
-          );
-
-        }
-      );
+        return (
+          status === "submitted" ||
+          status === "under_review"
+        );
+      });
 
 
     setCRMText(
@@ -576,50 +526,40 @@ async function loadPremiumCRMDashboard() {
     /* LOANS */
 
     const active =
-      loans.filter(
-        loan => {
+      loans.filter(loan => {
 
-          const status =
-            String(
-              loan.status || ""
-            )
-            .toLowerCase();
+        const status =
+          String(
+            loan.status || ""
+          ).toLowerCase();
 
-          return (
-            status === "active" ||
-            status === "disbursed"
-          );
-
-        }
-      );
+        return (
+          status === "active" ||
+          status === "disbursed"
+        );
+      });
 
 
     const disbursed =
-      loans.filter(
-        loan => {
+      loans.filter(loan => {
 
-          return String(
-            loan.status || ""
-          )
-          .toLowerCase()
-          === "disbursed";
+        return String(
+          loan.status || ""
+        ).toLowerCase()
+        === "disbursed";
 
-        }
-      );
+      });
 
 
     const closed =
-      loans.filter(
-        loan => {
+      loans.filter(loan => {
 
-          return String(
-            loan.status || ""
-          )
-          .toLowerCase()
-          === "closed";
+        return String(
+          loan.status || ""
+        ).toLowerCase()
+        === "closed";
 
-        }
-      );
+      });
 
 
     setCRMText(
@@ -627,18 +567,15 @@ async function loadPremiumCRMDashboard() {
       active.length
     );
 
-
     setCRMText(
       "crmPortfolioActive",
       active.length
     );
 
-
     setCRMText(
       "crmPortfolioDisbursed",
       disbursed.length
     );
-
 
     setCRMText(
       "crmPortfolioClosed",
@@ -646,20 +583,16 @@ async function loadPremiumCRMDashboard() {
     );
 
 
-    /* PORTFOLIO */
+    /* LOAN PORTFOLIO */
 
     const portfolio =
       loans.reduce(
         (total, loan) => {
 
-          return total +
-            Number(
-              loan.principal ??
-              loan.loan_amount ??
-              loan.loanAmount ??
-              loan.amount ??
-              0
-            );
+          return (
+            total +
+            getLoanAmount(loan)
+          );
 
         },
         0
@@ -672,19 +605,16 @@ async function loadPremiumCRMDashboard() {
     );
 
 
-    /* COLLECTION */
+    /* PAYMENTS */
 
     const collection =
       payments.reduce(
         (total, payment) => {
 
-          return total +
-            Number(
-              payment.amount ??
-              payment.payment_amount ??
-              payment.paid_amount ??
-              0
-            );
+          return (
+            total +
+            getPaymentAmount(payment)
+          );
 
         },
         0
@@ -696,12 +626,10 @@ async function loadPremiumCRMDashboard() {
       money(collection)
     );
 
-
     setCRMText(
       "crmCollectedAmount",
       money(collection)
     );
-
 
     setCRMText(
       "crmPaymentCount",
@@ -722,7 +650,7 @@ async function loadPremiumCRMDashboard() {
               a.created_at || 0
             )
         )
-        .slice(0, 6);
+        .slice(0, 8);
 
 
     renderRecentCRMApplications(
@@ -737,31 +665,20 @@ async function loadPremiumCRMDashboard() {
       error
     );
 
-
     if ($("crmRecentApplications")) {
 
       $("crmRecentApplications")
         .innerHTML = `
           <div class="crm-empty-state">
-
-            Dashboard data could not
-            be loaded.
-
+            Dashboard data could not be loaded.
             <br>
-
             <small>
-              ${escapeHtml(
-                error.message
-              )}
+              ${escapeHtml(error.message)}
             </small>
-
           </div>
         `;
-
     }
-
   }
-
 }
 
 
@@ -776,11 +693,9 @@ function renderRecentCRMApplications(
   const container =
     $("crmRecentApplications");
 
-
   if (!container) {
     return;
   }
-
 
   if (!applications.length) {
 
@@ -799,20 +714,16 @@ function renderRecentCRMApplications(
       .map(app => {
 
         const id =
-          app.application_id ||
-          "-";
-
+          app.application_id || "-";
 
         const name =
           app.full_name ||
           "Customer";
 
-
         const amount =
           money(
             app.requested_amount || 0
           );
-
 
         const status =
           String(
@@ -827,8 +738,13 @@ function renderRecentCRMApplications(
 
 
         return `
-
-          <div class="crm-recent-row">
+          <div
+            class="crm-recent-row"
+            onclick="openApplicationDetails(
+              '${escapeHtml(id)}'
+            )"
+            style="cursor:pointer"
+          >
 
             <strong>
               ${escapeHtml(id)}
@@ -847,12 +763,10 @@ function renderRecentCRMApplications(
             </span>
 
           </div>
-
         `;
 
       })
       .join("");
-
 }
 
 
@@ -868,7 +782,6 @@ async function loadCustomers(
     await apiRequest(
       "/api/admin/report/customers"
     );
-
 
   const customers =
     data.data || [];
@@ -892,22 +805,33 @@ async function loadCustomers(
   let html = `
     <div class="crm-feature-card">
 
-      <h3>
-        Customer Management
-      </h3>
+      <div class="crm-panel-header">
+        <div>
+          <span class="eyebrow">
+            CUSTOMER MANAGEMENT
+          </span>
+
+          <h3>
+            All Customers
+          </h3>
+        </div>
+
+        <strong>
+          ${customers.length}
+        </strong>
+      </div>
 
       <div style="overflow:auto">
 
         <table class="crm-module-table">
 
           <thead>
-
             <tr>
               <th>Name</th>
               <th>Mobile</th>
               <th>Email</th>
+              <th>Action</th>
             </tr>
-
           </thead>
 
           <tbody>
@@ -918,35 +842,51 @@ async function loadCustomers(
     .slice(0, 100)
     .forEach(item => {
 
-      html += `
+      const mobile =
+        item.mobile || "";
 
+
+      html += `
         <tr>
 
           <td>
+            <strong>
+              ${escapeHtml(
+                item.full_name || "-"
+              )}
+            </strong>
+          </td>
+
+          <td>
             ${escapeHtml(
-              item.full_name ||
-              "-"
+              mobile || "-"
             )}
           </td>
 
           <td>
             ${escapeHtml(
-              item.mobile ||
-              "-"
+              item.email || "-"
             )}
           </td>
 
           <td>
-            ${escapeHtml(
-              item.email ||
-              "-"
-            )}
+
+            <button
+              class="outline-btn"
+              type="button"
+              onclick="
+                openCustomerDetails(
+                  '${escapeHtml(mobile)}'
+                )
+              "
+            >
+              View Details
+            </button>
+
           </td>
 
         </tr>
-
       `;
-
     });
 
 
@@ -963,7 +903,6 @@ async function loadCustomers(
 
   container.innerHTML =
     html;
-
 }
 
 
@@ -980,33 +919,42 @@ async function loadApplications(
       "/api/admin/report/applications"
     );
 
-
   const applications =
     data.data || [];
 
 
   let html = `
-
     <div class="crm-feature-card">
 
-      <h3>
-        Loan Applications
-      </h3>
+      <div class="crm-panel-header">
+        <div>
+          <span class="eyebrow">
+            LOAN OPERATIONS
+          </span>
+
+          <h3>
+            Loan Applications
+          </h3>
+        </div>
+
+        <strong>
+          ${applications.length}
+        </strong>
+      </div>
 
       <div style="overflow:auto">
 
         <table class="crm-module-table">
 
           <thead>
-
             <tr>
               <th>Application ID</th>
               <th>Name</th>
               <th>Mobile</th>
               <th>Amount</th>
               <th>Status</th>
+              <th>Action</th>
             </tr>
-
           </thead>
 
           <tbody>
@@ -1017,28 +965,30 @@ async function loadApplications(
     .slice(0, 100)
     .forEach(item => {
 
-      html += `
+      const applicationId =
+        item.application_id || "";
 
+
+      html += `
         <tr>
 
           <td>
+            <strong>
+              ${escapeHtml(
+                applicationId || "-"
+              )}
+            </strong>
+          </td>
+
+          <td>
             ${escapeHtml(
-              item.application_id ||
-              "-"
+              item.full_name || "-"
             )}
           </td>
 
           <td>
             ${escapeHtml(
-              item.full_name ||
-              "-"
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              item.mobile ||
-              "-"
+              item.mobile || "-"
             )}
           </td>
 
@@ -1050,15 +1000,30 @@ async function loadApplications(
 
           <td>
             ${escapeHtml(
-              item.status ||
-              "-"
+              item.status || "-"
             )}
           </td>
 
+          <td>
+
+            <button
+              class="outline-btn"
+              type="button"
+              onclick="
+                openApplicationDetails(
+                  '${escapeHtml(
+                    applicationId
+                  )}'
+                )
+              "
+            >
+              View
+            </button>
+
+          </td>
+
         </tr>
-
       `;
-
     });
 
 
@@ -1075,7 +1040,6 @@ async function loadApplications(
 
   container.innerHTML =
     html;
-
 }
 
 
@@ -1092,32 +1056,43 @@ async function loadLoans(
       "/api/admin/report/loans"
     );
 
-
   const loans =
     data.data || [];
 
 
   let html = `
-
     <div class="crm-feature-card">
 
-      <h3>
-        Loan Portfolio
-      </h3>
+      <div class="crm-panel-header">
+
+        <div>
+          <span class="eyebrow">
+            LOAN PORTFOLIO
+          </span>
+
+          <h3>
+            Loan Accounts
+          </h3>
+        </div>
+
+        <strong>
+          ${loans.length}
+        </strong>
+
+      </div>
 
       <div style="overflow:auto">
 
         <table class="crm-module-table">
 
           <thead>
-
             <tr>
               <th>Loan Account</th>
               <th>Application</th>
               <th>Status</th>
               <th>Principal</th>
+              <th>Action</th>
             </tr>
-
           </thead>
 
           <tbody>
@@ -1128,15 +1103,17 @@ async function loadLoans(
     .slice(0, 100)
     .forEach(item => {
 
-      html += `
+      const account =
+        getLoanAccount(item);
 
+
+      html += `
         <tr>
 
           <td>
-            ${escapeHtml(
-              item.loan_account_no ||
-              "-"
-            )}
+            <strong>
+              ${escapeHtml(account)}
+            </strong>
           </td>
 
           <td>
@@ -1155,17 +1132,28 @@ async function loadLoans(
 
           <td>
             ${money(
-              item.principal ??
-              item.loan_amount ??
-              item.amount ??
-              0
+              getLoanAmount(item)
             )}
           </td>
 
+          <td>
+
+            <button
+              class="outline-btn"
+              type="button"
+              onclick="
+                openLoanDetails(
+                  '${escapeHtml(account)}'
+                )
+              "
+            >
+              View Loan
+            </button>
+
+          </td>
+
         </tr>
-
       `;
-
     });
 
 
@@ -1182,7 +1170,938 @@ async function loadLoans(
 
   container.innerHTML =
     html;
+}
 
+
+/* =====================================================
+   COLLECTIONS / PAYMENTS
+===================================================== */
+
+async function loadCollections(
+  container
+) {
+
+  const data =
+    await apiRequest(
+      "/api/admin/report/payments"
+    );
+
+  const payments =
+    data.data || [];
+
+
+  const total =
+    payments.reduce(
+      (sum, payment) =>
+        sum +
+        getPaymentAmount(payment),
+      0
+    );
+
+
+  let html = `
+    <div class="crm-feature-card">
+
+      <div class="crm-panel-header">
+
+        <div>
+          <span class="eyebrow">
+            EMI COLLECTION CENTER
+          </span>
+
+          <h3>
+            Payment History
+          </h3>
+
+          <p>
+            Total collected:
+            <strong>
+              ${money(total)}
+            </strong>
+          </p>
+        </div>
+
+        <strong>
+          ${payments.length}
+        </strong>
+
+      </div>
+
+      <div style="overflow:auto">
+
+        <table class="crm-module-table">
+
+          <thead>
+            <tr>
+              <th>Payment ID</th>
+              <th>Loan Account</th>
+              <th>Amount</th>
+              <th>Payment Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+  `;
+
+
+  if (!payments.length) {
+
+    html += `
+      <tr>
+        <td colspan="5">
+          No payments found.
+        </td>
+      </tr>
+    `;
+
+  } else {
+
+    payments
+      .slice(0, 200)
+      .forEach(payment => {
+
+        html += `
+          <tr>
+
+            <td>
+              ${escapeHtml(
+                payment.payment_id ||
+                payment.id ||
+                "-"
+              )}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                payment.loan_account_no ||
+                payment.loan_account_number ||
+                payment.account_number ||
+                payment.loan_id ||
+                "-"
+              )}
+            </td>
+
+            <td>
+              <strong>
+                ${money(
+                  getPaymentAmount(payment)
+                )}
+              </strong>
+            </td>
+
+            <td>
+              ${formatDate(
+                payment.payment_date ||
+                payment.created_at ||
+                payment.paid_at
+              )}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                payment.status ||
+                "PAID"
+              )}
+            </td>
+
+          </tr>
+        `;
+      });
+  }
+
+
+  html += `
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+  `;
+
+
+  container.innerHTML =
+    html;
+}
+
+
+/* =====================================================
+   CUSTOMER DETAILS
+===================================================== */
+
+async function openCustomerDetails(
+  mobile
+) {
+
+  if (!mobile) {
+    showToast(
+      "Customer mobile not available"
+    );
+    return;
+  }
+
+
+  try {
+
+    showToast(
+      "Loading customer details..."
+    );
+
+
+    const result =
+      await apiRequest(
+        `/api/admin/search?q=${encodeURIComponent(
+          mobile
+        )}`
+      );
+
+
+    const customers =
+      result.customers || [];
+
+    const applications =
+      result.applications || [];
+
+    const loans =
+      result.loans || [];
+
+
+    const customer =
+      customers.find(
+        item =>
+          String(item.mobile) ===
+          String(mobile)
+      ) ||
+      customers[0] ||
+      {};
+
+
+    await showCustomerDetailPanel(
+      customer,
+      applications,
+      loans
+    );
+
+
+  } catch (error) {
+
+    showToast(
+      error.message
+    );
+  }
+}
+
+
+/* =====================================================
+   APPLICATION DETAILS
+===================================================== */
+
+async function openApplicationDetails(
+  applicationId
+) {
+
+  if (!applicationId) {
+    showToast(
+      "Application ID not available"
+    );
+    return;
+  }
+
+
+  try {
+
+    showToast(
+      "Loading application..."
+    );
+
+
+    const result =
+      await apiRequest(
+        `/api/admin/search?q=${encodeURIComponent(
+          applicationId
+        )}`
+      );
+
+
+    const applications =
+      result.applications || [];
+
+    const loans =
+      result.loans || [];
+
+
+    const application =
+      applications.find(
+        item =>
+          String(
+            item.application_id
+          ) ===
+          String(applicationId)
+      ) ||
+      applications[0] ||
+      {};
+
+
+    const loan =
+      loans[0] ||
+      null;
+
+
+    showDetailPanel(
+      `
+        <div class="detail-head">
+
+          <div>
+            <span class="eyebrow">
+              LOAN APPLICATION
+            </span>
+
+            <h2>
+              ${escapeHtml(
+                application.application_id ||
+                applicationId
+              )}
+            </h2>
+          </div>
+
+          <button
+            class="close-results"
+            onclick="closeDetailPanel()"
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        <div class="detail-grid">
+
+          ${detailCard(
+            "Customer",
+            application.full_name || "-"
+          )}
+
+          ${detailCard(
+            "Mobile",
+            application.mobile || "-"
+          )}
+
+          ${detailCard(
+            "Email",
+            application.email || "-"
+          )}
+
+          ${detailCard(
+            "Requested Amount",
+            money(
+              application.requested_amount || 0
+            )
+          )}
+
+          ${detailCard(
+            "Monthly Income",
+            money(
+              application.monthly_income || 0
+            )
+          )}
+
+          ${detailCard(
+            "Tenure",
+            application.tenure_months
+              ? application.tenure_months +
+                " Months"
+              : "-"
+          )}
+
+          ${detailCard(
+            "Status",
+            application.status || "-"
+          )}
+
+          ${detailCard(
+            "Created",
+            formatDate(
+              application.created_at
+            )
+          )}
+
+        </div>
+
+
+        ${
+          loan
+            ? `
+              <div class="detail-section">
+
+                <h3>
+                  Linked Loan
+                </h3>
+
+                <div class="detail-grid">
+
+                  ${detailCard(
+                    "Loan Account",
+                    getLoanAccount(loan)
+                  )}
+
+                  ${detailCard(
+                    "Principal",
+                    money(
+                      getLoanAmount(loan)
+                    )
+                  )}
+
+                  ${detailCard(
+                    "EMI",
+                    money(
+                      loan.emi ||
+                      loan.emi_amount ||
+                      0
+                    )
+                  )}
+
+                  ${detailCard(
+                    "Interest Rate",
+                    (
+                      loan.annual_interest_rate ||
+                      loan.interest_rate ||
+                      0
+                    ) + "%"
+                  )}
+
+                  ${detailCard(
+                    "Status",
+                    loan.status || "-"
+                  )}
+
+                </div>
+
+              </div>
+            `
+            : ""
+        }
+
+      `
+    );
+
+
+  } catch (error) {
+
+    showToast(
+      error.message
+    );
+  }
+}
+
+
+/* =====================================================
+   LOAN DETAILS
+===================================================== */
+
+async function openLoanDetails(
+  loanAccount
+) {
+
+  if (!loanAccount) {
+    showToast(
+      "Loan account not available"
+    );
+    return;
+  }
+
+
+  try {
+
+    showToast(
+      "Loading loan details..."
+    );
+
+
+    const result =
+      await apiRequest(
+        `/api/admin/search?q=${encodeURIComponent(
+          loanAccount
+        )}`
+      );
+
+
+    const loans =
+      result.loans || [];
+
+    const applications =
+      result.applications || [];
+
+
+    const loan =
+      loans.find(
+        item =>
+          String(
+            getLoanAccount(item)
+          ) ===
+          String(loanAccount)
+      ) ||
+      loans[0] ||
+      {};
+
+
+    const application =
+      applications[0] ||
+      {};
+
+
+    const paymentResponse =
+      await apiRequest(
+        "/api/admin/report/payments"
+      );
+
+
+    const allPayments =
+      paymentResponse.data || [];
+
+
+    const payments =
+      allPayments.filter(
+        payment => {
+
+          const account =
+            payment.loan_account_no ||
+            payment.loan_account_number ||
+            payment.account_number ||
+            "";
+
+          return String(account) ===
+            String(loanAccount);
+
+        }
+      );
+
+
+    const collected =
+      payments.reduce(
+        (sum, payment) =>
+          sum +
+          getPaymentAmount(payment),
+        0
+      );
+
+
+    showDetailPanel(
+
+      `
+        <div class="detail-head">
+
+          <div>
+
+            <span class="eyebrow">
+              LOAN ACCOUNT
+            </span>
+
+            <h2>
+              ${escapeHtml(
+                loanAccount
+              )}
+            </h2>
+
+          </div>
+
+          <button
+            class="close-results"
+            onclick="closeDetailPanel()"
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        <div class="detail-grid">
+
+          ${detailCard(
+            "Customer",
+            application.full_name ||
+            loan.customer_name ||
+            "-"
+          )}
+
+          ${detailCard(
+            "Application",
+            application.application_id ||
+            loan.application_id ||
+            "-"
+          )}
+
+          ${detailCard(
+            "Principal",
+            money(
+              getLoanAmount(loan)
+            )
+          )}
+
+          ${detailCard(
+            "EMI",
+            money(
+              loan.emi ||
+              loan.emi_amount ||
+              loan.monthly_emi ||
+              0
+            )
+          )}
+
+          ${detailCard(
+            "Interest",
+            (
+              loan.annual_interest_rate ||
+              loan.interest_rate ||
+              0
+            ) + "%"
+          )}
+
+          ${detailCard(
+            "Tenure",
+            loan.tenure_months
+              ? loan.tenure_months +
+                " Months"
+              : "-"
+          )}
+
+          ${detailCard(
+            "Status",
+            loan.status || "-"
+          )}
+
+          ${detailCard(
+            "Collected",
+            money(collected)
+          )}
+
+        </div>
+
+
+        <div class="detail-section">
+
+          <div class="detail-section-head">
+
+            <h3>
+              Payment History
+            </h3>
+
+            <strong>
+              ${payments.length}
+              Payments
+            </strong>
+
+          </div>
+
+
+          ${
+            payments.length
+              ? `
+                <div class="detail-payments">
+
+                  ${payments
+                    .slice(0, 50)
+                    .map(payment => {
+
+                      return `
+                        <div class="detail-payment-row">
+
+                          <span>
+                            ${formatDate(
+                              payment.payment_date ||
+                              payment.created_at
+                            )}
+                          </span>
+
+                          <strong>
+                            ${money(
+                              getPaymentAmount(
+                                payment
+                              )
+                            )}
+                          </strong>
+
+                          <span>
+                            ${escapeHtml(
+                              payment.status ||
+                              "PAID"
+                            )}
+                          </span>
+
+                        </div>
+                      `;
+
+                    })
+                    .join("")}
+
+                </div>
+              `
+              : `
+                <div class="crm-empty-state">
+                  No payment records found for this loan.
+                </div>
+              `
+          }
+
+        </div>
+      `
+    );
+
+
+  } catch (error) {
+
+    showToast(
+      error.message
+    );
+  }
+}
+
+
+/* =====================================================
+   CUSTOMER DETAIL PANEL
+===================================================== */
+
+async function showCustomerDetailPanel(
+  customer,
+  applications,
+  loans
+) {
+
+  const mobile =
+    customer.mobile || "-";
+
+
+  const customerApplications =
+    applications.filter(
+      app =>
+        String(app.mobile || "") ===
+        String(mobile)
+    );
+
+
+  const customerLoans =
+    loans.filter(
+      loan =>
+        customerApplications.some(
+          app =>
+            String(
+              app.id || ""
+            ) ===
+            String(
+              loan.application_id || ""
+            )
+        )
+    );
+
+
+  showDetailPanel(
+
+    `
+      <div class="detail-head">
+
+        <div>
+
+          <span class="eyebrow">
+            CUSTOMER PROFILE
+          </span>
+
+          <h2>
+            ${escapeHtml(
+              customer.full_name ||
+              "Customer"
+            )}
+          </h2>
+
+        </div>
+
+        <button
+          class="close-results"
+          onclick="closeDetailPanel()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="detail-grid">
+
+        ${detailCard(
+          "Full Name",
+          customer.full_name || "-"
+        )}
+
+        ${detailCard(
+          "Mobile",
+          customer.mobile || "-"
+        )}
+
+        ${detailCard(
+          "Email",
+          customer.email || "-"
+        )}
+
+        ${detailCard(
+          "Customer ID",
+          customer.id || "-"
+        )}
+
+        ${detailCard(
+          "Applications",
+          customerApplications.length
+        )}
+
+        ${detailCard(
+          "Loan Accounts",
+          customerLoans.length
+        )}
+
+      </div>
+
+
+      <div class="detail-section">
+
+        <div class="detail-section-head">
+
+          <h3>
+            Loan Applications
+          </h3>
+
+        </div>
+
+
+        ${
+          customerApplications.length
+            ? `
+              <div class="detail-list">
+
+                ${customerApplications
+                  .map(app => {
+
+                    return `
+                      <div
+                        class="detail-list-row"
+                        onclick="
+                          openApplicationDetails(
+                            '${escapeHtml(
+                              app.application_id || ""
+                            )}'
+                          )
+                        "
+                      >
+
+                        <div>
+                          <strong>
+                            ${escapeHtml(
+                              app.application_id ||
+                              "-"
+                            )}
+                          </strong>
+
+                          <small>
+                            ${escapeHtml(
+                              app.status ||
+                              "-"
+                            )}
+                          </small>
+                        </div>
+
+                        <strong>
+                          ${money(
+                            app.requested_amount ||
+                            0
+                          )}
+                        </strong>
+
+                      </div>
+                    `;
+
+                  })
+                  .join("")}
+
+              </div>
+            `
+            : `
+              <div class="crm-empty-state">
+                No applications found.
+              </div>
+            `
+        }
+
+      </div>
+    `
+  );
+}
+
+
+/* =====================================================
+   DETAIL CARD
+===================================================== */
+
+function detailCard(
+  label,
+  value
+) {
+
+  return `
+    <div class="detail-card">
+
+      <span>
+        ${escapeHtml(label)}
+      </span>
+
+      <strong>
+        ${escapeHtml(value)}
+      </strong>
+
+    </div>
+  `;
+}
+
+
+/* =====================================================
+   DETAIL PANEL
+===================================================== */
+
+function showDetailPanel(
+  content
+) {
+
+  closeDetailPanel();
+
+
+  const panel =
+    document.createElement("div");
+
+  panel.id =
+    "crmDetailPanel";
+
+  panel.className =
+    "crm-detail-overlay";
+
+
+  panel.innerHTML = `
+
+    <div class="crm-detail-modal">
+
+      ${content}
+
+    </div>
+
+  `;
+
+
+  document.body.appendChild(
+    panel
+  );
+}
+
+
+function closeDetailPanel() {
+
+  $("crmDetailPanel")
+    ?.remove();
 }
 
 
@@ -1207,7 +2126,6 @@ async function loadInquiries(
 
 
   let html = `
-
     <div class="crm-feature-card">
 
       <h3>
@@ -1219,7 +2137,6 @@ async function loadInquiries(
         <table class="crm-module-table">
 
           <thead>
-
             <tr>
               <th>Inquiry ID</th>
               <th>Name</th>
@@ -1227,7 +2144,6 @@ async function loadInquiries(
               <th>Requested</th>
               <th>Status</th>
             </tr>
-
           </thead>
 
           <tbody>
@@ -1239,7 +2155,6 @@ async function loadInquiries(
     .forEach(item => {
 
       html += `
-
         <tr>
 
           <td>
@@ -1265,7 +2180,8 @@ async function loadInquiries(
 
           <td>
             ${money(
-              item.requested_amount || 0
+              item.requested_amount ||
+              0
             )}
           </td>
 
@@ -1277,9 +2193,7 @@ async function loadInquiries(
           </td>
 
         </tr>
-
       `;
-
     });
 
 
@@ -1296,7 +2210,6 @@ async function loadInquiries(
 
   container.innerHTML =
     html;
-
 }
 
 
@@ -1325,7 +2238,7 @@ function renderReports(
     [
       "loans",
       "Loan Portfolio",
-      "Loan account and portfolio report."
+      "Loan account report."
     ],
 
     [
@@ -1366,8 +2279,11 @@ function renderReports(
 
             <button
               class="primary-btn"
+              type="button"
               onclick="
-                downloadReport('${report[0]}')
+                downloadReport(
+                  '${report[0]}'
+                )
               "
             >
               Download CSV
@@ -1379,9 +2295,7 @@ function renderReports(
       ).join("")}
 
     </div>
-
   `;
-
 }
 
 
@@ -1435,18 +2349,15 @@ async function downloadReport(
 
 
     const url =
-      URL.createObjectURL(
-        blob
-      );
+      URL.createObjectURL(blob);
 
 
     const link =
-      document.createElement(
-        "a"
-      );
+      document.createElement("a");
 
 
-    link.href = url;
+    link.href =
+      url;
 
     link.download =
       `shyam-fincorp-${type}-report.csv`;
@@ -1475,9 +2386,7 @@ async function downloadReport(
     showToast(
       error.message
     );
-
   }
-
 }
 
 
@@ -1493,9 +2402,7 @@ function convertToCSV(rows) {
 
 
   const columns =
-    Object.keys(
-      rows[0]
-    );
+    Object.keys(rows[0]);
 
 
   const header =
@@ -1516,14 +2423,14 @@ function convertToCSV(rows) {
               value === null ||
               value === undefined
             ) {
-
               value = "";
-
             }
 
-
             return `"${String(value)
-              .replace(/"/g, '""')}"`;
+              .replace(
+                /"/g,
+                '""'
+              )}"`;
 
           })
           .join(",");
@@ -1537,7 +2444,6 @@ function convertToCSV(rows) {
     "\n" +
     body
   );
-
 }
 
 
@@ -1590,9 +2496,7 @@ async function performCRMSearch() {
     showToast(
       error.message
     );
-
   }
-
 }
 
 
@@ -1600,7 +2504,9 @@ async function performCRMSearch() {
    SEARCH RESULTS
 ===================================================== */
 
-function showSearchResults(data) {
+function showSearchResults(
+  data
+) {
 
   let panel =
     $("crmSearchResults");
@@ -1609,9 +2515,7 @@ function showSearchResults(data) {
   if (!panel) {
 
     panel =
-      document.createElement(
-        "div"
-      );
+      document.createElement("div");
 
     panel.id =
       "crmSearchResults";
@@ -1619,21 +2523,17 @@ function showSearchResults(data) {
     panel.className =
       "search-results-panel";
 
-
     document.body.appendChild(
       panel
     );
-
   }
 
 
   const customers =
     data.customers || [];
 
-
   const applications =
     data.applications || [];
-
 
   const loans =
     data.loans || [];
@@ -1669,7 +2569,6 @@ function showSearchResults(data) {
       </button>
 
     </div>
-
   `;
 
 
@@ -1684,9 +2583,10 @@ function showSearchResults(data) {
         No matching records found.
       </div>
     `;
-
   }
 
+
+  /* CUSTOMERS */
 
   if (customers.length) {
 
@@ -1704,9 +2604,21 @@ function showSearchResults(data) {
 
     customers.forEach(item => {
 
+      const mobile =
+        item.mobile || "";
+
+
       html += `
 
-        <div class="search-result-row">
+        <div
+          class="search-result-row"
+          onclick="
+            openCustomerDetails(
+              '${escapeHtml(mobile)}'
+            )
+          "
+          style="cursor:pointer"
+        >
 
           <div>
 
@@ -1722,25 +2634,29 @@ function showSearchResults(data) {
                 item.mobile ||
                 "-"
               )}
+              •
+              ${escapeHtml(
+                item.email ||
+                ""
+              )}
             </small>
 
           </div>
 
           <span class="result-badge">
-            Customer
+            View Customer
           </span>
 
         </div>
-
       `;
-
     });
 
 
     html += `</div>`;
-
   }
 
+
+  /* APPLICATIONS */
 
   if (applications.length) {
 
@@ -1758,16 +2674,27 @@ function showSearchResults(data) {
 
     applications.forEach(item => {
 
+      const id =
+        item.application_id || "";
+
+
       html += `
 
-        <div class="search-result-row">
+        <div
+          class="search-result-row"
+          onclick="
+            openApplicationDetails(
+              '${escapeHtml(id)}'
+            )
+          "
+          style="cursor:pointer"
+        >
 
           <div>
 
             <strong>
               ${escapeHtml(
-                item.application_id ||
-                "-"
+                id || "-"
               )}
             </strong>
 
@@ -1786,20 +2713,19 @@ function showSearchResults(data) {
           </div>
 
           <span class="result-badge">
-            Application
+            View Application
           </span>
 
         </div>
-
       `;
-
     });
 
 
     html += `</div>`;
-
   }
 
+
+  /* LOANS */
 
   if (loans.length) {
 
@@ -1817,16 +2743,27 @@ function showSearchResults(data) {
 
     loans.forEach(item => {
 
+      const account =
+        getLoanAccount(item);
+
+
       html += `
 
-        <div class="search-result-row">
+        <div
+          class="search-result-row"
+          onclick="
+            openLoanDetails(
+              '${escapeHtml(account)}'
+            )
+          "
+          style="cursor:pointer"
+        >
 
           <div>
 
             <strong>
               ${escapeHtml(
-                item.loan_account_no ||
-                "-"
+                account
               )}
             </strong>
 
@@ -1841,24 +2778,20 @@ function showSearchResults(data) {
           </div>
 
           <span class="result-badge">
-            Loan
+            View Loan
           </span>
 
         </div>
-
       `;
-
     });
 
 
     html += `</div>`;
-
   }
 
 
   panel.innerHTML =
     html;
-
 }
 
 
@@ -1890,7 +2823,6 @@ function renderComingSoon(
     </div>
 
   `;
-
 }
 
 
@@ -1905,11 +2837,9 @@ function openMobileMenu() {
       ".crm-sidebar"
     );
 
-
   sidebar?.classList.toggle(
     "open"
   );
-
 }
 
 
@@ -1920,11 +2850,9 @@ function closeMobileMenu() {
       ".crm-sidebar"
     );
 
-
   sidebar?.classList.remove(
     "open"
   );
-
 }
 
 
@@ -1956,10 +2884,8 @@ document.addEventListener(
       .forEach(element => {
 
         if (username) {
-
           element.textContent =
             username;
-
         }
 
       });
@@ -2027,7 +2953,7 @@ document.addEventListener(
       );
 
 
-    /* SEARCH BUTTON */
+    /* SEARCH */
 
     $("searchButton")
       ?.addEventListener(
@@ -2035,8 +2961,6 @@ document.addEventListener(
         performCRMSearch
       );
 
-
-    /* SEARCH ENTER */
 
     $("globalSearch")
       ?.addEventListener(
@@ -2070,7 +2994,7 @@ document.addEventListener(
       );
 
 
-    /* LOAD DASHBOARD */
+    /* DASHBOARD */
 
     await loadPremiumCRMDashboard();
 
