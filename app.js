@@ -8,10 +8,6 @@ let currentMobile =
 
 let currentLoan = null;
 
-let currentMobile =
-  localStorage.getItem("shyam_mobile") || "";
-
-let currentLoan = null;
 
 /* =========================
    BASIC HELPERS
