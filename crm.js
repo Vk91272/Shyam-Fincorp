@@ -1,21 +1,24 @@
-const API_BASE =
-  "https://shyam-fincorp.onrender.com";
+const API_BASE = "https://shyam-fincorp.onrender.com";
 
-const TOKEN_KEY =
-  "shyam_admin_token";
+const TOKEN_KEY = "shyam_admin_token";
+const USER_KEY = "shyam_admin_user";
 
-const USER_KEY =
-  "shyam_admin_user";
+let crmCache = {
+  customers: [],
+  applications: [],
+  loans: [],
+  payments: [],
+  inquiries: []
+};
 
 
 /* =====================================================
-   HELPERS
+   BASIC HELPERS
 ===================================================== */
 
 function $(id) {
   return document.getElementById(id);
 }
-
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -26,205 +29,156 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
-
 function money(value) {
-  return Number(value || 0).toLocaleString(
-    "en-IN",
-    {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0
-    }
+  const n = Number(value || 0);
+
+  return "₹" + n.toLocaleString("en-IN", {
+    maximumFractionDigits: 2
+  });
+}
+
+function dateValue(value) {
+  if (!value) return "—";
+
+  const d = new Date(value);
+
+  if (Number.isNaN(d.getTime())) {
+    return escapeHtml(value);
+  }
+
+  return d.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function shortDate(value) {
+  if (!value) return "—";
+
+  const d = new Date(value);
+
+  if (Number.isNaN(d.getTime())) {
+    return escapeHtml(value);
+  }
+
+  return d.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+function getAmount(row) {
+  return Number(
+    row?.amount ??
+    row?.payment_amount ??
+    row?.paid_amount ??
+    row?.principal ??
+    row?.loan_amount ??
+    row?.loanAmount ??
+    0
   );
 }
 
+function getLoanAmount(row) {
+  return Number(
+    row?.principal ??
+    row?.loan_amount ??
+    row?.loanAmount ??
+    row?.amount ??
+    0
+  );
+}
 
-function showToast(message) {
+function showToast(message, type = "success") {
+  let toast = document.getElementById("crmToast");
 
-  document
-    .querySelectorAll(".crm-toast")
-    .forEach(el => el.remove());
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "crmToast";
+    toast.className = "crm-toast";
+    document.body.appendChild(toast);
+  }
 
-  const toast =
-    document.createElement("div");
-
-  toast.className =
-    "crm-toast";
-
-  toast.textContent =
-    message;
-
-  document.body.appendChild(toast);
+  toast.textContent = message;
+  toast.className = "crm-toast " + type;
 
   setTimeout(() => {
-    toast.remove();
-  }, 3000);
-}
-
-
-function formatDate(value) {
-
-  if (!value) {
-    return "-";
-  }
-
-  const date =
-    new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
-
-  return date.toLocaleDateString(
-    "en-IN",
-    {
-      day: "2-digit",
-      month: "short",
-      year: "numeric"
-    }
-  );
-}
-
-
-function getPaymentAmount(payment) {
-
-  return Number(
-    payment.amount ??
-    payment.payment_amount ??
-    payment.paid_amount ??
-    payment.emi_amount ??
-    payment.paidAmount ??
-    0
-  );
-}
-
-
-function getLoanAmount(loan) {
-
-  return Number(
-    loan.principal ??
-    loan.loan_amount ??
-    loan.loanAmount ??
-    loan.amount ??
-    0
-  );
-}
-
-
-function getLoanAccount(loan) {
-
-  return (
-    loan.loan_account_no ||
-    loan.loan_account_number ||
-    loan.account_number ||
-    loan.loanAccountNumber ||
-    "-"
-  );
+    toast.classList.add("hide");
+  }, 2500);
 }
 
 
 /* =====================================================
-   LOGIN
+   AUTH
 ===================================================== */
 
 function requireLogin() {
-
-  const token =
-    localStorage.getItem(TOKEN_KEY);
+  const token = localStorage.getItem(TOKEN_KEY);
 
   if (!token) {
-
-    window.location.href =
-      "crm-login.html";
-
+    window.location.href = "crm-login.html";
     return false;
   }
 
   return true;
 }
 
-
-/* =====================================================
-   LOGOUT
-===================================================== */
-
 function logoutAdmin() {
-
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
-  localStorage.removeItem("admin_key");
 
-  window.location.href =
-    "crm-login.html";
+  window.location.href = "crm-login.html";
 }
 
+async function apiRequest(path, options = {}) {
 
-/* =====================================================
-   API
-===================================================== */
+  const token = localStorage.getItem(TOKEN_KEY);
 
-async function apiRequest(
-  url,
-  options = {}
-) {
-
-  const token =
-    localStorage.getItem(TOKEN_KEY);
+  if (!token) {
+    window.location.href = "crm-login.html";
+    throw new Error("Admin login required");
+  }
 
   const headers = {
-    "Content-Type":
-      "application/json",
-    ...(options.headers || {})
+    ...(options.headers || {}),
+    Authorization: `Bearer ${token}`
   };
 
-  if (token) {
-
-    headers.Authorization =
-      `Bearer ${token}`;
-
+  if (options.body && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
   }
 
-  const response =
-    await fetch(
-      API_BASE + url,
-      {
-        ...options,
-        headers
-      }
-    );
+  const response = await fetch(API_BASE + path, {
+    ...options,
+    headers
+  });
 
   if (response.status === 401) {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
 
-    localStorage.removeItem(
-      TOKEN_KEY
-    );
+    window.location.href = "crm-login.html";
 
-    localStorage.removeItem(
-      USER_KEY
-    );
-
-    window.location.href =
-      "crm-login.html";
-
-    throw new Error(
-      "Session expired"
-    );
+    throw new Error("Session expired");
   }
 
-  let data = {};
+  let data;
 
   try {
-    data =
-      await response.json();
+    data = await response.json();
   } catch {
     data = {};
   }
 
   if (!response.ok) {
-
     throw new Error(
       data.error ||
-      "Request failed"
+      data.message ||
+      `Request failed (${response.status})`
     );
   }
 
@@ -233,7 +187,25 @@ async function apiRequest(
 
 
 /* =====================================================
-   PAGE CONFIG
+   ADMIN NAME
+===================================================== */
+
+function loadAdminName() {
+
+  const username =
+    localStorage.getItem(USER_KEY) ||
+    "Administrator";
+
+  document
+    .querySelectorAll("[data-admin-name]")
+    .forEach(element => {
+      element.textContent = username;
+    });
+}
+
+
+/* =====================================================
+   PAGE DATA
 ===================================================== */
 
 const pageData = {
@@ -297,7 +269,6 @@ const pageData = {
     subtitle:
       "Download CRM reports."
   }
-
 };
 
 
@@ -305,9 +276,9 @@ const pageData = {
    PAGE NAVIGATION
 ===================================================== */
 
-function showPage(page) {
+async function showPage(page) {
 
-  const data =
+  const config =
     pageData[page] ||
     pageData.overview;
 
@@ -317,367 +288,278 @@ function showPage(page) {
   const generic =
     $("genericPage");
 
-  if (overview) {
-    overview.classList.remove("active");
-  }
-
-  if (generic) {
-    generic.classList.remove("active");
-  }
-
-  if (page === "overview") {
-
-    if (overview) {
-      overview.classList.add("active");
-    }
-
-    loadPremiumCRMDashboard();
-
-  } else {
-
-    if (generic) {
-      generic.classList.add("active");
-    }
-
-    renderPageContent(page);
-  }
-
   if ($("pageTitle")) {
     $("pageTitle").textContent =
-      data.title;
+      config.title;
   }
 
   if ($("pageSubtitle")) {
     $("pageSubtitle").textContent =
-      data.subtitle;
+      config.subtitle;
   }
 
   document
     .querySelectorAll(".nav-item")
-    .forEach(button => {
-
-      button.classList.toggle(
+    .forEach(item => {
+      item.classList.toggle(
         "active",
-        button.dataset.page === page
+        item.dataset.page === page
       );
-
     });
 
-  closeMobileMenu();
+  if (page === "overview") {
+
+    overview?.classList.add("active");
+    generic?.classList.remove("active");
+
+    await loadPremiumCRMDashboard();
+
+  } else {
+
+    overview?.classList.remove("active");
+    generic?.classList.add("active");
+
+    await renderPageContent(page);
+  }
+
+  document
+    .querySelector(".crm-sidebar")
+    ?.classList.remove("mobile-open");
 }
 
 
 /* =====================================================
-   MODULE CONTENT
-===================================================== */
-
-async function renderPageContent(page) {
-
-  const container =
-    $("genericContent");
-
-  if (!container) {
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="crm-feature-card">
-      <p>Loading...</p>
-    </div>
-  `;
-
-  try {
-
-    if (page === "customers") {
-
-      await loadCustomers(container);
-
-    } else if (page === "applications") {
-
-      await loadApplications(container);
-
-    } else if (page === "loans") {
-
-      await loadLoans(container);
-
-    } else if (page === "collections") {
-
-      await loadCollections(container);
-
-    } else if (page === "emi") {
-
-      await loadCollections(container);
-
-    } else if (page === "inquiries") {
-
-      await loadInquiries(container);
-
-    } else if (page === "reports") {
-
-      renderReports(container);
-
-    } else {
-
-      renderComingSoon(
-        container,
-        page
-      );
-
-    }
-
-  } catch (error) {
-
-    container.innerHTML = `
-      <div class="crm-feature-card">
-        <h3>Unable to load data</h3>
-
-        <p class="error-text">
-          ${escapeHtml(error.message)}
-        </p>
-      </div>
-    `;
-  }
-}
-
-
-/* =====================================================
-   PREMIUM DASHBOARD
+   DASHBOARD
 ===================================================== */
 
 async function loadPremiumCRMDashboard() {
 
-  try {
+  const results =
+    await Promise.allSettled([
 
-    const [
-      customersResponse,
-      applicationsResponse,
-      loansResponse,
-      paymentsResponse
-    ] = await Promise.all([
+      apiRequest("/api/admin/report/customers"),
 
-      apiRequest(
-        "/api/admin/report/customers"
-      ),
+      apiRequest("/api/admin/report/applications"),
 
-      apiRequest(
-        "/api/admin/report/applications"
-      ),
+      apiRequest("/api/admin/report/loans"),
 
-      apiRequest(
-        "/api/admin/report/loans"
-      ),
-
-      apiRequest(
-        "/api/admin/report/payments"
-      )
+      apiRequest("/api/admin/report/payments")
 
     ]);
 
-    const customers =
-      customersResponse.data || [];
 
-    const applications =
-      applicationsResponse.data || [];
-
-    const loans =
-      loansResponse.data || [];
-
-    const payments =
-      paymentsResponse.data || [];
+  const customersResult = results[0];
+  const applicationsResult = results[1];
+  const loansResult = results[2];
+  const paymentsResult = results[3];
 
 
-    /* CUSTOMERS */
+  const customers =
+    customersResult.status === "fulfilled"
+      ? customersResult.value.data || []
+      : [];
 
-    setCRMText(
-      "crmTotalCustomers",
-      customers.length
+  const applications =
+    applicationsResult.status === "fulfilled"
+      ? applicationsResult.value.data || []
+      : [];
+
+  const loans =
+    loansResult.status === "fulfilled"
+      ? loansResult.value.data || []
+      : [];
+
+  const payments =
+    paymentsResult.status === "fulfilled"
+      ? paymentsResult.value.data || []
+      : [];
+
+
+  crmCache.customers = customers;
+  crmCache.applications = applications;
+  crmCache.loans = loans;
+  crmCache.payments = payments;
+
+
+  /* =========================
+     CUSTOMER
+  ========================== */
+
+  if ($("crmTotalCustomers")) {
+    $("crmTotalCustomers").textContent =
+      customers.length;
+  }
+
+
+  /* =========================
+     APPLICATIONS
+  ========================== */
+
+  if ($("crmTotalApplications")) {
+    $("crmTotalApplications").textContent =
+      applications.length;
+  }
+
+
+  const pending =
+    applications.filter(app => {
+
+      const status =
+        String(app.status || "")
+          .toLowerCase();
+
+      return [
+        "submitted",
+        "under_review",
+        "pending"
+      ].includes(status);
+
+    }).length;
+
+
+  if ($("crmPendingApplications")) {
+    $("crmPendingApplications").textContent =
+      pending;
+  }
+
+
+  /* =========================
+     LOANS
+  ========================== */
+
+  const activeLoans =
+    loans.filter(loan => {
+
+      const status =
+        String(loan.status || "")
+          .toLowerCase();
+
+      return [
+        "active",
+        "disbursed"
+      ].includes(status);
+
+    });
+
+
+  if ($("crmActiveLoans")) {
+    $("crmActiveLoans").textContent =
+      activeLoans.length;
+  }
+
+
+  /* =========================
+     PORTFOLIO
+  ========================== */
+
+  const portfolio =
+    loans.reduce(
+      (sum, loan) =>
+        sum + getLoanAmount(loan),
+      0
     );
 
 
-    /* APPLICATIONS */
+  document
+    .querySelectorAll("#crmPortfolioAmount")
+    .forEach(element => {
+      element.textContent =
+        money(portfolio);
+    });
 
-    setCRMText(
-      "crmTotalApplications",
-      applications.length
+
+  const activeCount =
+    loans.filter(loan =>
+      String(loan.status || "")
+        .toLowerCase() === "active"
+    ).length;
+
+
+  const disbursedCount =
+    loans.filter(loan =>
+      String(loan.status || "")
+        .toLowerCase() === "disbursed"
+    ).length;
+
+
+  const closedCount =
+    loans.filter(loan =>
+      String(loan.status || "")
+        .toLowerCase() === "closed"
+    ).length;
+
+
+  if ($("crmPortfolioActive")) {
+    $("crmPortfolioActive").textContent =
+      activeCount;
+  }
+
+  if ($("crmPortfolioDisbursed")) {
+    $("crmPortfolioDisbursed").textContent =
+      disbursedCount;
+  }
+
+  if ($("crmPortfolioClosed")) {
+    $("crmPortfolioClosed").textContent =
+      closedCount;
+  }
+
+
+  /* =========================
+     PAYMENTS
+  ========================== */
+
+  const collection =
+    payments.reduce(
+      (sum, payment) =>
+        sum + Number(
+          payment.amount ??
+          payment.payment_amount ??
+          payment.paid_amount ??
+          0
+        ),
+      0
     );
 
 
-    const pending =
-      applications.filter(app => {
+  if ($("crmCollectionAmount")) {
+    $("crmCollectionAmount").textContent =
+      money(collection);
+  }
 
-        const status =
-          String(
-            app.status || ""
-          ).toLowerCase();
+  if ($("crmCollectedAmount")) {
+    $("crmCollectedAmount").textContent =
+      money(collection);
+  }
 
-        return (
-          status === "submitted" ||
-          status === "under_review"
-        );
-      });
-
-
-    setCRMText(
-      "crmPendingApplications",
-      pending.length
-    );
+  if ($("crmPaymentCount")) {
+    $("crmPaymentCount").textContent =
+      payments.length;
+  }
 
 
-    /* LOANS */
+  /* =========================
+     RECENT APPLICATIONS
+  ========================== */
 
-    const active =
-      loans.filter(loan => {
-
-        const status =
-          String(
-            loan.status || ""
-          ).toLowerCase();
-
-        return (
-          status === "active" ||
-          status === "disbursed"
-        );
-      });
+  renderRecentCRMApplications(applications);
 
 
-    const disbursed =
-      loans.filter(loan => {
+  /* =========================
+     PAYMENT ERROR
+  ========================== */
 
-        return String(
-          loan.status || ""
-        ).toLowerCase()
-        === "disbursed";
-
-      });
-
-
-    const closed =
-      loans.filter(loan => {
-
-        return String(
-          loan.status || ""
-        ).toLowerCase()
-        === "closed";
-
-      });
-
-
-    setCRMText(
-      "crmActiveLoans",
-      active.length
-    );
-
-    setCRMText(
-      "crmPortfolioActive",
-      active.length
-    );
-
-    setCRMText(
-      "crmPortfolioDisbursed",
-      disbursed.length
-    );
-
-    setCRMText(
-      "crmPortfolioClosed",
-      closed.length
-    );
-
-
-    /* LOAN PORTFOLIO */
-
-    const portfolio =
-      loans.reduce(
-        (total, loan) => {
-
-          return (
-            total +
-            getLoanAmount(loan)
-          );
-
-        },
-        0
-      );
-
-
-    setCRMText(
-      "crmPortfolioAmount",
-      money(portfolio)
-    );
-
-
-    /* PAYMENTS */
-
-    const collection =
-      payments.reduce(
-        (total, payment) => {
-
-          return (
-            total +
-            getPaymentAmount(payment)
-          );
-
-        },
-        0
-      );
-
-
-    setCRMText(
-      "crmCollectionAmount",
-      money(collection)
-    );
-
-    setCRMText(
-      "crmCollectedAmount",
-      money(collection)
-    );
-
-    setCRMText(
-      "crmPaymentCount",
-      payments.length
-    );
-
-
-    /* RECENT APPLICATIONS */
-
-    const recent =
-      [...applications]
-        .sort(
-          (a, b) =>
-            new Date(
-              b.created_at || 0
-            ) -
-            new Date(
-              a.created_at || 0
-            )
-        )
-        .slice(0, 8);
-
-
-    renderRecentCRMApplications(
-      recent
-    );
-
-
-  } catch (error) {
+  if (paymentsResult.status === "rejected") {
 
     console.error(
-      "Dashboard error:",
-      error
+      "Payment report error:",
+      paymentsResult.reason
     );
 
-    if ($("crmRecentApplications")) {
-
-      $("crmRecentApplications")
-        .innerHTML = `
-          <div class="crm-empty-state">
-            Dashboard data could not be loaded.
-            <br>
-            <small>
-              ${escapeHtml(error.message)}
-            </small>
-          </div>
-        `;
-    }
+    showToast(
+      "Payment data load failed. Check backend payments report.",
+      "error"
+    );
   }
 }
 
@@ -686,22 +568,29 @@ async function loadPremiumCRMDashboard() {
    RECENT APPLICATIONS
 ===================================================== */
 
-function renderRecentCRMApplications(
-  applications
-) {
+function renderRecentCRMApplications(applications) {
 
   const container =
     $("crmRecentApplications");
 
-  if (!container) {
-    return;
-  }
+  if (!container) return;
 
-  if (!applications.length) {
+
+  const sorted =
+    [...applications]
+      .sort(
+        (a, b) =>
+          new Date(b.created_at || 0) -
+          new Date(a.created_at || 0)
+      )
+      .slice(0, 8);
+
+
+  if (!sorted.length) {
 
     container.innerHTML = `
       <div class="crm-empty-state">
-        No loan applications found.
+        No applications found.
       </div>
     `;
 
@@ -710,63 +599,152 @@ function renderRecentCRMApplications(
 
 
   container.innerHTML =
-    applications
-      .map(app => {
+    sorted.map(app => {
 
-        const id =
-          app.application_id || "-";
-
-        const name =
-          app.full_name ||
-          "Customer";
-
-        const amount =
-          money(
-            app.requested_amount || 0
-          );
-
-        const status =
-          String(
-            app.status ||
-            "submitted"
-          )
-          .replace(
-            /_/g,
-            " "
-          )
-          .toUpperCase();
+      const status =
+        String(app.status || "submitted")
+          .replace(/_/g, " ");
 
 
-        return `
-          <div
-            class="crm-recent-row"
-            onclick="openApplicationDetails(
-              '${escapeHtml(id)}'
-            )"
-            style="cursor:pointer"
-          >
+      return `
+        <div
+          class="crm-recent-row crm-clickable"
+          onclick='openCRMRecord("application", ${JSON.stringify(app).replace(/'/g, "&#39;")})'
+        >
 
+          <div>
             <strong>
-              ${escapeHtml(id)}
+              ${escapeHtml(
+                app.application_id ||
+                app.id ||
+                "—"
+              )}
             </strong>
 
-            <span>
-              ${escapeHtml(name)}
-            </span>
-
-            <span>
-              ${amount}
-            </span>
-
-            <span class="crm-status">
-              ${escapeHtml(status)}
-            </span>
-
+            <small>
+              ${escapeHtml(
+                app.full_name ||
+                "Customer"
+              )}
+            </small>
           </div>
-        `;
 
-      })
-      .join("");
+
+          <div>
+            <strong>
+              ${money(
+                app.requested_amount
+              )}
+            </strong>
+
+            <small>
+              ${escapeHtml(
+                app.mobile || "—"
+              )}
+            </small>
+          </div>
+
+
+          <span class="crm-status">
+            ${escapeHtml(status)}
+          </span>
+
+        </div>
+      `;
+
+    }).join("");
+}
+
+
+/* =====================================================
+   MODULE RENDERER
+===================================================== */
+
+async function renderPageContent(page) {
+
+  const title =
+    $("genericTitle");
+
+  const text =
+    $("genericText");
+
+  const content =
+    $("genericContent");
+
+
+  if (title) {
+    title.textContent =
+      pageData[page]?.title ||
+      "CRM Module";
+  }
+
+
+  if (text) {
+    text.textContent =
+      pageData[page]?.subtitle ||
+      "";
+  }
+
+
+  if (!content) return;
+
+
+  content.innerHTML = `
+    <div class="crm-loading">
+      Loading...
+    </div>
+  `;
+
+
+  try {
+
+    if (page === "customers") {
+
+      await loadCustomers(content);
+
+    } else if (page === "applications") {
+
+      await loadApplications(content);
+
+    } else if (page === "loans") {
+
+      await loadLoans(content);
+
+    } else if (page === "collections") {
+
+      await loadPayments(content);
+
+    } else if (page === "emi") {
+
+      await loadPayments(content);
+
+    } else if (page === "inquiries") {
+
+      await loadInquiries(content);
+
+    } else if (page === "reports") {
+
+      renderReports(content);
+
+    } else {
+
+      renderComingSoon(content, page);
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    content.innerHTML = `
+      <div class="crm-error-box">
+        ${escapeHtml(
+          error.message ||
+          "Could not load module"
+        )}
+      </div>
+    `;
+  }
 }
 
 
@@ -774,27 +752,27 @@ function renderRecentCRMApplications(
    CUSTOMERS
 ===================================================== */
 
-async function loadCustomers(
-  container
-) {
+async function loadCustomers(container) {
 
   const data =
     await apiRequest(
       "/api/admin/report/customers"
     );
 
+
   const customers =
     data.data || [];
+
+
+  crmCache.customers =
+    customers;
 
 
   if (!customers.length) {
 
     container.innerHTML = `
-      <div class="crm-feature-card">
-        <h3>No customers found</h3>
-        <p>
-          Customer records will appear here.
-        </p>
+      <div class="crm-empty-state">
+        No customers found.
       </div>
     `;
 
@@ -802,107 +780,82 @@ async function loadCustomers(
   }
 
 
-  let html = `
-    <div class="crm-feature-card">
+  container.innerHTML = `
 
-      <div class="crm-panel-header">
-        <div>
-          <span class="eyebrow">
-            CUSTOMER MANAGEMENT
-          </span>
+    <div class="crm-module-toolbar">
 
-          <h3>
-            All Customers
-          </h3>
-        </div>
+      <strong>
+        ${customers.length} Customers
+      </strong>
 
-        <strong>
-          ${customers.length}
-        </strong>
-      </div>
+      <span>
+        Click a customer to view details
+      </span>
 
-      <div style="overflow:auto">
-
-        <table class="crm-module-table">
-
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Mobile</th>
-              <th>Email</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-  `;
+    </div>
 
 
-  customers
-    .slice(0, 100)
-    .forEach(item => {
+    <div class="crm-table-wrap">
 
-      const mobile =
-        item.mobile || "";
+      <table class="crm-module-table">
 
+        <thead>
+          <tr>
+            <th>NAME</th>
+            <th>MOBILE</th>
+            <th>EMAIL</th>
+            <th>CREATED</th>
+          </tr>
+        </thead>
 
-      html += `
-        <tr>
+        <tbody>
 
-          <td>
-            <strong>
-              ${escapeHtml(
-                item.full_name || "-"
-              )}
-            </strong>
-          </td>
+          ${customers.map(customer => `
 
-          <td>
-            ${escapeHtml(
-              mobile || "-"
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              item.email || "-"
-            )}
-          </td>
-
-          <td>
-
-            <button
-              class="outline-btn"
-              type="button"
-              onclick="
-                openCustomerDetails(
-                  '${escapeHtml(mobile)}'
-                )
-              "
+            <tr
+              class="crm-table-clickable"
+              onclick='openCRMRecord("customer", ${JSON.stringify(customer).replace(/'/g, "&#39;")})'
             >
-              View Details
-            </button>
 
-          </td>
+              <td>
+                <strong>
+                  ${escapeHtml(
+                    customer.full_name ||
+                    "—"
+                  )}
+                </strong>
+              </td>
 
-        </tr>
-      `;
-    });
+              <td>
+                ${escapeHtml(
+                  customer.mobile ||
+                  "—"
+                )}
+              </td>
 
+              <td>
+                ${escapeHtml(
+                  customer.email ||
+                  "—"
+                )}
+              </td>
 
-  html += `
-          </tbody>
+              <td>
+                ${shortDate(
+                  customer.created_at
+                )}
+              </td>
 
-        </table>
+            </tr>
 
-      </div>
+          `).join("")}
+
+        </tbody>
+
+      </table>
 
     </div>
   `;
-
-
-  container.innerHTML =
-    html;
 }
 
 
@@ -910,136 +863,136 @@ async function loadCustomers(
    APPLICATIONS
 ===================================================== */
 
-async function loadApplications(
-  container
-) {
+async function loadApplications(container) {
 
   const data =
     await apiRequest(
       "/api/admin/report/applications"
     );
 
+
   const applications =
     data.data || [];
 
 
-  let html = `
-    <div class="crm-feature-card">
+  crmCache.applications =
+    applications;
 
-      <div class="crm-panel-header">
-        <div>
-          <span class="eyebrow">
-            LOAN OPERATIONS
-          </span>
 
-          <h3>
-            Loan Applications
-          </h3>
-        </div>
+  if (!applications.length) {
 
-        <strong>
-          ${applications.length}
-        </strong>
+    container.innerHTML = `
+      <div class="crm-empty-state">
+        No applications found.
       </div>
+    `;
 
-      <div style="overflow:auto">
-
-        <table class="crm-module-table">
-
-          <thead>
-            <tr>
-              <th>Application ID</th>
-              <th>Name</th>
-              <th>Mobile</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-  `;
+    return;
+  }
 
 
-  applications
-    .slice(0, 100)
-    .forEach(item => {
+  container.innerHTML = `
 
-      const applicationId =
-        item.application_id || "";
+    <div class="crm-module-toolbar">
+
+      <strong>
+        ${applications.length} Applications
+      </strong>
+
+      <span>
+        Click an application to view details
+      </span>
+
+    </div>
 
 
-      html += `
-        <tr>
+    <div class="crm-table-wrap">
 
-          <td>
-            <strong>
-              ${escapeHtml(
-                applicationId || "-"
-              )}
-            </strong>
-          </td>
+      <table class="crm-module-table">
 
-          <td>
-            ${escapeHtml(
-              item.full_name || "-"
-            )}
-          </td>
+        <thead>
 
-          <td>
-            ${escapeHtml(
-              item.mobile || "-"
-            )}
-          </td>
+          <tr>
+            <th>APPLICATION ID</th>
+            <th>CUSTOMER</th>
+            <th>MOBILE</th>
+            <th>AMOUNT</th>
+            <th>STATUS</th>
+            <th>DATE</th>
+          </tr>
 
-          <td>
-            ${money(
-              item.requested_amount || 0
-            )}
-          </td>
+        </thead>
 
-          <td>
-            ${escapeHtml(
-              item.status || "-"
-            )}
-          </td>
 
-          <td>
+        <tbody>
 
-            <button
-              class="outline-btn"
-              type="button"
-              onclick="
-                openApplicationDetails(
-                  '${escapeHtml(
-                    applicationId
-                  )}'
-                )
-              "
+          ${applications.map(app => `
+
+            <tr
+              class="crm-table-clickable"
+              onclick='openCRMRecord("application", ${JSON.stringify(app).replace(/'/g, "&#39;")})'
             >
-              View
-            </button>
 
-          </td>
+              <td>
+                <strong>
+                  ${escapeHtml(
+                    app.application_id ||
+                    app.id ||
+                    "—"
+                  )}
+                </strong>
+              </td>
 
-        </tr>
-      `;
-    });
+              <td>
+                ${escapeHtml(
+                  app.full_name ||
+                  "—"
+                )}
+              </td>
 
+              <td>
+                ${escapeHtml(
+                  app.mobile ||
+                  "—"
+                )}
+              </td>
 
-  html += `
-          </tbody>
+              <td>
+                ${money(
+                  app.requested_amount
+                )}
+              </td>
 
-        </table>
+              <td>
+                <span class="crm-status">
+                  ${escapeHtml(
+                    String(
+                      app.status ||
+                      "submitted"
+                    ).replace(
+                      /_/g,
+                      " "
+                    )
+                  )}
+                </span>
+              </td>
 
-      </div>
+              <td>
+                ${shortDate(
+                  app.created_at
+                )}
+              </td>
+
+            </tr>
+
+          `).join("")}
+
+        </tbody>
+
+      </table>
 
     </div>
   `;
-
-
-  container.innerHTML =
-    html;
 }
 
 
@@ -1047,1061 +1000,298 @@ async function loadApplications(
    LOANS
 ===================================================== */
 
-async function loadLoans(
-  container
-) {
+async function loadLoans(container) {
 
   const data =
     await apiRequest(
       "/api/admin/report/loans"
     );
 
+
   const loans =
     data.data || [];
 
 
-  let html = `
-    <div class="crm-feature-card">
+  crmCache.loans =
+    loans;
 
-      <div class="crm-panel-header">
 
-        <div>
-          <span class="eyebrow">
-            LOAN PORTFOLIO
-          </span>
+  if (!loans.length) {
 
-          <h3>
-            Loan Accounts
-          </h3>
-        </div>
-
-        <strong>
-          ${loans.length}
-        </strong>
-
+    container.innerHTML = `
+      <div class="crm-empty-state">
+        No loan accounts found.
       </div>
+    `;
 
-      <div style="overflow:auto">
-
-        <table class="crm-module-table">
-
-          <thead>
-            <tr>
-              <th>Loan Account</th>
-              <th>Application</th>
-              <th>Status</th>
-              <th>Principal</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-  `;
+    return;
+  }
 
 
-  loans
-    .slice(0, 100)
-    .forEach(item => {
+  container.innerHTML = `
 
-      const account =
-        getLoanAccount(item);
+    <div class="crm-module-toolbar">
+
+      <strong>
+        ${loans.length} Loan Accounts
+      </strong>
+
+      <span>
+        Click a loan to view details
+      </span>
+
+    </div>
 
 
-      html += `
-        <tr>
+    <div class="crm-table-wrap">
 
-          <td>
-            <strong>
-              ${escapeHtml(account)}
-            </strong>
-          </td>
+      <table class="crm-module-table">
 
-          <td>
-            ${escapeHtml(
-              item.application_id ||
-              "-"
-            )}
-          </td>
+        <thead>
 
-          <td>
-            ${escapeHtml(
-              item.status ||
-              "-"
-            )}
-          </td>
+          <tr>
+            <th>LOAN ACCOUNT</th>
+            <th>APPLICATION</th>
+            <th>PRINCIPAL</th>
+            <th>EMI</th>
+            <th>STATUS</th>
+          </tr>
 
-          <td>
-            ${money(
-              getLoanAmount(item)
-            )}
-          </td>
+        </thead>
 
-          <td>
 
-            <button
-              class="outline-btn"
-              type="button"
-              onclick="
-                openLoanDetails(
-                  '${escapeHtml(account)}'
-                )
-              "
+        <tbody>
+
+          ${loans.map(loan => `
+
+            <tr
+              class="crm-table-clickable"
+              onclick='openCRMRecord("loan", ${JSON.stringify(loan).replace(/'/g, "&#39;")})'
             >
-              View Loan
-            </button>
 
-          </td>
+              <td>
+                <strong>
+                  ${escapeHtml(
+                    loan.loan_account_no ||
+                    "—"
+                  )}
+                </strong>
+              </td>
 
-        </tr>
-      `;
-    });
+              <td>
+                ${escapeHtml(
+                  loan.application_id ||
+                  "—"
+                )}
+              </td>
 
+              <td>
+                ${money(
+                  loan.principal
+                )}
+              </td>
 
-  html += `
-          </tbody>
+              <td>
+                ${money(
+                  loan.emi
+                )}
+              </td>
 
-        </table>
+              <td>
+                <span class="crm-status">
+                  ${escapeHtml(
+                    loan.status ||
+                    "—"
+                  )}
+                </span>
+              </td>
 
-      </div>
+            </tr>
+
+          `).join("")}
+
+        </tbody>
+
+      </table>
 
     </div>
   `;
-
-
-  container.innerHTML =
-    html;
 }
 
 
 /* =====================================================
-   COLLECTIONS / PAYMENTS
+   PAYMENTS / COLLECTIONS
 ===================================================== */
 
-async function loadCollections(
-  container
-) {
+async function loadPayments(container) {
 
-  const data =
+  const result =
     await apiRequest(
       "/api/admin/report/payments"
     );
 
+
   const payments =
-    data.data || [];
+    result.data || [];
+
+
+  crmCache.payments =
+    payments;
 
 
   const total =
     payments.reduce(
       (sum, payment) =>
-        sum +
-        getPaymentAmount(payment),
+        sum + Number(
+          payment.amount ??
+          payment.payment_amount ??
+          payment.paid_amount ??
+          0
+        ),
       0
     );
 
 
-  let html = `
-    <div class="crm-feature-card">
-
-      <div class="crm-panel-header">
-
-        <div>
-          <span class="eyebrow">
-            EMI COLLECTION CENTER
-          </span>
-
-          <h3>
-            Payment History
-          </h3>
-
-          <p>
-            Total collected:
-            <strong>
-              ${money(total)}
-            </strong>
-          </p>
-        </div>
-
-        <strong>
-          ${payments.length}
-        </strong>
-
-      </div>
-
-      <div style="overflow:auto">
-
-        <table class="crm-module-table">
-
-          <thead>
-            <tr>
-              <th>Payment ID</th>
-              <th>Loan Account</th>
-              <th>Amount</th>
-              <th>Payment Date</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-
-          <tbody>
-  `;
-
-
   if (!payments.length) {
 
-    html += `
-      <tr>
-        <td colspan="5">
-          No payments found.
-        </td>
-      </tr>
-    `;
+    container.innerHTML = `
 
-  } else {
-
-    payments
-      .slice(0, 200)
-      .forEach(payment => {
-
-        html += `
-          <tr>
-
-            <td>
-              ${escapeHtml(
-                payment.payment_id ||
-                payment.id ||
-                "-"
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                payment.loan_account_no ||
-                payment.loan_account_number ||
-                payment.account_number ||
-                payment.loan_id ||
-                "-"
-              )}
-            </td>
-
-            <td>
-              <strong>
-                ${money(
-                  getPaymentAmount(payment)
-                )}
-              </strong>
-            </td>
-
-            <td>
-              ${formatDate(
-                payment.payment_date ||
-                payment.created_at ||
-                payment.paid_at
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                payment.status ||
-                "PAID"
-              )}
-            </td>
-
-          </tr>
-        `;
-      });
-  }
-
-
-  html += `
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </div>
-  `;
-
-
-  container.innerHTML =
-    html;
-}
-
-
-/* =====================================================
-   CUSTOMER DETAILS
-===================================================== */
-
-async function openCustomerDetails(
-  mobile
-) {
-
-  if (!mobile) {
-    showToast(
-      "Customer mobile not available"
-    );
-    return;
-  }
-
-
-  try {
-
-    showToast(
-      "Loading customer details..."
-    );
-
-
-    const result =
-      await apiRequest(
-        `/api/admin/search?q=${encodeURIComponent(
-          mobile
-        )}`
-      );
-
-
-    const customers =
-      result.customers || [];
-
-    const applications =
-      result.applications || [];
-
-    const loans =
-      result.loans || [];
-
-
-    const customer =
-      customers.find(
-        item =>
-          String(item.mobile) ===
-          String(mobile)
-      ) ||
-      customers[0] ||
-      {};
-
-
-    await showCustomerDetailPanel(
-      customer,
-      applications,
-      loans
-    );
-
-
-  } catch (error) {
-
-    showToast(
-      error.message
-    );
-  }
-}
-
-
-/* =====================================================
-   APPLICATION DETAILS
-===================================================== */
-
-async function openApplicationDetails(
-  applicationId
-) {
-
-  if (!applicationId) {
-    showToast(
-      "Application ID not available"
-    );
-    return;
-  }
-
-
-  try {
-
-    showToast(
-      "Loading application..."
-    );
-
-
-    const result =
-      await apiRequest(
-        `/api/admin/search?q=${encodeURIComponent(
-          applicationId
-        )}`
-      );
-
-
-    const applications =
-      result.applications || [];
-
-    const loans =
-      result.loans || [];
-
-
-    const application =
-      applications.find(
-        item =>
-          String(
-            item.application_id
-          ) ===
-          String(applicationId)
-      ) ||
-      applications[0] ||
-      {};
-
-
-    const loan =
-      loans[0] ||
-      null;
-
-
-    showDetailPanel(
-      `
-        <div class="detail-head">
-
-          <div>
-            <span class="eyebrow">
-              LOAN APPLICATION
-            </span>
-
-            <h2>
-              ${escapeHtml(
-                application.application_id ||
-                applicationId
-              )}
-            </h2>
-          </div>
-
-          <button
-            class="close-results"
-            onclick="closeDetailPanel()"
-          >
-            ×
-          </button>
-
-        </div>
-
-
-        <div class="detail-grid">
-
-          ${detailCard(
-            "Customer",
-            application.full_name || "-"
-          )}
-
-          ${detailCard(
-            "Mobile",
-            application.mobile || "-"
-          )}
-
-          ${detailCard(
-            "Email",
-            application.email || "-"
-          )}
-
-          ${detailCard(
-            "Requested Amount",
-            money(
-              application.requested_amount || 0
-            )
-          )}
-
-          ${detailCard(
-            "Monthly Income",
-            money(
-              application.monthly_income || 0
-            )
-          )}
-
-          ${detailCard(
-            "Tenure",
-            application.tenure_months
-              ? application.tenure_months +
-                " Months"
-              : "-"
-          )}
-
-          ${detailCard(
-            "Status",
-            application.status || "-"
-          )}
-
-          ${detailCard(
-            "Created",
-            formatDate(
-              application.created_at
-            )
-          )}
-
-        </div>
-
-
-        ${
-          loan
-            ? `
-              <div class="detail-section">
-
-                <h3>
-                  Linked Loan
-                </h3>
-
-                <div class="detail-grid">
-
-                  ${detailCard(
-                    "Loan Account",
-                    getLoanAccount(loan)
-                  )}
-
-                  ${detailCard(
-                    "Principal",
-                    money(
-                      getLoanAmount(loan)
-                    )
-                  )}
-
-                  ${detailCard(
-                    "EMI",
-                    money(
-                      loan.emi ||
-                      loan.emi_amount ||
-                      0
-                    )
-                  )}
-
-                  ${detailCard(
-                    "Interest Rate",
-                    (
-                      loan.annual_interest_rate ||
-                      loan.interest_rate ||
-                      0
-                    ) + "%"
-                  )}
-
-                  ${detailCard(
-                    "Status",
-                    loan.status || "-"
-                  )}
-
-                </div>
-
-              </div>
-            `
-            : ""
-        }
-
-      `
-    );
-
-
-  } catch (error) {
-
-    showToast(
-      error.message
-    );
-  }
-}
-
-
-/* =====================================================
-   LOAN DETAILS
-===================================================== */
-
-async function openLoanDetails(
-  loanAccount
-) {
-
-  if (!loanAccount) {
-    showToast(
-      "Loan account not available"
-    );
-    return;
-  }
-
-
-  try {
-
-    showToast(
-      "Loading loan details..."
-    );
-
-
-    const result =
-      await apiRequest(
-        `/api/admin/search?q=${encodeURIComponent(
-          loanAccount
-        )}`
-      );
-
-
-    const loans =
-      result.loans || [];
-
-    const applications =
-      result.applications || [];
-
-
-    const loan =
-      loans.find(
-        item =>
-          String(
-            getLoanAccount(item)
-          ) ===
-          String(loanAccount)
-      ) ||
-      loans[0] ||
-      {};
-
-
-    const application =
-      applications[0] ||
-      {};
-
-
-    const paymentResponse =
-      await apiRequest(
-        "/api/admin/report/payments"
-      );
-
-
-    const allPayments =
-      paymentResponse.data || [];
-
-
-    const payments =
-      allPayments.filter(
-        payment => {
-
-          const account =
-            payment.loan_account_no ||
-            payment.loan_account_number ||
-            payment.account_number ||
-            "";
-
-          return String(account) ===
-            String(loanAccount);
-
-        }
-      );
-
-
-    const collected =
-      payments.reduce(
-        (sum, payment) =>
-          sum +
-          getPaymentAmount(payment),
-        0
-      );
-
-
-    showDetailPanel(
-
-      `
-        <div class="detail-head">
-
-          <div>
-
-            <span class="eyebrow">
-              LOAN ACCOUNT
-            </span>
-
-            <h2>
-              ${escapeHtml(
-                loanAccount
-              )}
-            </h2>
-
-          </div>
-
-          <button
-            class="close-results"
-            onclick="closeDetailPanel()"
-          >
-            ×
-          </button>
-
-        </div>
-
-
-        <div class="detail-grid">
-
-          ${detailCard(
-            "Customer",
-            application.full_name ||
-            loan.customer_name ||
-            "-"
-          )}
-
-          ${detailCard(
-            "Application",
-            application.application_id ||
-            loan.application_id ||
-            "-"
-          )}
-
-          ${detailCard(
-            "Principal",
-            money(
-              getLoanAmount(loan)
-            )
-          )}
-
-          ${detailCard(
-            "EMI",
-            money(
-              loan.emi ||
-              loan.emi_amount ||
-              loan.monthly_emi ||
-              0
-            )
-          )}
-
-          ${detailCard(
-            "Interest",
-            (
-              loan.annual_interest_rate ||
-              loan.interest_rate ||
-              0
-            ) + "%"
-          )}
-
-          ${detailCard(
-            "Tenure",
-            loan.tenure_months
-              ? loan.tenure_months +
-                " Months"
-              : "-"
-          )}
-
-          ${detailCard(
-            "Status",
-            loan.status || "-"
-          )}
-
-          ${detailCard(
-            "Collected",
-            money(collected)
-          )}
-
-        </div>
-
-
-        <div class="detail-section">
-
-          <div class="detail-section-head">
-
-            <h3>
-              Payment History
-            </h3>
-
-            <strong>
-              ${payments.length}
-              Payments
-            </strong>
-
-          </div>
-
-
-          ${
-            payments.length
-              ? `
-                <div class="detail-payments">
-
-                  ${payments
-                    .slice(0, 50)
-                    .map(payment => {
-
-                      return `
-                        <div class="detail-payment-row">
-
-                          <span>
-                            ${formatDate(
-                              payment.payment_date ||
-                              payment.created_at
-                            )}
-                          </span>
-
-                          <strong>
-                            ${money(
-                              getPaymentAmount(
-                                payment
-                              )
-                            )}
-                          </strong>
-
-                          <span>
-                            ${escapeHtml(
-                              payment.status ||
-                              "PAID"
-                            )}
-                          </span>
-
-                        </div>
-                      `;
-
-                    })
-                    .join("")}
-
-                </div>
-              `
-              : `
-                <div class="crm-empty-state">
-                  No payment records found for this loan.
-                </div>
-              `
-          }
-
-        </div>
-      `
-    );
-
-
-  } catch (error) {
-
-    showToast(
-      error.message
-    );
-  }
-}
-
-
-/* =====================================================
-   CUSTOMER DETAIL PANEL
-===================================================== */
-
-async function showCustomerDetailPanel(
-  customer,
-  applications,
-  loans
-) {
-
-  const mobile =
-    customer.mobile || "-";
-
-
-  const customerApplications =
-    applications.filter(
-      app =>
-        String(app.mobile || "") ===
-        String(mobile)
-    );
-
-
-  const customerLoans =
-    loans.filter(
-      loan =>
-        customerApplications.some(
-          app =>
-            String(
-              app.id || ""
-            ) ===
-            String(
-              loan.application_id || ""
-            )
-        )
-    );
-
-
-  showDetailPanel(
-
-    `
-      <div class="detail-head">
+      <div class="crm-collection-summary">
 
         <div>
-
-          <span class="eyebrow">
-            CUSTOMER PROFILE
-          </span>
-
-          <h2>
-            ${escapeHtml(
-              customer.full_name ||
-              "Customer"
-            )}
-          </h2>
-
+          <span>Total Collection</span>
+          <strong>${money(total)}</strong>
         </div>
 
-        <button
-          class="close-results"
-          onclick="closeDetailPanel()"
-        >
-          ×
-        </button>
-
-      </div>
-
-
-      <div class="detail-grid">
-
-        ${detailCard(
-          "Full Name",
-          customer.full_name || "-"
-        )}
-
-        ${detailCard(
-          "Mobile",
-          customer.mobile || "-"
-        )}
-
-        ${detailCard(
-          "Email",
-          customer.email || "-"
-        )}
-
-        ${detailCard(
-          "Customer ID",
-          customer.id || "-"
-        )}
-
-        ${detailCard(
-          "Applications",
-          customerApplications.length
-        )}
-
-        ${detailCard(
-          "Loan Accounts",
-          customerLoans.length
-        )}
-
-      </div>
-
-
-      <div class="detail-section">
-
-        <div class="detail-section-head">
-
-          <h3>
-            Loan Applications
-          </h3>
-
+        <div>
+          <span>Transactions</span>
+          <strong>0</strong>
         </div>
 
-
-        ${
-          customerApplications.length
-            ? `
-              <div class="detail-list">
-
-                ${customerApplications
-                  .map(app => {
-
-                    return `
-                      <div
-                        class="detail-list-row"
-                        onclick="
-                          openApplicationDetails(
-                            '${escapeHtml(
-                              app.application_id || ""
-                            )}'
-                          )
-                        "
-                      >
-
-                        <div>
-                          <strong>
-                            ${escapeHtml(
-                              app.application_id ||
-                              "-"
-                            )}
-                          </strong>
-
-                          <small>
-                            ${escapeHtml(
-                              app.status ||
-                              "-"
-                            )}
-                          </small>
-                        </div>
-
-                        <strong>
-                          ${money(
-                            app.requested_amount ||
-                            0
-                          )}
-                        </strong>
-
-                      </div>
-                    `;
-
-                  })
-                  .join("")}
-
-              </div>
-            `
-            : `
-              <div class="crm-empty-state">
-                No applications found.
-              </div>
-            `
-        }
-
       </div>
-    `
-  );
-}
+
+      <div class="crm-empty-state">
+        No payment transactions found.
+      </div>
+    `;
+
+    return;
+  }
 
 
-/* =====================================================
-   DETAIL CARD
-===================================================== */
+  container.innerHTML = `
 
-function detailCard(
-  label,
-  value
-) {
+    <div class="crm-collection-summary">
 
-  return `
-    <div class="detail-card">
+      <div>
+        <span>Total Collection</span>
+        <strong>${money(total)}</strong>
+      </div>
 
-      <span>
-        ${escapeHtml(label)}
-      </span>
+      <div>
+        <span>Transactions</span>
+        <strong>${payments.length}</strong>
+      </div>
+
+    </div>
+
+
+    <div class="crm-module-toolbar">
 
       <strong>
-        ${escapeHtml(value)}
+        Payment History
       </strong>
 
-    </div>
-  `;
-}
-
-
-/* =====================================================
-   DETAIL PANEL
-===================================================== */
-
-function showDetailPanel(
-  content
-) {
-
-  closeDetailPanel();
-
-
-  const panel =
-    document.createElement("div");
-
-  panel.id =
-    "crmDetailPanel";
-
-  panel.className =
-    "crm-detail-overlay";
-
-
-  panel.innerHTML = `
-
-    <div class="crm-detail-modal">
-
-      ${content}
+      <span>
+        Click a payment to view details
+      </span>
 
     </div>
 
+
+    <div class="crm-table-wrap">
+
+      <table class="crm-module-table">
+
+        <thead>
+
+          <tr>
+            <th>PAYMENT</th>
+            <th>LOAN ACCOUNT</th>
+            <th>AMOUNT</th>
+            <th>DATE</th>
+            <th>STATUS</th>
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          ${payments.map(payment => `
+
+            <tr
+              class="crm-table-clickable"
+              onclick='openCRMRecord("payment", ${JSON.stringify(payment).replace(/'/g, "&#39;")})'
+            >
+
+              <td>
+                <strong>
+                  ${escapeHtml(
+                    payment.payment_id ||
+                    payment.id ||
+                    "Payment"
+                  )}
+                </strong>
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  payment.loan_account_no ||
+                  payment.loan_id ||
+                  payment.loan_account ||
+                  "—"
+                )}
+              </td>
+
+              <td>
+                <strong>
+                  ${money(
+                    payment.amount ??
+                    payment.payment_amount ??
+                    payment.paid_amount
+                  )}
+                </strong>
+              </td>
+
+              <td>
+                ${dateValue(
+                  payment.payment_date ||
+                  payment.created_at ||
+                  payment.paid_at
+                )}
+              </td>
+
+              <td>
+                <span class="crm-status">
+                  ${escapeHtml(
+                    payment.status ||
+                    payment.payment_status ||
+                    "paid"
+                  )}
+                </span>
+              </td>
+
+            </tr>
+
+          `).join("")}
+
+        </tbody>
+
+      </table>
+
+    </div>
   `;
-
-
-  document.body.appendChild(
-    panel
-  );
-}
-
-
-function closeDetailPanel() {
-
-  $("crmDetailPanel")
-    ?.remove();
 }
 
 
@@ -2109,107 +1299,118 @@ function closeDetailPanel() {
    INQUIRIES
 ===================================================== */
 
-async function loadInquiries(
-  container
-) {
+async function loadInquiries(container) {
 
-  const data =
+  const result =
     await apiRequest(
-      "/api/admin/inquiries"
+      "/api/admin/report/inquiries"
     );
 
 
   const inquiries =
-    data.data ||
-    data.inquiries ||
-    [];
+    result.data || [];
 
 
-  let html = `
-    <div class="crm-feature-card">
-
-      <h3>
-        Eligibility Inquiries
-      </h3>
-
-      <div style="overflow:auto">
-
-        <table class="crm-module-table">
-
-          <thead>
-            <tr>
-              <th>Inquiry ID</th>
-              <th>Name</th>
-              <th>Mobile</th>
-              <th>Requested</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-
-          <tbody>
-  `;
+  crmCache.inquiries =
+    inquiries;
 
 
-  inquiries
-    .slice(0, 100)
-    .forEach(item => {
+  if (!inquiries.length) {
 
-      html += `
-        <tr>
-
-          <td>
-            ${escapeHtml(
-              item.inquiry_id ||
-              "-"
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              item.full_name ||
-              "-"
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              item.mobile ||
-              "-"
-            )}
-          </td>
-
-          <td>
-            ${money(
-              item.requested_amount ||
-              0
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              item.eligibility_status ||
-              "-"
-            )}
-          </td>
-
-        </tr>
-      `;
-    });
-
-
-  html += `
-          </tbody>
-
-        </table>
-
+    container.innerHTML = `
+      <div class="crm-empty-state">
+        No eligibility inquiries found.
       </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML = `
+
+    <div class="crm-module-toolbar">
+
+      <strong>
+        ${inquiries.length} Inquiries
+      </strong>
+
+    </div>
+
+
+    <div class="crm-table-wrap">
+
+      <table class="crm-module-table">
+
+        <thead>
+
+          <tr>
+            <th>INQUIRY</th>
+            <th>NAME</th>
+            <th>MOBILE</th>
+            <th>AMOUNT</th>
+            <th>ELIGIBILITY</th>
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          ${inquiries.map(item => `
+
+            <tr
+              class="crm-table-clickable"
+              onclick='openCRMRecord("inquiry", ${JSON.stringify(item).replace(/'/g, "&#39;")})'
+            >
+
+              <td>
+                ${escapeHtml(
+                  item.inquiry_id ||
+                  item.id ||
+                  "—"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  item.full_name ||
+                  "—"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  item.mobile ||
+                  "—"
+                )}
+              </td>
+
+              <td>
+                ${money(
+                  item.requested_amount
+                )}
+              </td>
+
+              <td>
+                <span class="crm-status">
+                  ${escapeHtml(
+                    item.eligibility_status ||
+                    "—"
+                  )}
+                </span>
+              </td>
+
+            </tr>
+
+          `).join("")}
+
+        </tbody>
+
+      </table>
 
     </div>
   `;
-
-
-  container.innerHTML =
-    html;
 }
 
 
@@ -2217,42 +1418,14 @@ async function loadInquiries(
    REPORTS
 ===================================================== */
 
-function renderReports(
-  container
-) {
+function renderReports(container) {
 
   const reports = [
-
-    [
-      "applications",
-      "Loan Applications",
-      "Complete loan application report."
-    ],
-
-    [
-      "customers",
-      "Customers",
-      "Customer master data."
-    ],
-
-    [
-      "loans",
-      "Loan Portfolio",
-      "Loan account report."
-    ],
-
-    [
-      "payments",
-      "EMI Collections",
-      "Payment and collection report."
-    ],
-
-    [
-      "inquiries",
-      "Eligibility Inquiries",
-      "Preliminary eligibility report."
-    ]
-
+    ["customers", "Customers"],
+    ["applications", "Applications"],
+    ["loans", "Loan Portfolio"],
+    ["payments", "Payments"],
+    ["inquiries", "Eligibility Inquiries"]
   ];
 
 
@@ -2260,59 +1433,33 @@ function renderReports(
 
     <div class="report-grid">
 
-      ${reports.map(
-        report => `
+      ${reports.map(report => `
 
-          <div class="report-card">
+        <div class="report-card">
 
-            <div class="report-icon">
-              ▥
-            </div>
-
-            <h3>
-              ${report[1]}
-            </h3>
-
-            <p>
-              ${report[2]}
-            </p>
-
-            <button
-              class="primary-btn"
-              type="button"
-              onclick="
-                downloadReport(
-                  '${report[0]}'
-                )
-              "
-            >
-              Download CSV
-            </button>
-
+          <div>
+            <span>CRM REPORT</span>
+            <h3>${report[1]}</h3>
           </div>
 
-        `
-      ).join("")}
+          <button
+            onclick="downloadCRMReport('${report[0]}')"
+          >
+            Download CSV
+          </button>
+
+        </div>
+
+      `).join("")}
 
     </div>
   `;
 }
 
 
-/* =====================================================
-   DOWNLOAD REPORT
-===================================================== */
-
-async function downloadReport(
-  type
-) {
+async function downloadCRMReport(type) {
 
   try {
-
-    showToast(
-      "Preparing report..."
-    );
-
 
     const result =
       await apiRequest(
@@ -2327,15 +1474,35 @@ async function downloadReport(
     if (!rows.length) {
 
       showToast(
-        "No data available"
+        "No data available for this report.",
+        "error"
       );
 
       return;
     }
 
 
-    const csv =
-      convertToCSV(rows);
+    const headers =
+      Object.keys(rows[0]);
+
+
+    const csv = [
+
+      headers.join(","),
+
+      ...rows.map(row =>
+        headers.map(header => {
+
+          const value =
+            row[header] ?? "";
+
+          return `"${String(value)
+            .replace(/"/g, '""')}"`;
+
+        }).join(",")
+      )
+
+    ].join("\n");
 
 
     const blob =
@@ -2355,95 +1522,32 @@ async function downloadReport(
     const link =
       document.createElement("a");
 
-
-    link.href =
-      url;
+    link.href = url;
 
     link.download =
       `shyam-fincorp-${type}-report.csv`;
 
-
-    document.body.appendChild(
-      link
-    );
+    document.body.appendChild(link);
 
     link.click();
 
     link.remove();
 
-    URL.revokeObjectURL(
-      url
-    );
+    URL.revokeObjectURL(url);
 
 
     showToast(
-      "Report downloaded"
+      "Report downloaded."
     );
-
 
   } catch (error) {
 
     showToast(
-      error.message
+      error.message ||
+      "Report download failed.",
+      "error"
     );
   }
-}
-
-
-/* =====================================================
-   CSV
-===================================================== */
-
-function convertToCSV(rows) {
-
-  if (!rows.length) {
-    return "";
-  }
-
-
-  const columns =
-    Object.keys(rows[0]);
-
-
-  const header =
-    columns.join(",");
-
-
-  const body =
-    rows
-      .map(row => {
-
-        return columns
-          .map(column => {
-
-            let value =
-              row[column];
-
-            if (
-              value === null ||
-              value === undefined
-            ) {
-              value = "";
-            }
-
-            return `"${String(value)
-              .replace(
-                /"/g,
-                '""'
-              )}"`;
-
-          })
-          .join(",");
-
-      })
-      .join("\n");
-
-
-  return (
-    header +
-    "\n" +
-    body
-  );
 }
 
 
@@ -2456,15 +1560,17 @@ async function performCRMSearch() {
   const input =
     $("globalSearch");
 
+  const q =
+    String(
+      input?.value || ""
+    ).trim();
 
-  const query =
-    input?.value.trim();
 
-
-  if (!query) {
+  if (!q) {
 
     showToast(
-      "Enter customer, loan or application"
+      "Enter a customer, application or loan.",
+      "error"
     );
 
     return;
@@ -2473,61 +1579,26 @@ async function performCRMSearch() {
 
   try {
 
-    showToast(
-      "Searching..."
-    );
-
-
     const data =
       await apiRequest(
-        `/api/admin/search?q=${encodeURIComponent(
-          query
-        )}`
+        `/api/admin/search?q=${encodeURIComponent(q)}`
       );
 
 
-    showSearchResults(
-      data
-    );
-
+    showSearchResults(data);
 
   } catch (error) {
 
     showToast(
-      error.message
+      error.message ||
+      "Search failed.",
+      "error"
     );
   }
 }
 
 
-/* =====================================================
-   SEARCH RESULTS
-===================================================== */
-
-function showSearchResults(
-  data
-) {
-
-  let panel =
-    $("crmSearchResults");
-
-
-  if (!panel) {
-
-    panel =
-      document.createElement("div");
-
-    panel.id =
-      "crmSearchResults";
-
-    panel.className =
-      "search-results-panel";
-
-    document.body.appendChild(
-      panel
-    );
-  }
-
+function showSearchResults(data) {
 
   const customers =
     data.customers || [];
@@ -2539,259 +1610,487 @@ function showSearchResults(
     data.loans || [];
 
 
-  let html = `
+  let modal =
+    document.getElementById(
+      "crmSearchModal"
+    );
 
-    <div class="search-results-header">
 
-      <div>
+  if (!modal) {
 
-        <span class="eyebrow">
-          CRM SEARCH
-        </span>
+    modal =
+      document.createElement("div");
 
-        <h3>
-          Search Results
-        </h3>
+    modal.id =
+      "crmSearchModal";
+
+    modal.className =
+      "crm-modal";
+
+    document.body.appendChild(modal);
+  }
+
+
+  modal.innerHTML = `
+
+    <div
+      class="crm-modal-overlay"
+      onclick="closeCRMSearchModal()"
+    ></div>
+
+    <div class="crm-modal-box">
+
+      <div class="crm-modal-header">
+
+        <div>
+          <span>CRM SEARCH</span>
+          <h2>
+            Search Results
+          </h2>
+        </div>
+
+        <button
+          onclick="closeCRMSearchModal()"
+        >
+          ×
+        </button>
 
       </div>
 
-      <button
-        class="close-results"
-        onclick="
-          document
-            .getElementById(
-              'crmSearchResults'
-            )
-            ?.remove()
-        "
-      >
-        ×
-      </button>
+
+      <div class="crm-modal-body">
+
+
+        <div class="crm-search-section">
+
+          <h3>
+            Customers (${customers.length})
+          </h3>
+
+          ${
+            customers.length
+              ? customers.map(item => `
+                <div
+                  class="crm-search-result-row"
+                  onclick='openCRMRecord("customer", ${JSON.stringify(item).replace(/'/g, "&#39;")})'
+                >
+                  <strong>
+                    ${escapeHtml(
+                      item.full_name ||
+                      "Customer"
+                    )}
+                  </strong>
+
+                  <span>
+                    ${escapeHtml(
+                      item.mobile ||
+                      "—"
+                    )}
+                  </span>
+                </div>
+              `).join("")
+              : `<div class="crm-no-result">No customers</div>`
+          }
+
+        </div>
+
+
+        <div class="crm-search-section">
+
+          <h3>
+            Applications (${applications.length})
+          </h3>
+
+          ${
+            applications.length
+              ? applications.map(item => `
+                <div
+                  class="crm-search-result-row"
+                  onclick='openCRMRecord("application", ${JSON.stringify(item).replace(/'/g, "&#39;")})'
+                >
+                  <strong>
+                    ${escapeHtml(
+                      item.application_id ||
+                      item.id ||
+                      "Application"
+                    )}
+                  </strong>
+
+                  <span>
+                    ${escapeHtml(
+                      item.full_name ||
+                      "—"
+                    )}
+                  </span>
+                </div>
+              `).join("")
+              : `<div class="crm-no-result">No applications</div>`
+          }
+
+        </div>
+
+
+        <div class="crm-search-section">
+
+          <h3>
+            Loan Accounts (${loans.length})
+          </h3>
+
+          ${
+            loans.length
+              ? loans.map(item => `
+                <div
+                  class="crm-search-result-row"
+                  onclick='openCRMRecord("loan", ${JSON.stringify(item).replace(/'/g, "&#39;")})'
+                >
+                  <strong>
+                    ${escapeHtml(
+                      item.loan_account_no ||
+                      "Loan"
+                    )}
+                  </strong>
+
+                  <span>
+                    ${money(
+                      item.principal
+                    )}
+                  </span>
+                </div>
+              `).join("")
+              : `<div class="crm-no-result">No loans</div>`
+          }
+
+        </div>
+
+
+      </div>
 
     </div>
   `;
 
 
-  if (
-    !customers.length &&
-    !applications.length &&
-    !loans.length
-  ) {
+  modal.classList.add("show");
+}
 
-    html += `
-      <div class="empty-search">
-        No matching records found.
+
+function closeCRMSearchModal() {
+
+  document
+    .getElementById(
+      "crmSearchModal"
+    )
+    ?.classList.remove("show");
+}
+
+
+/* =====================================================
+   DETAIL MODAL
+===================================================== */
+
+function openCRMRecord(type, record) {
+
+  let modal =
+    document.getElementById(
+      "crmDetailModal"
+    );
+
+
+  if (!modal) {
+
+    modal =
+      document.createElement("div");
+
+    modal.id =
+      "crmDetailModal";
+
+    modal.className =
+      "crm-modal";
+
+    document.body.appendChild(modal);
+  }
+
+
+  const titleMap = {
+    customer: "Customer Details",
+    application: "Loan Application",
+    loan: "Loan Account",
+    payment: "Payment Details",
+    inquiry: "Eligibility Inquiry"
+  };
+
+
+  const title =
+    titleMap[type] ||
+    "CRM Details";
+
+
+  let fields = [];
+
+
+  if (type === "customer") {
+
+    fields = [
+
+      ["Customer Name", record.full_name],
+
+      ["Mobile", record.mobile],
+
+      ["Email", record.email],
+
+      ["Customer ID", record.id],
+
+      ["Created", dateValue(record.created_at)]
+
+    ];
+
+  }
+
+
+  else if (type === "application") {
+
+    fields = [
+
+      ["Application ID", record.application_id],
+
+      ["Customer Name", record.full_name],
+
+      ["Mobile", record.mobile],
+
+      ["Email", record.email],
+
+      ["Monthly Income", money(record.monthly_income)],
+
+      ["Requested Amount", money(record.requested_amount)],
+
+      ["Tenure", record.tenure_months ? `${record.tenure_months} months` : "—"],
+
+      ["Status", record.status],
+
+      ["Address", record.address],
+
+      ["City", record.city],
+
+      ["Pincode", record.pincode],
+
+      ["Created", dateValue(record.created_at)]
+
+    ];
+
+  }
+
+
+  else if (type === "loan") {
+
+    fields = [
+
+      ["Loan Account", record.loan_account_no],
+
+      ["Application ID", record.application_id],
+
+      ["Customer ID", record.customer_id],
+
+      ["Principal", money(record.principal)],
+
+      ["Interest Rate", record.annual_interest_rate != null
+        ? `${record.annual_interest_rate}%`
+        : "—"
+      ],
+
+      ["Tenure", record.tenure_months
+        ? `${record.tenure_months} months`
+        : "—"
+      ],
+
+      ["EMI", money(record.emi)],
+
+      ["Outstanding", record.outstanding_amount != null
+        ? money(record.outstanding_amount)
+        : "—"
+      ],
+
+      ["Status", record.status],
+
+      ["Disbursed", dateValue(record.disbursed_at)]
+
+    ];
+
+  }
+
+
+  else if (type === "payment") {
+
+    fields = [
+
+      ["Payment ID", record.payment_id || record.id],
+
+      ["Loan Account",
+        record.loan_account_no ||
+        record.loan_id ||
+        record.loan_account
+      ],
+
+      ["Amount",
+        money(
+          record.amount ??
+          record.payment_amount ??
+          record.paid_amount
+        )
+      ],
+
+      ["Payment Date",
+        dateValue(
+          record.payment_date ||
+          record.created_at ||
+          record.paid_at
+        )
+      ],
+
+      ["Payment Method",
+        record.payment_method ||
+        record.method
+      ],
+
+      ["Status",
+        record.status ||
+        record.payment_status
+      ],
+
+      ["Reference",
+        record.reference_no ||
+        record.transaction_id ||
+        record.reference
+      ]
+
+    ];
+
+  }
+
+
+  else if (type === "inquiry") {
+
+    fields = [
+
+      ["Inquiry ID", record.inquiry_id],
+
+      ["Name", record.full_name],
+
+      ["Mobile", record.mobile],
+
+      ["Email", record.email],
+
+      ["Age", record.age],
+
+      ["Employment", record.employment_type],
+
+      ["Monthly Income", money(record.monthly_income)],
+
+      ["Existing EMI", money(record.existing_emi)],
+
+      ["Requested Amount", money(record.requested_amount)],
+
+      ["Tenure", record.tenure_months
+        ? `${record.tenure_months} months`
+        : "—"
+      ],
+
+      ["Estimated Rate",
+        record.estimated_interest_rate != null
+          ? `${record.estimated_interest_rate}%`
+          : "—"
+      ],
+
+      ["Estimated EMI",
+        money(record.estimated_emi)
+      ],
+
+      ["Eligibility",
+        record.eligibility_status
+      ],
+
+      ["Reason",
+        record.eligibility_reason
+      ]
+
+    ];
+
+  }
+
+
+  modal.innerHTML = `
+
+    <div
+      class="crm-modal-overlay"
+      onclick="closeCRMDetailModal()"
+    ></div>
+
+
+    <div class="crm-modal-box crm-detail-box">
+
+
+      <div class="crm-modal-header">
+
+        <div>
+
+          <span>
+            SHYAM FINCORP CRM
+          </span>
+
+          <h2>
+            ${escapeHtml(title)}
+          </h2>
+
+        </div>
+
+
+        <button
+          onclick="closeCRMDetailModal()"
+          class="crm-modal-close"
+        >
+          ×
+        </button>
+
       </div>
-    `;
-  }
 
 
-  /* CUSTOMERS */
+      <div class="crm-detail-grid">
 
-  if (customers.length) {
+        ${fields.map(field => `
 
-    html += `
-      <div class="search-section">
+          <div class="crm-detail-item">
 
-        <h4>
-          Customers
-          <span>
-            ${customers.length}
-          </span>
-        </h4>
-    `;
-
-
-    customers.forEach(item => {
-
-      const mobile =
-        item.mobile || "";
-
-
-      html += `
-
-        <div
-          class="search-result-row"
-          onclick="
-            openCustomerDetails(
-              '${escapeHtml(mobile)}'
-            )
-          "
-          style="cursor:pointer"
-        >
-
-          <div>
+            <span>
+              ${escapeHtml(field[0])}
+            </span>
 
             <strong>
               ${escapeHtml(
-                item.full_name ||
-                "-"
+                field[1] ??
+                "—"
               )}
             </strong>
 
-            <small>
-              ${escapeHtml(
-                item.mobile ||
-                "-"
-              )}
-              •
-              ${escapeHtml(
-                item.email ||
-                ""
-              )}
-            </small>
-
           </div>
 
-          <span class="result-badge">
-            View Customer
-          </span>
+        `).join("")}
 
-        </div>
-      `;
-    });
+      </div>
 
 
-    html += `</div>`;
-  }
+    </div>
+  `;
 
 
-  /* APPLICATIONS */
-
-  if (applications.length) {
-
-    html += `
-      <div class="search-section">
-
-        <h4>
-          Applications
-          <span>
-            ${applications.length}
-          </span>
-        </h4>
-    `;
+  modal.classList.add("show");
+}
 
 
-    applications.forEach(item => {
+function closeCRMDetailModal() {
 
-      const id =
-        item.application_id || "";
-
-
-      html += `
-
-        <div
-          class="search-result-row"
-          onclick="
-            openApplicationDetails(
-              '${escapeHtml(id)}'
-            )
-          "
-          style="cursor:pointer"
-        >
-
-          <div>
-
-            <strong>
-              ${escapeHtml(
-                id || "-"
-              )}
-            </strong>
-
-            <small>
-              ${escapeHtml(
-                item.full_name ||
-                "-"
-              )}
-              •
-              ${escapeHtml(
-                item.mobile ||
-                "-"
-              )}
-            </small>
-
-          </div>
-
-          <span class="result-badge">
-            View Application
-          </span>
-
-        </div>
-      `;
-    });
-
-
-    html += `</div>`;
-  }
-
-
-  /* LOANS */
-
-  if (loans.length) {
-
-    html += `
-      <div class="search-section">
-
-        <h4>
-          Loan Accounts
-          <span>
-            ${loans.length}
-          </span>
-        </h4>
-    `;
-
-
-    loans.forEach(item => {
-
-      const account =
-        getLoanAccount(item);
-
-
-      html += `
-
-        <div
-          class="search-result-row"
-          onclick="
-            openLoanDetails(
-              '${escapeHtml(account)}'
-            )
-          "
-          style="cursor:pointer"
-        >
-
-          <div>
-
-            <strong>
-              ${escapeHtml(
-                account
-              )}
-            </strong>
-
-            <small>
-              Application:
-              ${escapeHtml(
-                item.application_id ||
-                "-"
-              )}
-            </small>
-
-          </div>
-
-          <span class="result-badge">
-            View Loan
-          </span>
-
-        </div>
-      `;
-    });
-
-
-    html += `</div>`;
-  }
-
-
-  panel.innerHTML =
-    html;
+  document
+    .getElementById(
+      "crmDetailModal"
+    )
+    ?.classList.remove("show");
 }
 
 
@@ -2799,29 +2098,30 @@ function showSearchResults(
    COMING SOON
 ===================================================== */
 
-function renderComingSoon(
-  container,
-  page
-) {
+function renderComingSoon(container, page) {
+
+  const title =
+    pageData[page]?.title ||
+    "CRM Module";
+
 
   container.innerHTML = `
 
     <div class="crm-feature-card">
 
+      <div class="crm-feature-icon">
+        ◈
+      </div>
+
       <h3>
-        ${escapeHtml(
-          pageData[page]?.title ||
-          "CRM Module"
-        )}
+        ${escapeHtml(title)}
       </h3>
 
       <p>
-        This CRM module is connected to
-        the Shyam Fincorp operations console.
+        This module is ready for CRM integration.
       </p>
 
     </div>
-
   `;
 }
 
@@ -2830,81 +2130,42 @@ function renderComingSoon(
    MOBILE MENU
 ===================================================== */
 
-function openMobileMenu() {
+function toggleMobileMenu() {
 
-  const sidebar =
-    document.querySelector(
-      ".crm-sidebar"
+  document
+    .querySelector(".crm-sidebar")
+    ?.classList.toggle(
+      "mobile-open"
     );
-
-  sidebar?.classList.toggle(
-    "open"
-  );
-}
-
-
-function closeMobileMenu() {
-
-  const sidebar =
-    document.querySelector(
-      ".crm-sidebar"
-    );
-
-  sidebar?.classList.remove(
-    "open"
-  );
 }
 
 
 /* =====================================================
-   INITIALIZATION
+   INIT
 ===================================================== */
 
 document.addEventListener(
   "DOMContentLoaded",
-  async function() {
+  async () => {
 
     if (!requireLogin()) {
       return;
     }
 
 
-    /* ADMIN NAME */
-
-    const username =
-      localStorage.getItem(
-        USER_KEY
-      );
+    loadAdminName();
 
 
     document
-      .querySelectorAll(
-        "[data-admin-name]"
-      )
-      .forEach(element => {
+      .querySelectorAll(".nav-item")
+      .forEach(item => {
 
-        if (username) {
-          element.textContent =
-            username;
-        }
-
-      });
-
-
-    /* NAVIGATION */
-
-    document
-      .querySelectorAll(
-        ".nav-item"
-      )
-      .forEach(button => {
-
-        button.addEventListener(
+        item.addEventListener(
           "click",
-          function() {
+          () => {
 
             showPage(
-              this.dataset.page
+              item.dataset.page
             );
 
           }
@@ -2913,20 +2174,16 @@ document.addEventListener(
       });
 
 
-    /* DASHBOARD LINKS */
-
     document
-      .querySelectorAll(
-        "[data-page-link]"
-      )
-      .forEach(button => {
+      .querySelectorAll("[data-page-link]")
+      .forEach(item => {
 
-        button.addEventListener(
+        item.addEventListener(
           "click",
-          function() {
+          () => {
 
             showPage(
-              this.dataset.pageLink
+              item.dataset.pageLink
             );
 
           }
@@ -2934,8 +2191,6 @@ document.addEventListener(
 
       });
 
-
-    /* LOGOUT */
 
     $("logoutBtn")
       ?.addEventListener(
@@ -2944,16 +2199,12 @@ document.addEventListener(
       );
 
 
-    /* MOBILE */
-
     $("mobileMenu")
       ?.addEventListener(
         "click",
-        openMobileMenu
+        toggleMobileMenu
       );
 
-
-    /* SEARCH */
 
     $("searchButton")
       ?.addEventListener(
@@ -2965,36 +2216,28 @@ document.addEventListener(
     $("globalSearch")
       ?.addEventListener(
         "keydown",
-        function(event) {
+        event => {
 
-          if (
-            event.key === "Enter"
-          ) {
-
+          if (event.key === "Enter") {
             performCRMSearch();
-
           }
 
         }
       );
 
 
-    /* NEW APPLICATION */
-
     $("newApplicationBtn")
       ?.addEventListener(
         "click",
-        function() {
+        () => {
 
           showToast(
-            "New application module ready"
+            "New application module will be connected next."
           );
 
         }
       );
 
-
-    /* DASHBOARD */
 
     await loadPremiumCRMDashboard();
 
