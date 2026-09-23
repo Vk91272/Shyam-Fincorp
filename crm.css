@@ -3840,3 +3840,544 @@ td strong {
     min-height: 44px;
   }
 }
+/* =========================================================
+   SHYAM FINCORP
+   PREMIUM NBFC CRM SIDEBAR
+========================================================= */
+
+.crm-sidebar {
+  width: 270px;
+  min-width: 270px;
+
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 22px 16px 16px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #06152f 0%,
+      #081c3b 48%,
+      #06152f 100%
+    );
+
+  color: #ffffff;
+
+  border-right: 1px solid rgba(255,255,255,0.07);
+
+  box-shadow:
+    8px 0 30px rgba(2,12,30,0.08);
+
+  position: relative;
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.crm-sidebar .brand {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 6px 8px 18px;
+
+  margin-bottom: 4px;
+}
+
+
+.crm-sidebar .brand-logo {
+  width: 46px;
+  height: 46px;
+
+  flex: 0 0 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #1d7cf2,
+      #0b4db3
+    );
+
+  border: 1px solid rgba(255,255,255,0.16);
+
+  box-shadow:
+    0 8px 22px rgba(18,105,220,0.28);
+}
+
+
+.crm-sidebar .brand-logo span {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+
+.crm-sidebar .brand-info {
+  min-width: 0;
+}
+
+
+.crm-sidebar .brand-info h2 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 17px;
+  font-weight: 750;
+
+  letter-spacing: -0.2px;
+}
+
+
+.crm-sidebar .brand-info span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7f9abd;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   SYSTEM STATUS
+========================================================= */
+
+.sidebar-status {
+  height: 31px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin: 2px 5px 18px;
+  padding: 0 11px;
+
+  border-radius: 8px;
+
+  background: rgba(34,197,94,0.07);
+
+  border: 1px solid rgba(34,197,94,0.12);
+
+  color: #86d9a3;
+
+  font-size: 10px;
+  font-weight: 650;
+
+  letter-spacing: 0.4px;
+}
+
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #32d583;
+
+  box-shadow:
+    0 0 0 3px rgba(50,213,131,0.10);
+}
+
+
+/* =========================================================
+   SECTION LABELS
+========================================================= */
+
+.crm-sidebar .crm-menu-label {
+  margin: 17px 10px 8px;
+
+  color: #607da4;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 1.4px;
+
+  text-transform: uppercase;
+}
+
+
+/* First section closer to status */
+
+.sidebar-status + .crm-menu-label {
+  margin-top: 0;
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.crm-sidebar .crm-nav {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  width: 100%;
+}
+
+
+/* =========================================================
+   NAV ITEM
+========================================================= */
+
+.crm-sidebar .nav-item {
+  width: 100%;
+  min-height: 43px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 11px;
+
+  border: 1px solid transparent;
+  border-radius: 10px;
+
+  background: transparent;
+
+  color: #9db1cd;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+
+.crm-sidebar .nav-item:hover {
+  color: #ffffff;
+
+  background:
+    rgba(255,255,255,0.055);
+
+  border-color:
+    rgba(255,255,255,0.05);
+
+  transform: translateX(2px);
+}
+
+
+/* =========================================================
+   NAV ICON
+========================================================= */
+
+.crm-sidebar .nav-icon {
+  width: 31px;
+  height: 31px;
+
+  flex: 0 0 31px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: rgba(255,255,255,0.035);
+
+  color: #7f9abd;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  transition: all 0.18s ease;
+}
+
+
+.crm-sidebar .nav-item b {
+  font-size: 12.5px;
+  font-weight: 600;
+
+  letter-spacing: 0.05px;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   ACTIVE ITEM
+========================================================= */
+
+.crm-sidebar .nav-item.active {
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(28,116,235,0.95),
+      rgba(22,92,194,0.90)
+    );
+
+  border-color:
+    rgba(92,164,255,0.25);
+
+  box-shadow:
+    0 7px 18px rgba(8,72,159,0.22);
+}
+
+
+.crm-sidebar .nav-item.active::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+
+  width: 3px;
+  height: 25px;
+
+  border-radius: 0 5px 5px 0;
+
+  background: #63a9ff;
+}
+
+
+.crm-sidebar .nav-item.active .nav-icon {
+  color: #ffffff;
+
+  background:
+    rgba(255,255,255,0.13);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+
+
+.crm-sidebar .nav-item.active b {
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   SIDEBAR BOTTOM
+========================================================= */
+
+.crm-sidebar .sidebar-bottom {
+  margin-top: auto;
+
+  padding-top: 14px;
+
+  border-top:
+    1px solid rgba(255,255,255,0.07);
+}
+
+
+/* =========================================================
+   ADMIN MINI PROFILE
+========================================================= */
+
+.crm-sidebar .admin-mini {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 9px 8px 11px;
+}
+
+
+.crm-sidebar .admin-avatar {
+  width: 36px;
+  height: 36px;
+
+  flex: 0 0 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #273f68,
+      #152d52
+    );
+
+  border:
+    1px solid rgba(255,255,255,0.08);
+
+  color: #dceaff;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+
+.crm-sidebar .admin-info {
+  min-width: 0;
+}
+
+
+.crm-sidebar .admin-info strong {
+  display: block;
+
+  color: #e8f0fb;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.crm-sidebar .admin-info small {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #6f89aa;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+.crm-sidebar .logout-btn {
+  width: 100%;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 0 11px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #8da4c2;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.18s ease;
+}
+
+
+.crm-sidebar .logout-btn span {
+  font-size: 16px;
+}
+
+
+.crm-sidebar .logout-btn:hover {
+  color: #ffb0b0;
+
+  background:
+    rgba(239,68,68,0.07);
+
+  border-color:
+    rgba(239,68,68,0.10);
+}
+
+
+/* =========================================================
+   DESKTOP SIDEBAR SEPARATOR
+========================================================= */
+
+.crm-sidebar::after {
+  content: "";
+
+  position: absolute;
+
+  top: 88px;
+  right: 0;
+
+  width: 1px;
+  height: calc(100% - 120px);
+
+  background:
+    linear-gradient(
+      transparent,
+      rgba(78,139,205,0.12),
+      transparent
+    );
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .crm-sidebar {
+    width: 245px;
+    min-width: 245px;
+
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .crm-sidebar {
+    width: 100%;
+    min-width: 100%;
+
+    min-height: auto;
+
+    padding: 15px;
+  }
+
+
+  .crm-sidebar .sidebar-status {
+    margin-bottom: 10px;
+  }
+
+
+  .crm-sidebar .crm-menu-label {
+    margin-top: 12px;
+  }
+
+
+  .crm-sidebar .sidebar-bottom {
+    margin-top: 15px;
+  }
+
+}
