@@ -2588,3 +2588,388 @@ tbody tr:hover {
     font-size: 23px;
   }
 }
+/* ==================================================
+   PREMIUM EMI CENTER
+================================================== */
+
+.emi-center {
+  display: grid;
+  gap: 18px;
+}
+
+.emi-search-card,
+.emi-table-card,
+.emi-customer-header {
+  background: #fff;
+  border: 1px solid #e8edf5;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, .05);
+}
+
+.emi-search-card h3,
+.emi-customer-header h3 {
+  margin: 6px 0;
+  font-size: 22px;
+}
+
+.emi-search-card p,
+.emi-customer-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.emi-search-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.emi-search-row input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.emi-search-row input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+}
+
+.emi-customer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.emi-loan-status {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.emi-summary-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.emi-summary-card {
+  background: #fff;
+  border: 1px solid #e8edf5;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.emi-summary-card span,
+.emi-next-card span {
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  color: #64748b;
+}
+
+.emi-summary-card strong {
+  display: block;
+  margin-top: 7px;
+  font-size: 23px;
+  color: #0f172a;
+}
+
+.emi-next-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background: linear-gradient(
+    135deg,
+    #0f172a,
+    #172554
+  );
+  color: #fff;
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.emi-next-card span {
+  color: #94a3b8;
+}
+
+.emi-next-card strong {
+  display: block;
+  margin-top: 7px;
+  font-size: 20px;
+}
+
+.emi-admin-note {
+  padding: 8px 12px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.emi-table {
+  min-width: 900px;
+}
+
+.emi-table tbody tr {
+  cursor: pointer;
+}
+
+.emi-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.emi-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 850;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.emi-status.paid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.emi-status.overdue {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.emi-status.today {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.emi-status.partial {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.emi-status.upcoming {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.emi-verify-btn {
+  border: 0;
+  border-radius: 9px;
+  padding: 8px 11px;
+  background: #0f172a;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.emi-verify-btn:hover {
+  background: #2563eb;
+}
+
+.emi-paid-label {
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+/* ==================================================
+   PAYMENT VERIFICATION MODAL
+================================================== */
+
+.payment-modal {
+  max-width: 720px;
+}
+
+.payment-verification-banner {
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+  gap: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.payment-verification-banner span {
+  display: block;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .08em;
+  color: #64748b;
+}
+
+.payment-verification-banner strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.crm-form-grid {
+  display: grid;
+  grid-template-columns:
+    1fr 1fr;
+  gap: 15px;
+}
+
+.crm-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.crm-form-group.full {
+  grid-column: 1 / -1;
+}
+
+.crm-form-group label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #334155;
+}
+
+.crm-form-group input,
+.crm-form-group select,
+.crm-form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 13px;
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+}
+
+.crm-form-group input:focus,
+.crm-form-group select:focus,
+.crm-form-group textarea:focus {
+  border-color: #2563eb;
+  box-shadow:
+    0 0 0 3px
+    rgba(37,99,235,.10);
+}
+
+.crm-form-group input[readonly] {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.payment-security-note {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.crm-modal-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 6px;
+}
+
+.secondary-btn {
+  border: 1px solid #dbe3ee;
+  background: #fff;
+  color: #334155;
+  padding: 11px 17px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.secondary-btn:hover {
+  background: #f8fafc;
+}
+
+
+/* ==================================================
+   MOBILE
+================================================== */
+
+@media (max-width: 800px) {
+
+  .emi-summary-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .emi-search-row {
+    grid-template-columns: 1fr;
+  }
+
+  .emi-customer-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .emi-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .emi-next-card {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-verification-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .crm-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .crm-form-group.full {
+    grid-column: auto;
+  }
+
+  .payment-security-note {
+    grid-column: auto;
+  }
+
+  .crm-modal-actions {
+    grid-column: auto;
+    flex-direction: column;
+  }
+
+  .crm-modal-actions button {
+    width: 100%;
+  }
+
+}
