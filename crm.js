@@ -11,6 +11,11 @@ let paymentsCache = [];
 let inquiriesCache = [];
 
 let currentEMIData = null;
+let searchResultsCache = {
+  customers: [],
+  applications: [],
+  loans: []
+};
 
 
 /* ==================================================
