@@ -2562,3 +2562,29 @@ tbody tr:hover {
   }
 
 }
+@media (max-width: 520px) {
+
+  .page-heading h1 {
+    font-size: 25px;
+  }
+
+  #overviewPage .crm-panel-header h2 {
+    font-size: 17px;
+  }
+
+  #overviewPage .crm-kpi-card span {
+    font-size: 9px;
+  }
+
+  #overviewPage .crm-kpi-card strong {
+    font-size: 24px;
+  }
+
+  #overviewPage .crm-portfolio-main strong {
+    font-size: 28px;
+  }
+
+  #overviewPage .crm-collection-box strong {
+    font-size: 23px;
+  }
+}
