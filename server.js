@@ -2228,6 +2228,262 @@ app.post(
     }
   }
 );
+// --------------------------------------------------
+// ADMIN: Verify & Record Manual EMI Payment
+// --------------------------------------------------
+
+app.post(
+  "/api/admin/payments/manual",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const {
+        loan_account_no,
+        installment_no,
+        amount,
+        payment_date,
+        payment_method,
+        transaction_reference,
+        remarks
+      } = req.body;
+
+      // -----------------------------
+      // Basic validation
+      // -----------------------------
+
+      if (
+        !loan_account_no ||
+        !installment_no ||
+        amount === undefined ||
+        !payment_date ||
+        !payment_method
+      ) {
+        return res.status(400).json({
+          error: "Loan account, EMI number, amount, payment date and payment method are required"
+        });
+      }
+
+      const paymentAmount = Number(amount);
+
+      if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) {
+        return res.status(400).json({
+          error: "Payment amount must be greater than zero"
+        });
+      }
+
+      // -----------------------------
+      // Find loan
+      // -----------------------------
+
+      const {
+        data: loan,
+        error: loanError
+      } = await supabase
+        .from("loan_accounts")
+        .select("*")
+        .eq("loan_account_no", String(loan_account_no).trim())
+        .maybeSingle();
+
+      if (loanError) {
+        console.error("Loan lookup error:", loanError);
+
+        return res.status(500).json({
+          error: "Could not verify loan account"
+        });
+      }
+
+      if (!loan) {
+        return res.status(404).json({
+          error: "Loan account not found"
+        });
+      }
+
+      // -----------------------------
+      // Find EMI
+      // -----------------------------
+
+      const {
+        data: emi,
+        error: emiError
+      } = await supabase
+        .from("emi_schedule")
+        .select("*")
+        .eq("loan_account_id", loan.id)
+        .eq("installment_no", Number(installment_no))
+        .maybeSingle();
+
+      if (emiError) {
+        console.error("EMI lookup error:", emiError);
+
+        return res.status(500).json({
+          error: "Could not verify EMI"
+        });
+      }
+
+      if (!emi) {
+        return res.status(404).json({
+          error: "EMI installment not found"
+        });
+      }
+
+      // -----------------------------
+      // Already paid check
+      // -----------------------------
+
+      const totalDue = Number(emi.total_due || 0);
+      const alreadyPaid = Number(emi.paid_amount || 0);
+
+      const outstanding = Number(
+        (totalDue - alreadyPaid).toFixed(2)
+      );
+
+      if (emi.status === "paid" || outstanding <= 0) {
+        return res.status(400).json({
+          error: "This EMI is already fully paid"
+        });
+      }
+
+      // -----------------------------
+      // Do not allow overpayment
+      // -----------------------------
+
+      if (paymentAmount > outstanding) {
+        return res.status(400).json({
+          error: `Payment cannot be greater than outstanding amount ₹${outstanding.toFixed(2)}`
+        });
+      }
+
+      // -----------------------------
+      // New paid amount
+      // -----------------------------
+
+      const newPaidAmount = Number(
+        (alreadyPaid + paymentAmount).toFixed(2)
+      );
+
+      const newOutstanding = Number(
+        (totalDue - newPaidAmount).toFixed(2)
+      );
+
+      const newStatus =
+        newOutstanding <= 0
+          ? "paid"
+          : "partial";
+
+      // -----------------------------
+      // Generate reference
+      // -----------------------------
+
+      const reference =
+        String(transaction_reference || "").trim() ||
+        "MAN-" +
+          Date.now().toString() +
+          "-" +
+          Math.floor(Math.random() * 10000);
+
+      // -----------------------------
+      // Record payment
+      // -----------------------------
+
+      const {
+        data: payment,
+        error: paymentError
+      } = await supabase
+        .from("payments")
+        .insert({
+          loan_account_id: loan.id,
+          amount: paymentAmount,
+          payment_method: String(payment_method),
+          transaction_reference: reference,
+          status: "received"
+        })
+        .select("*")
+        .single();
+
+      if (paymentError) {
+        console.error("Manual payment insert error:", paymentError);
+
+        return res.status(500).json({
+          error: "Could not create payment record"
+        });
+      }
+
+      // -----------------------------
+      // Update EMI
+      // -----------------------------
+
+      const emiUpdate = {
+        paid_amount: newPaidAmount,
+        status: newStatus
+      };
+
+      if (newStatus === "paid") {
+        emiUpdate.paid_at = new Date().toISOString();
+      }
+
+      const {
+        data: updatedEmi,
+        error: emiUpdateError
+      } = await supabase
+        .from("emi_schedule")
+        .update(emiUpdate)
+        .eq("id", emi.id)
+        .select("*")
+        .single();
+
+      if (emiUpdateError) {
+        console.error(
+          "EMI update error:",
+          emiUpdateError
+        );
+
+        return res.status(500).json({
+          error:
+            "Payment was recorded but EMI could not be updated"
+        });
+      }
+
+      // -----------------------------
+      // Response
+      // -----------------------------
+
+      return res.json({
+        success: true,
+        message:
+          newStatus === "paid"
+            ? "EMI payment verified and marked as paid"
+            : "Partial EMI payment verified successfully",
+
+        payment: {
+          id: payment.id,
+          amount: paymentAmount,
+          payment_method,
+          transaction_reference: reference,
+          payment_date
+        },
+
+        emi: {
+          installment_no: updatedEmi.installment_no,
+          due_date: updatedEmi.due_date,
+          total_due: updatedEmi.total_due,
+          paid_amount: updatedEmi.paid_amount,
+          outstanding: newOutstanding,
+          status: updatedEmi.status
+        }
+      });
+
+    } catch (error) {
+      console.error(
+        "Manual payment error:",
+        error
+      );
+
+      return res.status(500).json({
+        error: "Manual payment processing failed"
+      });
+    }
+  }
+);
 
 
 /* =====================================================
