@@ -1,10 +1,11 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Shyam Fincorp | Admin Panel</title>
+  <title>Shyam Fincorp | Admin CRM</title>
 
   <style>
     * {
@@ -13,183 +14,431 @@
       padding: 0;
     }
 
+    :root {
+      --primary: #155eef;
+      --primary-dark: #0b4acb;
+      --sidebar: #101828;
+      --sidebar-hover: #1d2939;
+      --bg: #f5f7fb;
+      --white: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --line: #e4e7ec;
+      --green: #12b76a;
+      --orange: #f79009;
+      --red: #f04438;
+      --blue: #2e90fa;
+      --shadow: 0 4px 18px rgba(16, 24, 40, .07);
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      color: #172033;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
 
-    header {
-      background: #102a43;
-      color: white;
-      padding: 20px;
+    button,
+    input,
+    select {
+      font-family: inherit;
     }
 
-    .header-inner {
-      max-width: 1200px;
-      margin: auto;
+    button {
+      cursor: pointer;
+    }
+
+    /* =========================
+       LOGIN
+    ========================= */
+
+    #loginSection {
+      min-height: 100vh;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background:
+        linear-gradient(135deg, #eef4ff, #f8fafc);
     }
 
-    .container {
-      width: 94%;
-      max-width: 1200px;
-      margin: 25px auto;
-    }
-
-    .card {
+    .login-box {
+      width: 100%;
+      max-width: 430px;
       background: white;
-      padding: 22px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,.07);
-      margin-bottom: 22px;
+      padding: 35px;
+      border-radius: 18px;
+      box-shadow: 0 15px 45px rgba(16, 24, 40, .12);
     }
 
-    h2,
-    h3 {
-      color: #102a43;
-      margin-bottom: 15px;
+    .brand {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .brand-logo {
+      width: 65px;
+      height: 65px;
+      margin: auto;
+      border-radius: 16px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 25px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .brand h1 {
+      font-size: 27px;
+      margin-bottom: 5px;
+    }
+
+    .brand p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 17px;
     }
 
     label {
       display: block;
-      margin-top: 12px;
-      margin-bottom: 6px;
+      font-size: 14px;
       font-weight: 600;
+      margin-bottom: 7px;
     }
 
     input,
     select {
       width: 100%;
-      padding: 11px;
-      border: 1px solid #ccd6e0;
-      border-radius: 7px;
+      padding: 12px 13px;
+      border: 1px solid #d0d5dd;
+      border-radius: 9px;
+      outline: none;
+      background: white;
+      font-size: 14px;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(21, 94, 239, .1);
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px 16px;
+      font-weight: 600;
+      font-size: 14px;
+      color: white;
+      background: var(--primary);
+      transition: .2s;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn.gray {
+      background: #475467;
+    }
+
+    .btn.green {
+      background: var(--green);
+    }
+
+    .btn.red {
+      background: var(--red);
+    }
+
+    .btn.orange {
+      background: var(--orange);
+    }
+
+    .btn.full {
+      width: 100%;
+      padding: 13px;
       font-size: 15px;
     }
 
-    button {
-      border: none;
-      border-radius: 7px;
-      padding: 11px 15px;
-      background: #1976d2;
-      color: white;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 12px;
-    }
-
-    button:hover {
-      background: #125ca1;
-    }
-
-    button.green {
-      background: #168a45;
-    }
-
-    button.green:hover {
-      background: #106b35;
-    }
-
-    button.gray {
-      background: #52606d;
-    }
+    /* =========================
+       COMMON
+    ========================= */
 
     .hidden {
       display: none !important;
     }
 
     .message {
-      padding: 12px;
-      margin-top: 15px;
-      border-radius: 7px;
+      padding: 12px 14px;
+      margin-top: 14px;
+      border-radius: 9px;
+      font-size: 14px;
       display: none;
     }
 
     .success {
       display: block;
-      background: #e8f7ee;
-      color: #126b36;
+      background: #ecfdf3;
+      color: #067647;
+      border: 1px solid #abefc6;
     }
 
     .error {
       display: block;
-      background: #fdecec;
-      color: #a52222;
+      background: #fef3f2;
+      color: #b42318;
+      border: 1px solid #fecdca;
     }
 
-    .login-box {
-      max-width: 450px;
-      margin: 70px auto;
+    /* =========================
+       APP
+    ========================= */
+
+    .app {
+      min-height: 100vh;
+      display: flex;
     }
 
-    .application-card {
-      border: 1px solid #e0e5eb;
-      border-radius: 10px;
-      padding: 18px;
-      margin-top: 15px;
+    /* =========================
+       SIDEBAR
+    ========================= */
+
+    .sidebar {
+      width: 250px;
+      background: var(--sidebar);
+      color: white;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 1000;
+      padding: 20px 14px;
+      overflow-y: auto;
     }
 
-    .application-card strong {
-      color: #102a43;
+    .sidebar-brand {
+      padding: 8px 12px 25px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      margin-bottom: 20px;
     }
 
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 12px;
+    .sidebar-brand h2 {
+      font-size: 21px;
+      margin-bottom: 5px;
     }
 
-    .info {
-      background: #f5f7fb;
+    .sidebar-brand p {
+      color: #98a2b3;
+      font-size: 12px;
+    }
+
+    .menu-title {
+      color: #667085;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 0 12px;
+      margin: 18px 0 8px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #d0d5dd;
       padding: 12px;
-      border-radius: 7px;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 14px;
+      margin-bottom: 4px;
     }
 
-    .info small {
-      display: block;
-      color: #66788a;
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: var(--sidebar-hover);
+      color: white;
+    }
+
+    .nav-icon {
+      display: inline-block;
+      width: 25px;
+    }
+
+    .logout-btn {
+      margin-top: 25px;
+      color: #fda29b;
+    }
+
+    /* =========================
+       MAIN
+    ========================= */
+
+    .main {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 72px;
+      background: white;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+    }
+
+    .topbar-left h1 {
+      font-size: 21px;
       margin-bottom: 3px;
     }
 
-    .loan-form {
-      background: #f5f7fb;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 15px;
-    }
-
-    .status {
-      display: inline-block;
-      padding: 4px 9px;
-      border-radius: 20px;
-      background: #fff3cd;
-      color: #856404;
+    .topbar-left p {
       font-size: 12px;
-      font-weight: 600;
+      color: var(--muted);
     }
 
-    .status-green {
-      background: #e8f7ee;
-      color: #126b36;
+    .admin-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .status-red {
-      background: #fdecec;
-      color: #a52222;
-    }
-
-    .status-blue {
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
       background: #e8f1ff;
-      color: #1557a6;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
     }
+
+    .content {
+      padding: 25px;
+    }
+
+    /* =========================
+       DASHBOARD CARDS
+    ========================= */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: #eef4ff;
+    }
+
+    .stat-card small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-card strong {
+      display: block;
+      font-size: 25px;
+      margin-top: 9px;
+    }
+
+    /* =========================
+       SECTIONS
+    ========================= */
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 21px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 12px;
+    }
+
+    .card-header h2 {
+      font-size: 19px;
+    }
+
+    .section-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    /* =========================
+       SEARCH
+    ========================= */
+
+    .search-row {
+      display: grid;
+      grid-template-columns: 1fr 180px 130px;
+      gap: 10px;
+      margin-top: 17px;
+    }
+
+    /* =========================
+       TABLE
+    ========================= */
 
     .table-wrap {
       overflow-x: auto;
-      margin-top: 15px;
+      margin-top: 17px;
     }
 
     table {
@@ -200,62 +449,215 @@
 
     th,
     td {
-      padding: 10px;
-      border-bottom: 1px solid #e1e6eb;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
       text-align: left;
-      font-size: 14px;
-      vertical-align: top;
+      font-size: 13px;
+      vertical-align: middle;
     }
 
     th {
-      background: #f5f7fb;
-      color: #102a43;
+      background: #f8fafc;
+      color: #344054;
+      font-size: 12px;
+      text-transform: uppercase;
     }
 
-    .inquiry-summary {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
+    tr:hover td {
+      background: #fafcff;
+    }
+
+    /* =========================
+       STATUS
+    ========================= */
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #fff3cd;
+      color: #856404;
+      white-space: nowrap;
+    }
+
+    .status-green {
+      background: #ecfdf3;
+      color: #067647;
+    }
+
+    .status-red {
+      background: #fef3f2;
+      color: #b42318;
+    }
+
+    .status-blue {
+      background: #eff8ff;
+      color: #175cd3;
+    }
+
+    .status-orange {
+      background: #fffaeb;
+      color: #b54708;
+    }
+
+    /* =========================
+       APPLICATION
+    ========================= */
+
+    .application-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px;
       margin-top: 15px;
+      background: white;
     }
 
-    .summary-box {
-      background: #f5f7fb;
-      padding: 14px;
+    .application-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .application-head strong {
+      color: var(--primary);
+      font-size: 15px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .info {
+      background: #f8fafc;
+      padding: 12px;
       border-radius: 8px;
     }
 
-    .summary-box small {
+    .info small {
       display: block;
-      color: #66788a;
-      margin-bottom: 5px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-size: 11px;
     }
 
-    .summary-box strong {
-      font-size: 18px;
-      color: #102a43;
+    .info strong {
+      font-size: 13px;
     }
 
-    .section-note {
-      color: #66788a;
-      margin-bottom: 12px;
-      line-height: 1.5;
+    .loan-form {
+      background: #f8fafc;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+
+    /* =========================
+       EMPTY
+    ========================= */
+
+    .empty {
+      padding: 35px 15px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    .mobile-menu {
+      display: none;
+      border: 0;
+      background: transparent;
+      font-size: 23px;
+    }
+
+    @media (max-width: 1050px) {
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .search-row {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
     @media (max-width: 800px) {
-      .info-grid,
-      .inquiry-summary {
-        grid-template-columns: 1fr;
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: .25s;
       }
 
-      .header-inner {
-        flex-direction: column;
-        align-items: flex-start;
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+
+      .topbar {
+        padding: 0 16px;
+      }
+
+      .content {
+        padding: 16px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
         gap: 10px;
+      }
+
+      .stat-card {
+        padding: 15px;
+      }
+
+      .stat-card strong {
+        font-size: 21px;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
       }
 
       .card {
         padding: 16px;
+      }
+
+      .card-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .search-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-user div:last-child {
+        display: none;
+      }
+
+      .topbar-left h1 {
+        font-size: 17px;
       }
     }
   </style>
@@ -263,47 +665,47 @@
 
 <body>
 
-<header>
-  <div class="header-inner">
+<!-- =====================================================
+     LOGIN
+===================================================== -->
 
-    <div>
+<section id="loginSection">
+
+  <div class="login-box">
+
+    <div class="brand">
+
+      <div class="brand-logo">
+        SF
+      </div>
+
       <h1>Shyam Fincorp</h1>
-      <p>Admin Panel</p>
+
+      <p>Secure Admin CRM Portal</p>
+
     </div>
 
-    <div id="adminStatus">
-      Not Logged In
+    <div class="form-group">
+
+      <label for="adminKey">
+        Admin Key
+      </label>
+
+      <input
+        type="password"
+        id="adminKey"
+        placeholder="Enter Admin Key"
+        autocomplete="current-password"
+      >
+
     </div>
-
-  </div>
-</header>
-
-
-<!-- LOGIN -->
-
-<section id="loginSection" class="container">
-
-  <div class="card login-box">
-
-    <h2>Admin Login</h2>
-
-    <p style="color:#66788a;margin-bottom:15px;">
-      Admin panel access करने के लिए Admin Key डालें।
-    </p>
-
-    <label>Admin Key</label>
-
-    <input
-      type="password"
-      id="adminKey"
-      placeholder="Enter Admin Key"
-    >
 
     <button
       type="button"
       id="loginButton"
+      class="btn full"
     >
-      Login
+      Login to Admin Panel
     </button>
 
     <div
@@ -316,94 +718,1042 @@
 </section>
 
 
-<!-- ADMIN PANEL -->
+<!-- =====================================================
+     ADMIN APPLICATION
+===================================================== -->
 
-<main
+<div
   id="adminSection"
-  class="container hidden"
+  class="app hidden"
 >
 
+  <!-- SIDEBAR -->
 
-  <!-- LOAN ELIGIBILITY INQUIRIES -->
+  <aside
+    id="sidebar"
+    class="sidebar"
+  >
 
-  <div class="card">
+    <div class="sidebar-brand">
 
-    <h2>Loan Eligibility Inquiries</h2>
+      <h2>Shyam Fincorp</h2>
 
-    <p class="section-note">
-      यहाँ customers द्वारा भेजी गई preliminary loan eligibility inquiries दिखाई देंगी।
-    </p>
+      <p>NBFC Admin CRM</p>
+
+    </div>
+
+
+    <div class="menu-title">
+      Main
+    </div>
 
     <button
-      type="button"
-      id="inquiriesButton"
-      class="gray"
+      class="nav-btn active"
+      data-section="dashboardSection"
     >
-      Refresh Eligibility Inquiries
+      <span class="nav-icon">📊</span>
+      Dashboard
     </button>
 
-    <div
-      id="inquiriesMessage"
-      class="message"
-    ></div>
 
-    <div
-      id="inquiriesList"
-      class="table-wrap"
-    ></div>
+    <button
+      class="nav-btn"
+      data-section="applicationsSection"
+    >
+      <span class="nav-icon">📄</span>
+      Loan Applications
+    </button>
+
+
+    <button
+      class="nav-btn"
+      data-section="inquiriesSection"
+    >
+      <span class="nav-icon">🔎</span>
+      Eligibility Inquiries
+    </button>
+
+
+    <button
+      class="nav-btn"
+      data-section="paymentsSection"
+    >
+      <span class="nav-icon">💰</span>
+      Payments
+    </button>
+
+
+    <div class="menu-title">
+      Management
+    </div>
+
+
+    <button
+      class="nav-btn"
+      data-section="documentsSection"
+    >
+      <span class="nav-icon">📁</span>
+      Documents
+    </button>
+
+
+    <button
+      class="nav-btn"
+      data-section="customersSection"
+    >
+      <span class="nav-icon">👥</span>
+      Customers
+    </button>
+
+
+    <button
+      id="logoutButton"
+      class="nav-btn logout-btn"
+    >
+      <span class="nav-icon">🚪</span>
+      Logout
+    </button>
+
+  </aside>
+
+
+  <!-- MAIN -->
+
+  <div class="main">
+
+    <!-- TOP BAR -->
+
+    <header class="topbar">
+
+      <div class="topbar-left">
+
+        <button
+          id="mobileMenuButton"
+          class="mobile-menu"
+        >
+          ☰
+        </button>
+
+        <div style="display:inline-block;margin-left:8px;">
+
+          <h1 id="pageTitle">
+            Dashboard
+          </h1>
+
+          <p>
+            Shyam Fincorp Management System
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="admin-user">
+
+        <div class="avatar">
+          A
+        </div>
+
+        <div>
+          <strong>Administrator</strong>
+          <div style="font-size:11px;color:#667085;">
+            Admin Access
+          </div>
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- CONTENT -->
+
+    <main class="content">
+
+
+      <!-- =================================================
+           DASHBOARD
+      ================================================== -->
+
+      <section
+        id="dashboardSection"
+        class="section active"
+      >
+
+        <div class="stats">
+
+          <div class="stat-card">
+
+            <div class="stat-top">
+
+              <small>
+                Loan Applications
+              </small>
+
+              <div class="stat-icon">
+                📄
+              </div>
+
+            </div>
+
+            <strong id="dashboardApplications">
+              0
+            </strong>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="stat-top">
+
+              <small>
+                Eligibility Inquiries
+              </small>
+
+              <div class="stat-icon">
+                🔎
+              </div>
+
+            </div>
+
+            <strong id="dashboardInquiries">
+              0
+            </strong>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="stat-top">
+
+              <small>
+                Payment Records
+              </small>
+
+              <div class="stat-icon">
+                💰
+              </div>
+
+            </div>
+
+            <strong id="dashboardPayments">
+              0
+            </strong>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="stat-top">
+
+              <small>
+                System Status
+              </small>
+
+              <div class="stat-icon">
+                🟢
+              </div>
+
+            </div>
+
+            <strong style="font-size:18px;">
+              Online
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+
+              <h2>
+                Welcome to Shyam Fincorp CRM
+              </h2>
+
+              <p class="section-note">
+                Manage loan applications, eligibility inquiries,
+                payments and customer records from one place.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+
+              <h2>
+                Quick Actions
+              </h2>
+
+            </div>
+
+          </div>
+
+          <div class="actions">
+
+            <button
+              class="btn"
+              data-section="applicationsSection"
+            >
+              📄 View Applications
+            </button>
+
+            <button
+              class="btn gray"
+              data-section="inquiriesSection"
+            >
+              🔎 View Inquiries
+            </button>
+
+            <button
+              class="btn green"
+              data-section="paymentsSection"
+            >
+              💰 View Payments
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           ELIGIBILITY INQUIRIES
+      ================================================== -->
+
+      <section
+        id="inquiriesSection"
+        class="section"
+      >
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+
+              <h2>
+                Loan Eligibility Inquiries
+              </h2>
+
+              <p class="section-note">
+                Customer preliminary eligibility inquiries.
+              </p>
+
+            </div>
+
+            <button
+              type="button"
+              id="inquiriesButton"
+              class="btn gray"
+            >
+              🔄 Refresh
+            </button>
+
+          </div>
+
+
+          <div
+            id="inquiriesMessage"
+            class="message"
+          ></div>
+
+
+          <div
+            id="inquiriesList"
+            class="table-wrap"
+          ></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           APPLICATIONS
+      ================================================== -->
+
+      <section
+        id="applicationsSection"
+        class="section"
+      >
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+
+              <h2>
+                Loan Applications
+              </h2>
+
+              <p class="section-note">
+                Review and manage customer loan applications.
+              </p>
+
+            </div>
+
+            <button
+              type="button"
+              id="refreshButton"
+              class="btn gray"
+            >
+              🔄 Refresh
+            </button>
+
+          </div>
+
+
+          <div class="search-row">
+
+            <input
+              type="search"
+              id="applicationSearch"
+              placeholder="Search application, name or mobile..."
+            >
+
+            <select id="applicationStatusFilter">
+
+              <option value="">
+                All Status
+              </option>
+
+              <option value="submitted">
+                Submitted
+              </option>
+
+              <option value="under_review">
+                Under Review
+              </option>
+
+              <option value="approved">
+                Approved
+              </option>
+
+              <option value="rejected">
+                Rejected
+              </option>
+
+              <option value="disbursed">
+                Disbursed
+              </option>
+
+              <option value="closed">
+                Closed
+              </option>
+
+            </select>
+
+            <button
+              type="button"
+              class="btn"
+              id="applicationSearchButton"
+            >
+              Search
+            </button>
+
+          </div>
+
+
+          <div
+            id="applicationMessage"
+            class="message"
+          ></div>
+
+
+          <div id="applicationsList"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           PAYMENTS
+      ================================================== -->
+
+      <section
+        id="paymentsSection"
+        class="section"
+      >
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+
+              <h2>
+                Payment Records
+              </h2>
+
+              <p class="section-note">
+                Customer EMI and payment transaction records.
+              </p>
+
+            </div>
+
+            <button
+              type="button"
+              id="paymentsButton"
+              class="btn gray"
+            >
+              🔄 Load Payments
+            </button>
+
+          </div>
+
+
+          <div
+            id="paymentsList"
+            class="table-wrap"
+          ></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           DOCUMENTS
+      ================================================== -->
+
+      <section
+        id="documentsSection"
+        class="section"
+      >
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+
+              <h2>
+                Customer Documents
+              </h2>
+
+              <p class="section-note">
+                Uploaded applicant documents and verification records.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="empty">
+
+            📁
+
+            <h3 style="margin:10px 0 5px;">
+              Document Management
+            </h3>
+
+            <p>
+              Documents uploaded against loan applications
+              can be managed from the application workflow.
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           CUSTOMERS
+      ================================================== -->
+
+      <section
+        id="customersSection"
+        class="section"
+      >
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+
+              <h2>
+                Customers
+              </h2>
+
+              <p class="section-note">
+                Customer information and loan relationship records.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="search-row">
+
+            <input
+              type="search"
+              id="customerSearch"
+              placeholder="Search customer by name or mobile..."
+            >
+
+            <div></div>
+
+            <button
+              type="button"
+              class="btn"
+              id="customerSearchButton"
+            >
+              Search
+            </button>
+
+          </div>
+
+
+          <div
+            id="customersList"
+            class="table-wrap"
+          >
+
+            <div class="empty">
+              👥
+              <h3 style="margin:10px 0 5px;">
+                Customer Search
+              </h3>
+              <p>
+                Search customer records to view details.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+    </main>
 
   </div>
 
-
-  <!-- LOAN APPLICATIONS -->
-
-  <div class="card">
-
-    <h2>Loan Applications</h2>
-
-    <button
-      type="button"
-      id="refreshButton"
-      class="gray"
-    >
-      Refresh Applications
-    </button>
-
-    <div
-      id="applicationMessage"
-      class="message"
-    ></div>
-
-    <div id="applicationsList"></div>
-
-  </div>
+</div>
 
 
-  <!-- PAYMENTS -->
+<script>
 
-  <div class="card">
+  /* =====================================================
+     SIDEBAR NAVIGATION
+  ===================================================== */
 
-    <h2>Payment Records</h2>
+  const navButtons =
+    document.querySelectorAll(".nav-btn[data-section]");
 
-    <button
-      type="button"
-      id="paymentsButton"
-      class="gray"
-    >
-      Load Payments
-    </button>
+  const sections =
+    document.querySelectorAll(".section");
 
-    <div
-      id="paymentsList"
-      class="table-wrap"
-    ></div>
+  const pageTitle =
+    document.getElementById("pageTitle");
 
-  </div>
+  const titles = {
 
-</main>
+    dashboardSection:
+      "Dashboard",
 
+    applicationsSection:
+      "Loan Applications",
+
+    inquiriesSection:
+      "Eligibility Inquiries",
+
+    paymentsSection:
+      "Payment Records",
+
+    documentsSection:
+      "Documents",
+
+    customersSection:
+      "Customers"
+
+  };
+
+
+  function showSection(sectionId) {
+
+    sections.forEach(section => {
+
+      section.classList.remove("active");
+
+    });
+
+
+    const target =
+      document.getElementById(sectionId);
+
+    if (target) {
+
+      target.classList.add("active");
+
+    }
+
+
+    navButtons.forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.section === sectionId
+      );
+
+    });
+
+
+    if (pageTitle) {
+
+      pageTitle.textContent =
+        titles[sectionId] || "Dashboard";
+
+    }
+
+
+    const sidebar =
+      document.getElementById("sidebar");
+
+    if (sidebar) {
+
+      sidebar.classList.remove("open");
+
+    }
+
+  }
+
+
+  navButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      showSection(button.dataset.section);
+
+    });
+
+  });
+
+
+  /* =====================================================
+     QUICK ACTION BUTTONS
+  ===================================================== */
+
+  document
+    .querySelectorAll("[data-section]")
+    .forEach(button => {
+
+      if (
+        !button.classList.contains("nav-btn")
+      ) {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            showSection(
+              button.dataset.section
+            );
+
+          }
+        );
+
+      }
+
+    });
+
+
+  /* =====================================================
+     MOBILE MENU
+  ===================================================== */
+
+  const mobileMenuButton =
+    document.getElementById("mobileMenuButton");
+
+  const sidebar =
+    document.getElementById("sidebar");
+
+
+  if (mobileMenuButton) {
+
+    mobileMenuButton.addEventListener(
+      "click",
+      () => {
+
+        sidebar.classList.toggle("open");
+
+      }
+    );
+
+  }
+
+
+  /* =====================================================
+     LOGOUT
+  ===================================================== */
+
+  const logoutButton =
+    document.getElementById("logoutButton");
+
+
+  if (logoutButton) {
+
+    logoutButton.addEventListener(
+      "click",
+      () => {
+
+        localStorage.removeItem("shyam_admin_key");
+
+        location.reload();
+
+      }
+    );
+
+  }
+
+
+  /* =====================================================
+     BASIC DASHBOARD COUNTERS
+  ===================================================== */
+
+  function updateDashboardCounters() {
+
+    const applicationList =
+      document.getElementById("applicationsList");
+
+    const inquiryList =
+      document.getElementById("inquiriesList");
+
+    const paymentList =
+      document.getElementById("paymentsList");
+
+
+    const applicationCounter =
+      document.getElementById(
+        "dashboardApplications"
+      );
+
+    const inquiryCounter =
+      document.getElementById(
+        "dashboardInquiries"
+      );
+
+    const paymentCounter =
+      document.getElementById(
+        "dashboardPayments"
+      );
+
+
+    if (
+      applicationCounter &&
+      applicationList
+    ) {
+
+      applicationCounter.textContent =
+        applicationList.querySelectorAll(
+          ".application-card"
+        ).length;
+
+    }
+
+
+    if (
+      inquiryCounter &&
+      inquiryList
+    ) {
+
+      inquiryCounter.textContent =
+        inquiryList.querySelectorAll(
+          "tbody tr"
+        ).length;
+
+    }
+
+
+    if (
+      paymentCounter &&
+      paymentList
+    ) {
+
+      paymentCounter.textContent =
+        paymentList.querySelectorAll(
+          "tbody tr"
+        ).length;
+
+    }
+
+  }
+
+
+  /* =====================================================
+     OBSERVE ADMIN DATA
+  ===================================================== */
+
+  const dataContainers = [
+
+    "applicationsList",
+    "inquiriesList",
+    "paymentsList"
+
+  ];
+
+
+  dataContainers.forEach(id => {
+
+    const element =
+      document.getElementById(id);
+
+    if (!element) return;
+
+
+    const observer =
+      new MutationObserver(
+        updateDashboardCounters
+      );
+
+
+    observer.observe(
+      element,
+      {
+        childList: true,
+        subtree: true
+      }
+    );
+
+  });
+
+
+  /* =====================================================
+     APPLICATION SEARCH
+  ===================================================== */
+
+  const applicationSearch =
+    document.getElementById(
+      "applicationSearch"
+    );
+
+  const applicationStatusFilter =
+    document.getElementById(
+      "applicationStatusFilter"
+    );
+
+
+  function filterApplications() {
+
+    const query =
+      (
+        applicationSearch?.value || ""
+      )
+      .toLowerCase()
+      .trim();
+
+
+    const status =
+      (
+        applicationStatusFilter?.value || ""
+      )
+      .toLowerCase();
+
+
+    const cards =
+      document.querySelectorAll(
+        "#applicationsList .application-card"
+      );
+
+
+    cards.forEach(card => {
+
+      const text =
+        card.textContent.toLowerCase();
+
+
+      const matchesSearch =
+        !query ||
+        text.includes(query);
+
+
+      const matchesStatus =
+        !status ||
+        text.includes(
+          status.replace("_", " ")
+        ) ||
+        text.includes(status);
+
+
+      card.style.display =
+        matchesSearch && matchesStatus
+          ? ""
+          : "none";
+
+    });
+
+  }
+
+
+  if (applicationSearch) {
+
+    applicationSearch.addEventListener(
+      "input",
+      filterApplications
+    );
+
+  }
+
+
+  if (applicationStatusFilter) {
+
+    applicationStatusFilter.addEventListener(
+      "change",
+      filterApplications
+    );
+
+  }
+
+
+  const applicationSearchButton =
+    document.getElementById(
+      "applicationSearchButton"
+    );
+
+
+  if (applicationSearchButton) {
+
+    applicationSearchButton.addEventListener(
+      "click",
+      filterApplications
+    );
+
+  }
+
+</script>
+
+
+<!-- Existing Admin Logic -->
 
 <script src="admin.js"></script>
 
 </body>
 </html>
+```
