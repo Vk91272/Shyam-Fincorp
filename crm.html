@@ -14,13 +14,13 @@
 button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
 .login-view{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#0b1220,#173b73);padding:20px}
 .login-card{width:min(420px,100%);background:#fff;border-radius:24px;padding:38px;box-shadow:0 25px 80px rgba(0,0,0,.25)}
-.brand-mark{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#155eef,#6b8cff);color:#fff;font-weight:800}
+.brand-mark{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:#fff;overflow:hidden;flex:0 0 auto}.brand-mark img{width:100%;height:100%;object-fit:contain;display:block}.brand-mark.small{width:38px;height:38px;border-radius:9px}
 .login-card .brand-mark{margin-bottom:18px}.login-card h1{margin:0 0 6px}.login-card p{color:var(--muted);margin:0 0 28px}
 .login-card label{display:block;font-size:13px;font-weight:700;margin-bottom:8px}.login-card input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:10px;outline:none;margin-bottom:12px}
 .primary-btn,.secondary-btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700}.primary-btn{background:var(--primary);color:#fff}.primary-btn:hover{background:var(--primary-dark)}
 .secondary-btn{background:#eef4ff;color:var(--primary)}.error-text{color:var(--red);min-height:20px;font-size:13px}
 .app-shell{min-height:100vh;display:flex}.sidebar{width:250px;background:var(--sidebar);color:#fff;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;padding:22px 14px;z-index:20}
-.brand{display:flex;gap:11px;align-items:center;padding:4px 10px 26px}.brand strong{display:block;font-size:15px}.brand span{display:block;color:var(--sidebar-muted);font-size:11px;margin-top:3px}.brand-mark.small{width:38px;height:38px}
+.brand{display:flex;gap:11px;align-items:center;padding:4px 10px 26px}.brand strong{display:block;font-size:15px}.brand span{display:block;color:var(--sidebar-muted);font-size:11px;margin-top:3px}.brand-mark.small{width:38px;height:38px;border-radius:9px}
 #sideNav{display:grid;gap:4px}.nav-item{border:0;background:transparent;color:var(--sidebar-muted);text-align:left;padding:11px 13px;border-radius:9px;display:flex;align-items:center;gap:12px;font-weight:600}.nav-item span{width:20px;text-align:center}.nav-item:hover,.nav-item.active{background:#1b2a43;color:#fff}
 .sidebar-bottom{margin-top:auto}.api-status{display:flex;align-items:center;gap:8px;color:var(--sidebar-muted);font-size:11px;padding:12px}.api-status i{width:8px;height:8px;border-radius:50%;background:#f59e0b}.api-status i.ok{background:#22c55e}.api-status i.bad{background:#ef4444}.logout-btn{width:100%;border:0;background:#182337;color:#cbd5e1;border-radius:9px;padding:11px}
 .main{margin-left:250px;width:calc(100% - 250px)}.topbar{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:0 28px;position:sticky;top:0;z-index:10}
@@ -42,7 +42,7 @@ button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!impo
 <body>
   <div id="loginView" class="login-view">
     <div class="login-card">
-      <div class="brand-mark">SF</div>
+      <div class="brand-mark"><img src="shyam-fincorp-logo.png" alt="Shyam Fincorp"></div>
       <h1>Shyam Fincorp</h1>
       <p>NBFC CRM Administration</p>
       <label for="adminKey">Admin Key</label>
@@ -55,7 +55,7 @@ button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!impo
   <div id="appView" class="app-shell hidden">
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-mark">SF</div>
+        <div class="brand-mark"><img src="shyam-fincorp-logo.png" alt="Shyam Fincorp"></div>
         <div>
           <strong>Shyam Fincorp</strong>
           <span>NBFC CRM</span>
@@ -84,7 +84,7 @@ button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!impo
     <main class="main">
       <header class="topbar">
         <div class="mobile-brand">
-          <div class="brand-mark small">SF</div>
+          <div class="brand-mark small"><img src="shyam-fincorp-logo.png" alt="Shyam Fincorp"></div>
           <strong>Shyam Fincorp</strong>
         </div>
         <button id="menuButton" class="menu-btn">☰</button>
