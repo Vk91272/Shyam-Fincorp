@@ -1,386 +1,87 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#101c3a">
-  <title>Shyam Fincorp | LMS Login</title>
-
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      background: #f4f6fb;
-      color: #172033;
-    }
-
-    .page {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .hero {
-      background: linear-gradient(140deg, #0b1530, #203c68);
-      color: white;
-      padding: 60px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .brand {
-      font-size: 21px;
-      font-weight: 800;
-      letter-spacing: 2px;
-    }
-
-    .brand span {
-      color: #d9ae55;
-    }
-
-    .hero h1 {
-      font-size: clamp(36px, 4vw, 58px);
-      line-height: 1.12;
-      margin-bottom: 20px;
-    }
-
-    .hero h1 span { color: #d9ae55; }
-
-    .hero p {
-      color: #c4cee0;
-      font-size: 16px;
-      line-height: 1.8;
-      max-width: 450px;
-    }
-
-    .features {
-      margin-top: 35px;
-      line-height: 2.5;
-      color: #e3eaf7;
-      font-size: 14px;
-    }
-
-    .hero footer {
-      color: #a9b6ce;
-      font-size: 12px;
-    }
-
-    .login-area {
-      display: grid;
-      place-items: center;
-      padding: 35px 22px;
-    }
-
-    .login-card {
-      width: 100%;
-      max-width: 420px;
-    }
-
-    .mobile-brand {
-      display: none;
-      color: #101c3a;
-      font-weight: 800;
-      margin-bottom: 35px;
-      letter-spacing: 1px;
-    }
-
-    .eyebrow {
-      color: #b08a3e;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      font-size: 11px;
-      font-weight: bold;
-    }
-
-    h2 {
-      font-size: 36px;
-      letter-spacing: -1px;
-      margin: 13px 0;
-    }
-
-    .subtitle {
-      color: #778198;
-      font-size: 14px;
-      margin-bottom: 32px;
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: bold;
-      margin-bottom: 9px;
-    }
-
-    .field { margin-bottom: 22px; }
-
-    .input-wrap { position: relative; }
-
-    input {
-      width: 100%;
-      height: 54px;
-      border: 1px solid #e0e5ee;
-      border-radius: 11px;
-      padding: 0 15px;
-      outline: none;
-      background: white;
-      font-size: 14px;
-    }
-
-    input:focus {
-      border-color: #526b9a;
-      box-shadow: 0 0 0 3px #526b9a18;
-    }
-
-    .password-input { padding-right: 65px; }
-
-    .eye {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: 0;
-      background: transparent;
-      cursor: pointer;
-      color: #53627b;
-      padding: 9px;
-    }
-
-    .login-btn {
-      width: 100%;
-      height: 54px;
-      border: 0;
-      border-radius: 11px;
-      background: linear-gradient(100deg, #142448, #263f70);
-      color: white;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 9px 20px #14244822;
-    }
-
-    .login-btn:disabled {
-      opacity: .65;
-      cursor: wait;
-    }
-
-    .message {
-      display: none;
-      margin-top: 16px;
-      padding: 13px;
-      border-radius: 9px;
-      font-size: 13px;
-      line-height: 1.5;
-      overflow-wrap: anywhere;
-    }
-
-    .message.show { display: block; }
-
-    .error {
-      color: #963333;
-      background: #fff0f0;
-      border: 1px solid #f0d0d0;
-    }
-
-    .info {
-      color: #344f83;
-      background: #eef3ff;
-      border: 1px solid #dce6fb;
-    }
-
-    .bottom {
-      border-top: 1px solid #e9edf4;
-      margin-top: 30px;
-      padding-top: 20px;
-      text-align: center;
-      color: #778198;
-      font-size: 12px;
-      line-height: 1.8;
-    }
-
-    @media (max-width: 800px) {
-      .page { grid-template-columns: 1fr; }
-      .hero { display: none; }
-      .login-area { min-height: 100vh; }
-      .mobile-brand { display: block; }
-      h2 { font-size: 32px; }
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shyam Fincorp | Loan Management</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-  <main class="page">
+  <div id="login-screen" class="login-screen">
+    <form id="login-form" class="login-card">
+      <div class="logo">SF</div>
+      <p class="eyebrow">SHYAM FINCORP</p>
+      <h1>Welcome back</h1>
+      <p class="muted">Sign in to your loan management workspace.</p>
+      <label>Email address</label>
+      <input id="email" type="email" required autocomplete="username" placeholder="Admin email">
+      <label>Password</label>
+      <input id="password" type="password" required autocomplete="current-password" placeholder="Admin password">
+      <button class="btn full" type="submit">Sign in to dashboard</button>
+      <p id="login-error" class="error"></p>
+    </form>
+  </div>
 
-    <section class="hero">
-      <div class="brand">SHYAM <span>FINCORP</span></div>
-
-      <div>
-        <div class="eyebrow">Your finance workspace</div>
-        <h1>Unlock the power of your <span>financial analytics.</span></h1>
-        <p>
-          Monitor loan performance, track repayments and manage
-          your financial operations from one organised dashboard.
-        </p>
-
-        <div class="features">
-          ✓ EMI Loan Management<br>
-          ✓ Payday Loan Tracking<br>
-          ✓ Customer & Application Records<br>
-          ✓ Repayment Reports
-        </div>
+  <div id="app" class="layout hidden">
+    <aside class="sidebar">
+      <div class="brand"><div class="logo">SF</div>
+        <div><b>SHYAM FINCORP</b><small>Loan Management</small></div>
       </div>
+      <p class="nav-label">WORKSPACE</p>
+      <button class="nav active" data-view="dashboard">Dashboard</button>
+      <button class="nav" data-view="applications">Loan Applications</button>
+      <button class="nav" data-view="customers">Customers</button>
+      <button class="nav" data-view="emis">EMI Tracking</button>
+      <button id="logout" class="nav logout">Sign out</button>
+    </aside>
 
-      <footer>
-        © <span id="year"></span> Shyam Fincorp. All rights reserved.
-      </footer>
-    </section>
+    <main class="main">
+      <header class="topbar">
+        <div><p class="eyebrow">ADMIN WORKSPACE</p><h1 id="page-title">Dashboard</h1></div>
+        <span class="admin-tag">● Secure session</span>
+      </header>
 
-    <section class="login-area">
-      <div class="login-card">
-
-        <div class="mobile-brand">SHYAM FINCORP · LMS</div>
-
-        <div class="eyebrow">Secure administrator access</div>
-        <h2>Welcome Back</h2>
-        <p class="subtitle">Please login to continue to your dashboard.</p>
-
-        <form id="loginForm">
-          <div class="field">
-            <label for="adminKey">Admin Key</label>
-
-            <div class="input-wrap">
-              <input
-                id="adminKey"
-                type="password"
-                class="password-input"
-                placeholder="Enter your Admin Key"
-                autocomplete="current-password"
-                required
-              >
-
-              <button
-                class="eye"
-                type="button"
-                id="togglePassword"
-                aria-label="Show password"
-              >👁️</button>
-            </div>
-          </div>
-
-          <button class="login-btn" id="loginButton" type="submit">
-            Login to Dashboard →
-          </button>
-
-          <div id="message" class="message" role="status"
-               aria-live="polite"></div>
-        </form>
-
-        <div class="bottom">
-          Restricted access for authorised staff only.<br>
-          Keep your administrator credentials private.
+      <section id="view-dashboard" class="view">
+        <div class="hero">
+          <p class="eyebrow">LOAN OPERATIONS</p>
+          <h2>Clarity for every customer.<br>Control over every loan.</h2>
+          <p>Manage applications, review amounts and track repayments.</p>
         </div>
+        <div class="stats">
+          <article class="stat"><span>Total applications</span><strong id="total-apps">—</strong></article>
+          <article class="stat"><span>Total customers</span><strong id="total-customers">—</strong></article>
+          <article class="stat"><span>Requested amount</span><strong id="total-amount">—</strong></article>
+          <article class="stat"><span>Pending EMIs</span><strong id="pending-emis">—</strong></article>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Recent applications</h2><p>Latest loan requests</p></div>
+          <button class="btn secondary" data-go="applications">View all</button></div>
+          <div id="recent-table"></div>
+        </div>
+      </section>
 
-      </div>
-    </section>
+      <section id="view-applications" class="view hidden">
+        <div class="section-heading"><div><h2>Loan Applications</h2><p>Review and update application status.</p></div>
+        <button class="btn" id="refresh-apps">Refresh data</button></div>
+        <div class="panel"><div id="applications-table"></div></div>
+      </section>
 
-  </main>
+      <section id="view-customers" class="view hidden">
+        <div class="section-heading"><div><h2>Customers</h2><p>Registered customer records.</p></div>
+        <button class="btn" id="refresh-customers">Refresh data</button></div>
+        <div class="panel"><div id="customers-table"></div></div>
+      </section>
 
-  <script>
-    // Apne Render service ka actual URL yahan use karein.
-    const API_BASE = "https://shyam-fincorp.onrender.com";
-
-    const form = document.getElementById("loginForm");
-    const keyInput = document.getElementById("adminKey");
-    const loginButton = document.getElementById("loginButton");
-    const message = document.getElementById("message");
-    const togglePassword = document.getElementById("togglePassword");
-
-    document.getElementById("year").textContent =
-      new Date().getFullYear();
-
-    function showMessage(text, type) {
-      message.textContent = text;
-      message.className = "message show " + type;
-    }
-
-    togglePassword.addEventListener("click", () => {
-      const visible = keyInput.type === "password";
-      keyInput.type = visible ? "text" : "password";
-      togglePassword.textContent = visible ? "🙈" : "👁️";
-      togglePassword.setAttribute(
-        "aria-label",
-        visible ? "Hide password" : "Show password"
-      );
-    });
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      message.className = "message";
-
-      const adminKey = keyInput.value.trim();
-
-      if (!adminKey) {
-        showMessage("Please enter your Admin Key.", "error");
-        keyInput.focus();
-        return;
-      }
-
-      loginButton.disabled = true;
-      loginButton.textContent = "Verifying credentials...";
-
-      try {
-        // Existing admin-protected endpoint se key verify karein.
-        const response = await fetch(
-          API_BASE + "/api/applications",
-          {
-            method: "GET",
-            headers: {
-              "x-admin-key": adminKey,
-              "Accept": "application/json"
-            }
-          }
-        );
-
-        const result = await response.json().catch(() => ({}));
-
-        if (response.status === 401 || response.status === 403) {
-          throw new Error("Invalid Admin Key. Please try again.");
-        }
-
-        if (!response.ok) {
-          throw new Error(
-            result.error ||
-            "API request failed. Check your backend configuration."
-          );
-        }
-
-        // Successful protected API response means the key was accepted.
-        // sessionStorage clears automatically when the browser tab session ends.
-        sessionStorage.setItem("shyam_admin_key", adminKey);
-
-        showMessage("Login successful. Opening dashboard...", "info");
-
-        // Make sure admin.html exists in the same deployed directory.
-        window.location.href = "admin.html";
-
-      } catch (error) {
-        if (error instanceof TypeError) {
-          showMessage(
-            "API connection failed. Check the Render URL, service status and CORS settings.",
-            "error"
-          );
-        } else {
-          showMessage(error.message, "error");
-        }
-      } finally {
-        loginButton.disabled = false;
-        loginButton.textContent = "Login to Dashboard →";
-      }
-    });
-  </script>
+      <section id="view-emis" class="view hidden">
+        <div class="section-heading"><div><h2>EMI Tracking</h2><p>Review due dates and record repayments.</p></div>
+        <button class="btn" id="refresh-emis">Refresh data</button></div>
+        <div class="panel"><div id="emis-table"></div></div>
+      </section>
+      <p id="notice" class="notice" role="status"></p>
+      <footer>Shyam Fincorp · Loan Management Workspace</footer>
+    </main>
+  </div>
+  <script src="app.js"></script>
 </body>
 </html>
