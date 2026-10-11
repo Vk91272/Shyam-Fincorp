@@ -1,2559 +1,499 @@
+
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
 const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
-
-app.use(cors());
-app.use(express.json({ limit: "2mb" }));
-
 const PORT = process.env.PORT || 10000;
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY;
-
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const ADMIN_KEY = process.env.ADMIN_KEY;
 
-const ADMIN_USERNAME =
-  process.env.ADMIN_USERNAME;
+app.use(cors({
+  origin: process.env.FRONTEND_ORIGIN
+    ? process.env.FRONTEND_ORIGIN.split(",").map(x => x.trim())
+    : true
+}));
+app.use(express.json({ limit: "1mb" }));
 
-const ADMIN_PASSWORD =
-  process.env.ADMIN_PASSWORD;
+let supabase = null;
 
-const ADMIN_SESSION_SECRET =
-  process.env.ADMIN_SESSION_SECRET ||
-  ADMIN_KEY;
-
-
-/* =====================================================
-   SUPABASE
-===================================================== */
-
-if (
-  !SUPABASE_URL ||
-  !SUPABASE_SERVICE_ROLE_KEY
-) {
-  console.warn(
-    "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY"
-  );
-}
-
-const supabase = createClient(
-  SUPABASE_URL || "",
-  SUPABASE_SERVICE_ROLE_KEY || ""
-);
-
-
-/* =====================================================
-   HELPERS
-===================================================== */
-
-function makeApplicationId() {
-  return (
-    "SFL-" +
-    Date.now()
-      .toString()
-      .slice(-8)
-  );
-}
-
-function makeLoanAccountNo() {
-  return (
-    "SFLA-" +
-    Date.now()
-      .toString()
-      .slice(-8)
-  );
-}
-
-function makeInquiryId() {
-  return (
-    "INQ-" +
-    Date.now()
-      .toString()
-      .slice(-8)
-  );
-}
-
-
-/* =====================================================
-   ADMIN TOKEN AUTH
-===================================================== */
-
-function createAdminToken() {
-  const expiresAt =
-    Date.now() +
-    8 * 60 * 60 * 1000;
-
-  const payload =
-    `admin.${expiresAt}`;
-
-  const signature =
-    crypto
-      .createHmac(
-        "sha256",
-        ADMIN_SESSION_SECRET
-      )
-      .update(payload)
-      .digest("hex");
-
-  return (
-    `${payload}.${signature}`
-  );
-}
-
-
-function verifyAdminToken(token) {
-  if (!token) {
-    return false;
-  }
-
-  const parts =
-    token.split(".");
-
-  if (parts.length !== 3) {
-    return false;
-  }
-
-  const role = parts[0];
-  const expiresAt =
-    Number(parts[1]);
-  const signature = parts[2];
-
-  if (role !== "admin") {
-    return false;
-  }
-
-  if (
-    !expiresAt ||
-    Date.now() > expiresAt
-  ) {
-    return false;
-  }
-
-  const payload =
-    `${role}.${expiresAt}`;
-
-  const expectedSignature =
-    crypto
-      .createHmac(
-        "sha256",
-        ADMIN_SESSION_SECRET
-      )
-      .update(payload)
-      .digest("hex");
-
-  if (
-    signature.length !==
-    expectedSignature.length
-  ) {
-    return false;
-  }
-
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  );
-}
-
-
-function requireAdmin(
-  req,
-  res,
-  next
-) {
-  /* Old ADMIN_KEY support */
-
-  if (
-    ADMIN_KEY &&
-    req.headers["x-admin-key"] ===
-      ADMIN_KEY
-  ) {
-    return next();
-  }
-
-  /* New Bearer token support */
-
-  const authorization =
-    req.headers.authorization || "";
-
-  if (
-    authorization.startsWith(
-      "Bearer "
-    )
-  ) {
-    const token =
-      authorization.substring(7);
-
-    if (
-      verifyAdminToken(token)
-    ) {
-      return next();
+if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+  supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
     }
-  }
-
-  return res.status(401).json({
-    error: "Unauthorized"
   });
 }
 
+const sessions = new Map();
+const SESSION_DURATION_MS = 8 * 60 * 60 * 1000;
 
-/* =====================================================
-   DOCUMENT CONFIGURATION
-===================================================== */
+function apiError(res, status, message) {
+  return res.status(status).json({
+    ok: false,
+    error: message
+  });
+}
 
-const ALLOWED_DOCUMENT_TYPES = [
-  "identity_proof",
-  "pan_card",
-  "address_proof",
-  "income_proof",
-  "applicant_photo"
-];
+function requireDatabase(req, res, next) {
+  if (!supabase) {
+    return apiError(
+      res,
+      503,
+      "Database configuration missing. Check Render environment variables."
+    );
+  }
+  next();
+}
 
-const ALLOWED_FILE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "application/pdf"
-];
+function requireAdmin(req, res, next) {
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ")
+    ? header.slice(7).trim()
+    : "";
 
-const MAX_DOCUMENT_SIZE =
-  5 * 1024 * 1024;
+  const session = sessions.get(token);
 
+  if (!session || session.expiresAt <= Date.now()) {
+    if (token) sessions.delete(token);
+    return apiError(res, 401, "Session expired. Please log in again.");
+  }
 
-/* =====================================================
-   BASIC ROUTES
-===================================================== */
+  session.expiresAt = Date.now() + SESSION_DURATION_MS;
+  next();
+}
+
+function cleanText(value, max = 300) {
+  if (typeof value !== "string") return "";
+  return value.trim().slice(0, max);
+}
+
+function validMobile(value) {
+  return /^[6-9]\d{9}$/.test(String(value || "").trim());
+}
+
+function validAmount(value) {
+  const amount = Number(value);
+  return Number.isFinite(amount) && amount > 0 && amount <= 100000000;
+}
+
+function safeDbMessage(error) {
+  // Do not expose database credentials or raw internal details.
+  console.error("Supabase error:", error?.message || error);
+  return "Database operation failed. Check the server logs and table schema.";
+}
 
 app.get("/", (req, res) => {
   res.json({
     ok: true,
-    service:
-      "Shyam Fincorp Loan API"
+    service: "Shyam Fincorp Loan API",
+    version: "3.0"
   });
 });
 
-
-app.get(
-  "/api/health",
-  async (req, res) => {
-    res.json({
-      ok: true,
-      service:
-        "Shyam Fincorp Loan API",
-      databaseConfigured:
-        Boolean(
-          SUPABASE_URL &&
-          SUPABASE_SERVICE_ROLE_KEY
-        )
-    });
-  }
-);
-
-
-/* =====================================================
-   ADMIN LOGIN
-===================================================== */
-
-app.post(
-  "/api/admin/login",
-  async (req, res) => {
-    try {
-      const {
-        username,
-        password
-      } = req.body;
-
-      if (
-        !username ||
-        !password
-      ) {
-        return res.status(400).json({
-          error:
-            "Username and password are required"
-        });
-      }
-
-      if (
-        !ADMIN_USERNAME ||
-        !ADMIN_PASSWORD ||
-        !ADMIN_SESSION_SECRET
-      ) {
-        return res.status(500).json({
-          error:
-            "Admin login is not configured on server"
-        });
-      }
-
-      const usernameMatch =
-        String(username) ===
-        String(ADMIN_USERNAME);
-
-      const passwordMatch =
-        String(password) ===
-        String(ADMIN_PASSWORD);
-
-      if (
-        !usernameMatch ||
-        !passwordMatch
-      ) {
-        return res.status(401).json({
-          error:
-            "Invalid username or password"
-        });
-      }
-
-      const token =
-        createAdminToken();
-
-      return res.json({
-        success: true,
-        token,
-        username:
-          ADMIN_USERNAME,
-        expiresIn:
-          8 * 60 * 60
-      });
-
-    } catch (error) {
-      console.error(
-        "Admin login error:",
-        error
-      );
-
-      return res.status(500).json({
-        error:
-          "Admin login failed"
-      });
-    }
-  }
-);
-
-
-/* =====================================================
-   DOCUMENT UPLOAD URL
-===================================================== */
-
-app.post(
-  "/api/documents/upload-url",
-  async (req, res) => {
-    try {
-      const {
-        application_id,
-        document_type,
-        file_name,
-        file_type,
-        file_size
-      } = req.body;
-
-      if (
-        !application_id ||
-        !document_type ||
-        !file_name ||
-        !file_type ||
-        !file_size
-      ) {
-        return res.status(400).json({
-          error:
-            "Document information is missing"
-        });
-      }
-
-      if (
-        !ALLOWED_DOCUMENT_TYPES.includes(
-          document_type
-        )
-      ) {
-        return res.status(400).json({
-          error:
-            "Invalid document type"
-        });
-      }
-
-      if (
-        !ALLOWED_FILE_TYPES.includes(
-          file_type
-        )
-      ) {
-        return res.status(400).json({
-          error:
-            "Only JPG, PNG and PDF files are allowed"
-        });
-      }
-
-      if (
-        Number(file_size) <= 0 ||
-        Number(file_size) >
-          MAX_DOCUMENT_SIZE
-      ) {
-        return res.status(400).json({
-          error:
-            "Each document must be 5 MB or smaller"
-        });
-      }
-
-      const {
-        data: application,
-        error: applicationError
-      } = await supabase
-        .from("loan_applications")
-        .select(
-          "id, application_id"
-        )
-        .eq(
-          "application_id",
-          application_id
-        )
-        .single();
-
-      if (
-        applicationError ||
-        !application
-      ) {
-        return res.status(404).json({
-          error:
-            "Loan application not found"
-        });
-      }
-
-      const extension =
-        file_name
-          .split(".")
-          .pop()
-          .toLowerCase();
-
-      const safeExtension =
-        /^[a-z0-9]+$/.test(
-          extension
-        )
-          ? extension
-          : "bin";
-
-      const uniqueName =
-        `${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2, 10)}.${safeExtension}`;
-
-      const storagePath =
-        `${application_id}/${document_type}/${uniqueName}`;
-
-      const {
-        data: signedUpload,
-        error: signedUploadError
-      } = await supabase
-        .storage
-        .from("loan-documents")
-        .createSignedUploadUrl(
-          storagePath
-        );
-
-      if (signedUploadError) {
-        console.error(
-          signedUploadError
-        );
-
-        return res.status(500).json({
-          error:
-            "Could not create document upload URL"
-        });
-      }
-
-      res.json({
-        success: true,
-        path: storagePath,
-        token:
-          signedUpload.token,
-        signedUrl:
-          signedUpload.signedUrl
-      });
-
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).json({
-        error:
-          "Document upload setup failed"
-      });
-    }
-  }
-);
-
-
-/* =====================================================
-   ELIGIBILITY INQUIRY
-===================================================== */
-
-app.post(
-  "/api/eligibility",
-  async (req, res) => {
-    try {
-      const {
-        full_name,
-        mobile,
-        email,
-        age,
-        employment_type,
-        monthly_income,
-        existing_emi,
-        requested_amount,
-        tenure_months
-      } = req.body;
-
-      if (
-        !full_name ||
-        !mobile ||
-        !age ||
-        !employment_type ||
-        monthly_income ===
-          undefined ||
-        existing_emi ===
-          undefined ||
-        !requested_amount ||
-        !tenure_months
-      ) {
-        return res.status(400).json({
-          error:
-            "Required eligibility fields are missing"
-        });
-      }
-
-      if (
-        !/^[0-9]{10}$/.test(
-          String(mobile)
-        )
-      ) {
-        return res.status(400).json({
-          error:
-            "Mobile number must be 10 digits"
-        });
-      }
-
-      const ageNumber =
-        Number(age);
-
-      const income =
-        Number(monthly_income);
-
-      const existingEmi =
-        Number(existing_emi);
-
-      const requestedAmount =
-        Number(requested_amount);
-
-      const tenure =
-        Number(tenure_months);
-
-      if (
-        ageNumber < 18 ||
-        ageNumber > 80
-      ) {
-        return res.status(400).json({
-          error:
-            "Age must be between 18 and 80"
-        });
-      }
-
-      if (
-        income < 0 ||
-        existingEmi < 0
-      ) {
-        return res.status(400).json({
-          error:
-            "Income and existing EMI cannot be negative"
-        });
-      }
-
-      if (
-        requestedAmount <= 0
-      ) {
-        return res.status(400).json({
-          error:
-            "Requested loan amount must be greater than zero"
-        });
-      }
-
-      if (
-        tenure < 1 ||
-        tenure > 120
-      ) {
-        return res.status(400).json({
-          error:
-            "Tenure must be between 1 and 120 months"
-        });
-      }
-
-      const estimatedRate =
-        12;
-
-      const monthlyRate =
-        estimatedRate /
-        12 /
-        100;
-
-      let estimatedEmi;
-
-      if (
-        monthlyRate === 0
-      ) {
-        estimatedEmi =
-          requestedAmount /
-          tenure;
-      } else {
-        estimatedEmi =
-          (
-            requestedAmount *
-            monthlyRate *
-            Math.pow(
-              1 + monthlyRate,
-              tenure
-            )
-          ) /
-          (
-            Math.pow(
-              1 + monthlyRate,
-              tenure
-            ) - 1
-          );
-      }
-
-      estimatedEmi =
-        Number(
-          estimatedEmi.toFixed(2)
-        );
-
-      const totalExistingAndNewEmi =
-        existingEmi +
-        estimatedEmi;
-
-      const emiRatio =
-        income > 0
-          ? totalExistingAndNewEmi /
-            income
-          : 1;
-
-      let eligibilityStatus;
-      let eligibilityReason;
-
-      if (
-        income <= 0
-      ) {
-        eligibilityStatus =
-          "not_eligible";
-
-        eligibilityReason =
-          "Monthly income is required for preliminary assessment.";
-
-      } else if (
-        emiRatio <= 0.40
-      ) {
-        eligibilityStatus =
-          "likely_eligible";
-
-        eligibilityReason =
-          "Estimated existing and proposed EMI is within the preliminary affordability range.";
-
-      } else if (
-        emiRatio <= 0.55
-      ) {
-        eligibilityStatus =
-          "needs_review";
-
-        eligibilityReason =
-          "Estimated EMI burden requires further review of income, existing obligations and documents.";
-
-      } else {
-        eligibilityStatus =
-          "not_eligible";
-
-        eligibilityReason =
-          "Estimated EMI burden is high compared with the declared monthly income.";
-      }
-
-      const inquiry_id =
-        makeInquiryId();
-
-      const {
-        data,
-        error
-      } = await supabase
-        .from("loan_inquiries")
-        .insert({
-          inquiry_id,
-          full_name,
-          mobile,
-          email:
-            email || null,
-          age: ageNumber,
-          employment_type,
-          monthly_income:
-            income,
-          existing_emi:
-            existingEmi,
-          requested_amount:
-            requestedAmount,
-          tenure_months:
-            tenure,
-          estimated_interest_rate:
-            estimatedRate,
-          estimated_emi:
-            estimatedEmi,
-          eligibility_status:
-            eligibilityStatus,
-          eligibility_reason:
-            eligibilityReason
-        })
-        .select(`
-          inquiry_id,
-          estimated_interest_rate,
-          estimated_emi,
-          eligibility_status,
-          eligibility_reason
-        `)
-        .single();
-
-      if (error) {
-        console.error(error);
-
-        return res.status(500).json({
-          error:
-            "Could not save eligibility inquiry"
-        });
-      }
-
-      res.status(201).json({
-        success: true,
-        ...data,
-        disclaimer:
-          "This is a preliminary eligibility indication only and is not a loan approval."
-      });
-
-    } catch (err) {
-      console.error(err);
-
-      res.status(500).json({
-        error:
-          "Server error"
-      });
-    }
-  }
-);
-
-
-/* =====================================================
-   ADMIN: INQUIRIES
-===================================================== */
-
-app.get(
-  "/api/admin/inquiries",
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const {
-        data,
-        error
-      } = await supabase
-        .from("loan_inquiries")
-        .select("*")
-        .order(
-          "created_at",
-          {
-            ascending: false
-          }
-        );
-
-      if (error) {
-        console.error(error);
-
-        return res.status(500).json({
-          error:
-            "Could not load loan inquiries"
-        });
-      }
-
-      res.json({
-        inquiries:
-          data || []
-      });
-
-    } catch (err) {
-      console.error(err);
-
-      res.status(500).json({
-        error:
-          "Server error"
-      });
-    }
-  }
-);
-
-
-/* =====================================================
-   LOAN APPLICATION
-===================================================== */
-
-app.post(
-  "/api/applications",
-  async (req, res) => {
-    try {
-      const {
-        full_name,
-        mobile,
-        email,
-        monthly_income,
-        requested_amount,
-        tenure_months,
-        address
-      } = req.body;
-
-      if (
-        !full_name ||
-        !mobile ||
-        !monthly_income ||
-        !requested_amount ||
-        !tenure_months ||
-        !address
-      ) {
-        return res.status(400).json({
-          error:
-            "Required fields are missing"
-        });
-      }
-
-      if (
-        !/^[0-9]{10}$/.test(
-          String(mobile)
-        )
-      ) {
-        return res.status(400).json({
-          error:
-            "Mobile number must be 10 digits"
-        });
-      }
-
-      const application_id =
-        makeApplicationId();
-
-      const {
-        data,
-        error
-      } = await supabase
-        .from("loan_applications")
-        .insert({
-          application_id,
-          full_name,
-          mobile,
-          email:
-            email || null,
-          monthly_income:
-            Number(
-              monthly_income
-            ),
-          requested_amount:
-            Number(
-              requested_amount
-            ),
-          tenure_months:
-            Number(
-              tenure_months
-            ),
-          address,
-          status:
-            "submitted"
-        })
-        .select(
-          "application_id,status"
-        )
-        .single();
-
-      if (error) {
-        console.error(error);
-
-        return res.status(500).json({
-          error:
-            "Could not save application"
-        });
-      }
-
-      res.status(201).json(
-        data
-      );
-
-    } catch (err) {
-      console.error(err);
-
-      res.status(500).json({
-        error:
-          "Server error"
-      });
-    }
-  }
-);
-
-
-/* =====================================================
-   ADMIN: APPLICATIONS
-===================================================== */
-
-app.get(
-  "/api/applications",
-  requireAdmin,
-  async (req, res) => {
-    const {
-      data,
-      error
-    } = await supabase
-      .from("loan_applications")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-    if (error) {
-      console.error(error);
-
-      return res.status(500).json({
-        error:
-          "Could not load applications"
-      });
-    }
-
-    res.json(
-      data
-    );
-  }
-);
-
-
-app.patch(
-  "/api/applications/:applicationId/status",
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const allowed = [
-        "submitted",
-        "under_review",
-        "approved",
-        "rejected",
-        "disbursed",
-        "closed"
-      ];
-
-      const {
-        status
-      } = req.body;
-
-      if (
-        !allowed.includes(status)
-      ) {
-        return res.status(400).json({
-          error:
-            "Invalid status"
-        });
-      }
-
-      const {
-        data,
-        error
-      } = await supabase
-        .from("loan_applications")
-        .update({
-          status,
-          updated_at:
-            new Date().toISOString()
-        })
-        .eq(
-          "application_id",
-          req.params.applicationId
-        )
-        .select(
-          "application_id,status"
-        )
-        .single();
-
-      if (error) {
-        console.error(error);
-
-        return res.status(500).json({
-          error:
-            "Could not update application"
-        });
-      }
-
-      res.json(
-        data
-      );
-
-    } catch (err) {
-      console.error(err);
-
-      res.status(500).json({
-        error:
-          "Server error"
-      });
-    }
-  }
-);
-
-
-/* =====================================================
-   ADMIN CRM SEARCH
-===================================================== */
-
-app.get(
-  "/api/admin/search",
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const q =
-        String(
-          req.query.q || ""
-        ).trim();
-
-      if (!q) {
-        return res.status(400).json({
-          error:
-            "Search query is required"
-        });
-      }
-
-      const results = {
-        customers: [],
-        applications: [],
-        loans: []
-      };
-
-
-      /* CUSTOMERS */
-
-      const {
-        data: customers,
-        error: customerError
-      } = await supabase
-        .from("customers")
-        .select("*")
-        .or(
-          `full_name.ilike.%${q}%,mobile.ilike.%${q}%`
-        )
-        .limit(20);
-
-      if (customerError) {
-        console.error(
-          "Customer search error:",
-          customerError
-        );
-      } else {
-        results.customers =
-          customers || [];
-      }
-
-
-      /* APPLICATIONS */
-
-      const {
-        data: applications,
-        error: applicationError
-      } = await supabase
-        .from("loan_applications")
-        .select("*")
-        .or(
-          `application_id.ilike.%${q}%,full_name.ilike.%${q}%,mobile.ilike.%${q}%`
-        )
-        .limit(20);
-
-      if (applicationError) {
-        console.error(
-          "Application search error:",
-          applicationError
-        );
-      } else {
-        results.applications =
-          applications || [];
-      }
-
-
-      /* LOANS */
-
-      const {
-        data: loans,
-        error: loanError
-      } = await supabase
-        .from("loan_accounts")
-        .select("*")
-        .or(
-          `loan_account_no.ilike.%${q}%`
-        )
-        .limit(20);
-
-      if (loanError) {
-        console.error(
-          "Loan search error:",
-          loanError
-        );
-      } else {
-        results.loans =
-          loans || [];
-      }
-
-
-      res.json({
-        success: true,
-        query: q,
-        ...results
-      });
-
-    } catch (error) {
-      console.error(
-        "CRM search error:",
-        error
-      );
-
-      res.status(500).json({
-        error:
-          "CRM search failed"
-      });
-    }
-  }
-);
-
-
-/* =====================================================
-   ADMIN CRM REPORTS
-===================================================== */
-
-app.get(
-  "/api/admin/report/:type",
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const type =
-        req.params.type;
-
-      let data = [];
-
-
-      if (
-        type ===
-        "applications"
-      ) {
-        const result =
-          await supabase
-            .from(
-              "loan_applications"
-            )
-            .select("*")
-            .order(
-              "created_at",
-              {
-                ascending:
-                  false
-              }
-            );
-
-        if (result.error) {
-          throw result.error;
-        }
-
-        data =
-          result.data || [];
-      }
-
-
-      else if (
-        type ===
-        "customers"
-      ) {
-        const result =
-          await supabase
-            .from(
-              "customers"
-            )
-            .select("*")
-            .order(
-              "created_at",
-              {
-                ascending:
-                  false
-              }
-            );
-
-        if (result.error) {
-          throw result.error;
-        }
-
-        data =
-          result.data || [];
-      }
-
-
-      else if (
-        type ===
-        "loans"
-      ) {
-        const result =
-          await supabase
-            .from(
-              "loan_accounts"
-            )
-            .select("*")
-            .order(
-              "disbursed_at",
-              {
-                ascending:
-                  false
-              }
-            );
-
-        if (result.error) {
-          throw result.error;
-        }
-
-        data =
-          result.data || [];
-      }
-
-
-      else if (
-        type ===
-        "payments"
-      ) {
-        const result =
-          await supabase
-            .from(
-              "payments"
-            )
-            .select("*")
-            .order(
-              "payment_date",
-              {
-                ascending:
-                  false
-              }
-            );
-
-        if (result.error) {
-          throw result.error;
-        }
-
-        data =
-          result.data || [];
-      }
-
-
-      else if (
-        type ===
-        "inquiries"
-      ) {
-        const result =
-          await supabase
-            .from(
-              "loan_inquiries"
-            )
-            .select("*")
-            .order(
-              "created_at",
-              {
-                ascending:
-                  false
-              }
-            );
-
-        if (result.error) {
-          throw result.error;
-        }
-
-        data =
-          result.data || [];
-      }
-
-
-      else {
-        return res.status(400).json({
-          error:
-            "Invalid report type"
-        });
-      }
-
-
-      res.json({
-        success: true,
-        report: type,
-        count:
-          data.length,
-        data
-      });
-
-    } catch (error) {
-      console.error(
-        "Report error:",
-        error
-      );
-
-      res.status(500).json({
-        error:
-          "Could not generate report"
-      });
-    }
-  }
-);
-
-
-/* =====================================================
-   ADMIN: CREATE LOAN ACCOUNT
-===================================================== */
-
-app.post(
-  "/api/admin/loan-accounts",
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const {
-        application_id,
-        principal,
-        annual_interest_rate,
-        tenure_months
-      } = req.body;
-
-      if (
-        !application_id ||
-        !principal ||
-        annual_interest_rate ===
-          undefined ||
-        !tenure_months
-      ) {
-        return res.status(400).json({
-          error:
-            "Required loan fields are missing"
-        });
-      }
-
-
-      const {
-        data: application,
-        error:
-          applicationError
-      } = await supabase
-        .from(
-          "loan_applications"
-        )
-        .select("*")
-        .eq(
-          "application_id",
-          application_id
-        )
-        .single();
-
-      if (
-        applicationError ||
-        !application
-      ) {
-        return res.status(404).json({
-          error:
-            "Application not found"
-        });
-      }
-
-
-      let {
-        data: customer
-      } = await supabase
-        .from("customers")
-        .select("*")
-        .eq(
-          "mobile",
-          application.mobile
-        )
-        .maybeSingle();
-
-
-      if (!customer) {
-        const {
-          data: newCustomer,
-          error:
-            customerError
-        } = await supabase
-          .from("customers")
-          .insert({
-            full_name:
-              application.full_name,
-            mobile:
-              application.mobile,
-            email:
-              application.email,
-            address:
-              application.address
-          })
-          .select("*")
-          .single();
-
-        if (customerError) {
-          console.error(
-            customerError
-          );
-
-          return res.status(500).json({
-            error:
-              "Could not create customer"
-          });
-        }
-
-        customer =
-          newCustomer;
-      }
-
-
-      const loan_account_no =
-        makeLoanAccountNo();
-
-      const principalAmount =
-        Number(principal);
-
-      const rate =
-        Number(
-          annual_interest_rate
-        );
-
-      const tenure =
-        Number(
-          tenure_months
-        );
-
-      const monthlyRate =
-        rate / 12 / 100;
-
-      let emi;
-
-      if (
-        monthlyRate === 0
-      ) {
-        emi =
-          principalAmount /
-          tenure;
-      } else {
-        emi =
-          (
-            principalAmount *
-            monthlyRate *
-            Math.pow(
-              1 + monthlyRate,
-              tenure
-            )
-          ) /
-          (
-            Math.pow(
-              1 + monthlyRate,
-              tenure
-            ) - 1
-          );
-      }
-
-      emi =
-        Number(
-          emi.toFixed(2)
-        );
-
-
-      const {
-        data: loan,
-        error: loanError
-      } = await supabase
-        .from(
-          "loan_accounts"
-        )
-        .insert({
-          loan_account_no,
-          application_id:
-            application.id,
-          customer_id:
-            customer.id,
-          principal:
-            principalAmount,
-          annual_interest_rate:
-            rate,
-          tenure_months:
-            tenure,
-          emi,
-          status:
-            "active",
-          disbursed_at:
-            new Date().toISOString()
-        })
-        .select("*")
-        .single();
-
-      if (loanError) {
-        console.error(
-          loanError
-        );
-
-        return res.status(500).json({
-          error:
-            "Could not create loan account"
-        });
-      }
-
-
-      const schedule = [];
-
-      let balance =
-        principalAmount;
-
-
-      for (
-        let i = 1;
-        i <= tenure;
-        i++
-      ) {
-        let interestDue;
-
-        if (
-          monthlyRate === 0
-        ) {
-          interestDue = 0;
-        } else {
-          interestDue =
-            balance *
-            monthlyRate;
-        }
-
-        interestDue =
-          Number(
-            interestDue.toFixed(2)
-          );
-
-
-        let principalDue =
-          Number(
-            (
-              emi -
-              interestDue
-            ).toFixed(2)
-          );
-
-
-        if (
-          i === tenure
-        ) {
-          principalDue =
-            Number(
-              balance.toFixed(2)
-            );
-        }
-
-
-        let totalDue =
-          Number(
-            (
-              principalDue +
-              interestDue
-            ).toFixed(2)
-          );
-
-
-        const dueDate =
-          new Date();
-
-        dueDate.setMonth(
-          dueDate.getMonth() +
-            i
-        );
-
-
-        schedule.push({
-          loan_account_id:
-            loan.id,
-          installment_no:
-            i,
-          due_date:
-            dueDate
-              .toISOString()
-              .slice(
-                0,
-                10
-              ),
-          principal_due:
-            principalDue,
-          interest_due:
-            interestDue,
-          total_due:
-            totalDue,
-          paid_amount:
-            0,
-          status:
-            "pending"
-        });
-
-
-        balance =
-          Number(
-            (
-              balance -
-              principalDue
-            ).toFixed(2)
-          );
-
-        if (
-          balance < 0
-        ) {
-          balance = 0;
-        }
-      }
-
-
-      const {
-        error:
-          scheduleError
-      } = await supabase
-        .from(
-          "emi_schedule"
-        )
-        .insert(
-          schedule
-        );
-
-      if (scheduleError) {
-        console.error(
-          scheduleError
-        );
-
-        return res.status(500).json({
-          error:
-            "Loan created but EMI schedule could not be created"
-        });
-      }
-
-
-      res.status(201).json({
-        success: true,
-        loan_account_no,
-        emi,
-        tenure_months:
-          tenure
-      });
-
-    } catch (err) {
-      console.error(err);
-
-      res.status(500).json({
-        error:
-          "Server error"
-      });
-    }
-  }
-);
-
-
-/* =====================================================
-   CUSTOMER: FIND LOAN
-===================================================== */
-
-app.post(
-  "/api/customer/loan",
-  async (req, res) => {
-    try {
-      const {
-        application_id,
-        mobile
-      } = req.body;
-
-      if (
-        !application_id ||
-        !mobile
-      ) {
-        return res.status(400).json({
-          error:
-            "Application ID and mobile are required"
-        });
-      }
-
-      if (
-        !/^[0-9]{10}$/.test(
-          String(mobile)
-        )
-      ) {
-        return res.status(400).json({
-          error:
-            "Mobile number must be 10 digits"
-        });
-      }
-
-
-      const {
-        data: application,
-        error:
-          applicationError
-      } = await supabase
-        .from(
-          "loan_applications"
-        )
-        .select("*")
-        .eq(
-          "application_id",
-          application_id
-        )
-        .eq(
-          "mobile",
-          mobile
-        )
-        .maybeSingle();
-
-
-      if (
-        applicationError ||
-        !application
-      ) {
-        return res.status(404).json({
-          error:
-            "Loan record not found"
-        });
-      }
-
-
-      const {
-        data: loan,
-        error: loanError
-      } = await supabase
-        .from(
-          "loan_accounts"
-        )
-        .select("*")
-        .eq(
-          "application_id",
-          application.id
-        )
-        .maybeSingle();
-
-
-      if (
-        loanError ||
-        !loan
-      ) {
-        return res.status(404).json({
-          error:
-            "Active loan account not found"
-        });
-      }
-
-
-      const {
-        data: schedule,
-        error:
-          scheduleError
-      } = await supabase
-        .from(
-          "emi_schedule"
-        )
-        .select("*")
-        .eq(
-          "loan_account_id",
-          loan.id
-        )
-        .order(
-          "installment_no",
-          {
-            ascending:
-              true
-          }
-        );
-
-
-      if (scheduleError) {
-        return res.status(500).json({
-          error:
-            "Could not load EMI schedule"
-        });
-      }
-
-
-     res.json({
-  success: true,
-
-  customer: {
-    full_name:
-      application.full_name || "",
-    mobile:
-      application.mobile || "",
-    email:
-      application.email || ""
-  },
-
-  application: {
-    application_id:
-      application.application_id
-  },
-
-  loan: {
-    loan_account_no:
-      loan.loan_account_no || "",
-
-    principal:
-      Number(
-        loan.principal || 0
-      ),
-
-    annual_interest_rate:
-      Number(
-        loan.annual_interest_rate || 0
-      ),
-
-    tenure_months:
-      Number(
-        loan.tenure_months || 0
-      ),
-
-    emi:
-      Number(
-        loan.emi || 0
-      ),
-
-    status:
-      loan.status || "active",
-
-    outstanding_amount:
-      Number(
-        loan.outstanding_amount || 0
-      )
-  },
-
-  emi_schedule:
-    schedule || []
+app.get("/health", (req, res) => {
+  res.json({
+    ok: true,
+    databaseConfigured: Boolean(supabase),
+    adminConfigured: Boolean(ADMIN_KEY)
+  });
 });
 
-    } catch (err) {
-      console.error(err);
+/* ---------------- ADMIN LOGIN ---------------- */
 
-      res.status(500).json({
-        error:
-          "Server error"
-      });
-    }
+app.post("/api/admin/login", (req, res) => {
+  if (!ADMIN_KEY) {
+    return apiError(res, 503, "ADMIN_KEY is not configured on the server.");
   }
-);
 
+  // Supports adminKey, key, or password field.
+  // If your current frontend has email/password fields, enter ADMIN_KEY
+  // in the password field until the frontend login is aligned.
+  const submittedKey = cleanText(
+    req.body?.adminKey || req.body?.key || req.body?.password,
+    500
+  );
 
-/* =====================================================
-   CUSTOMER: TEST EMI PAYMENT
-===================================================== */
+  const expected = Buffer.from(ADMIN_KEY);
+  const supplied = Buffer.from(submittedKey);
 
-app.post(
-  "/api/customer/pay-emi-test",
-  async (req, res) => {
-    try {
-      const {
-        application_id,
-        mobile,
-        installment_no,
-        payment_method
-      } = req.body;
-
-      if (
-        !application_id ||
-        !mobile ||
-        !installment_no
-      ) {
-        return res.status(400).json({
-          error:
-            "Application ID, mobile and installment number are required"
-        });
-      }
-
-
-      if (
-        !/^[0-9]{10}$/.test(
-          String(mobile)
-        )
-      ) {
-        return res.status(400).json({
-          error:
-            "Mobile number must be 10 digits"
-        });
-      }
-
-
-      const {
-        data: application,
-        error:
-          applicationError
-      } = await supabase
-        .from(
-          "loan_applications"
-        )
-        .select("*")
-        .eq(
-          "application_id",
-          application_id
-        )
-        .eq(
-          "mobile",
-          mobile
-        )
-        .maybeSingle();
-
-
-      if (
-        applicationError ||
-        !application
-      ) {
-        return res.status(404).json({
-          error:
-            "Loan record not found"
-        });
-      }
-
-
-      const {
-        data: loan,
-        error: loanError
-      } = await supabase
-        .from(
-          "loan_accounts"
-        )
-        .select("*")
-        .eq(
-          "application_id",
-          application.id
-        )
-        .maybeSingle();
-
-
-      if (
-        loanError ||
-        !loan
-      ) {
-        return res.status(404).json({
-          error:
-            "Loan account not found"
-        });
-      }
-
-
-      const {
-        data: emi,
-        error: emiError
-      } = await supabase
-        .from(
-          "emi_schedule"
-        )
-        .select("*")
-        .eq(
-          "loan_account_id",
-          loan.id
-        )
-        .eq(
-          "installment_no",
-          Number(
-            installment_no
-          )
-        )
-        .maybeSingle();
-
-
-      if (
-        emiError ||
-        !emi
-      ) {
-        return res.status(404).json({
-          error:
-            "EMI installment not found"
-        });
-      }
-
-
-      if (
-        emi.status ===
-        "paid"
-      ) {
-        return res.status(400).json({
-          error:
-            "This EMI is already paid"
-        });
-      }
-
-
-      const amount =
-        Number(
-          (
-            Number(
-              emi.total_due
-            ) -
-            Number(
-              emi.paid_amount ||
-                0
-            )
-          ).toFixed(2)
-        );
-
-
-      if (
-        amount <= 0
-      ) {
-        return res.status(400).json({
-          error:
-            "No amount is due for this EMI"
-        });
-      }
-
-
-      const method =
-        payment_method ||
-        "demo";
-
-
-      const transaction_reference =
-        "TEST-" +
-        Date.now().toString() +
-        "-" +
-        Math.floor(
-          Math.random() *
-            10000
-        );
-
-
-      const {
-        data: payment,
-        error:
-          paymentError
-      } = await supabase
-        .from(
-          "payments"
-        )
-        .insert({
-          loan_account_id:
-            loan.id,
-          amount,
-          payment_method:
-            method,
-          transaction_reference,
-          status:
-            "received"
-        })
-        .select("*")
-        .single();
-
-
-      if (paymentError) {
-        console.error(
-          paymentError
-        );
-
-        return res.status(500).json({
-          error:
-            "Could not create payment record"
-        });
-      }
-
-
-      const {
-        data: updatedEmi,
-        error:
-          updateError
-      } = await supabase
-        .from(
-          "emi_schedule"
-        )
-        .update({
-          paid_amount:
-            amount,
-          status:
-            "paid",
-          paid_at:
-            new Date().toISOString()
-        })
-        .eq(
-          "id",
-          emi.id
-        )
-        .select("*")
-        .single();
-
-
-      if (updateError) {
-        console.error(
-          updateError
-        );
-
-        return res.status(500).json({
-          error:
-            "Payment recorded but EMI status could not be updated"
-        });
-      }
-
-
-      res.json({
-        success: true,
-        demo: true,
-        message:
-          "Demo EMI payment successful",
-        transaction_reference,
-        amount,
-        installment_no:
-          emi.installment_no,
-        emi:
-          updatedEmi,
-        payment
-      });
-
-    } catch (err) {
-      console.error(err);
-
-      res.status(500).json({
-        error:
-          "Server error"
-      });
-    }
+  if (
+    !submittedKey ||
+    expected.length !== supplied.length ||
+    !crypto.timingSafeEqual(expected, supplied)
+  ) {
+    return apiError(res, 401, "Invalid Admin Key.");
   }
-);
 
-
-/* =====================================================
-   CUSTOMER: PAYMENT HISTORY
-===================================================== */
-
-app.post(
-  "/api/customer/payment-history",
-  async (req, res) => {
-    try {
-      const {
-        application_id,
-        mobile
-      } = req.body;
-
-      if (
-        !application_id ||
-        !mobile
-      ) {
-        return res.status(400).json({
-          error:
-            "Application ID and mobile are required"
-        });
-      }
-
-
-      const {
-        data: application
-      } = await supabase
-        .from(
-          "loan_applications"
-        )
-        .select("id")
-        .eq(
-          "application_id",
-          application_id
-        )
-        .eq(
-          "mobile",
-          mobile
-        )
-        .maybeSingle();
-
-
-      if (!application) {
-        return res.status(404).json({
-          error:
-            "Loan record not found"
-        });
-      }
-
-
-      const {
-        data: loan
-      } = await supabase
-        .from(
-          "loan_accounts"
-        )
-        .select(
-          "id,loan_account_no"
-        )
-        .eq(
-          "application_id",
-          application.id
-        )
-        .maybeSingle();
-
-
-      if (!loan) {
-        return res.status(404).json({
-          error:
-            "Loan account not found"
-        });
-      }
-
-
-      const {
-        data: payments,
-        error
-      } = await supabase
-        .from(
-          "payments"
-        )
-        .select("*")
-        .eq(
-          "loan_account_id",
-          loan.id
-        )
-        .order(
-          "payment_date",
-          {
-            ascending:
-              false
-          }
-        );
-
-
-      if (error) {
-        return res.status(500).json({
-          error:
-            "Could not load payment history"
-        });
-      }
-
-
-      res.json({
-        loan_account_no:
-          loan.loan_account_no,
-        payments:
-          payments || []
-      });
-
-    } catch (err) {
-      console.error(err);
-
-      res.status(500).json({
-        error:
-          "Server error"
-      });
-    }
-  }
-);
-// --------------------------------------------------
-// ADMIN: Verify & Record Manual EMI Payment
-// --------------------------------------------------
-
-app.post(
-  "/api/admin/payments/manual",
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const {
-        loan_account_no,
-        installment_no,
-        amount,
-        payment_date,
-        payment_method,
-        transaction_reference,
-        remarks
-      } = req.body;
-
-      // -----------------------------
-      // Basic validation
-      // -----------------------------
-
-      if (
-        !loan_account_no ||
-        !installment_no ||
-        amount === undefined ||
-        !payment_date ||
-        !payment_method
-      ) {
-        return res.status(400).json({
-          error: "Loan account, EMI number, amount, payment date and payment method are required"
-        });
-      }
-
-      const paymentAmount = Number(amount);
-
-      if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) {
-        return res.status(400).json({
-          error: "Payment amount must be greater than zero"
-        });
-      }
-
-      // -----------------------------
-      // Find loan
-      // -----------------------------
-
-      const {
-        data: loan,
-        error: loanError
-      } = await supabase
-        .from("loan_accounts")
-        .select("*")
-        .eq("loan_account_no", String(loan_account_no).trim())
-        .maybeSingle();
-
-      if (loanError) {
-        console.error("Loan lookup error:", loanError);
-
-        return res.status(500).json({
-          error: "Could not verify loan account"
-        });
-      }
-
-      if (!loan) {
-        return res.status(404).json({
-          error: "Loan account not found"
-        });
-      }
-
-      // -----------------------------
-      // Find EMI
-      // -----------------------------
-
-      const {
-        data: emi,
-        error: emiError
-      } = await supabase
-        .from("emi_schedule")
-        .select("*")
-        .eq("loan_account_id", loan.id)
-        .eq("installment_no", Number(installment_no))
-        .maybeSingle();
-
-      if (emiError) {
-        console.error("EMI lookup error:", emiError);
-
-        return res.status(500).json({
-          error: "Could not verify EMI"
-        });
-      }
-
-      if (!emi) {
-        return res.status(404).json({
-          error: "EMI installment not found"
-        });
-      }
-
-      // -----------------------------
-      // Already paid check
-      // -----------------------------
-
-      const totalDue = Number(emi.total_due || 0);
-      const alreadyPaid = Number(emi.paid_amount || 0);
-
-      const outstanding = Number(
-        (totalDue - alreadyPaid).toFixed(2)
-      );
-
-      if (emi.status === "paid" || outstanding <= 0) {
-        return res.status(400).json({
-          error: "This EMI is already fully paid"
-        });
-      }
-
-      // -----------------------------
-      // Do not allow overpayment
-      // -----------------------------
-
-      if (paymentAmount > outstanding) {
-        return res.status(400).json({
-          error: `Payment cannot be greater than outstanding amount ₹${outstanding.toFixed(2)}`
-        });
-      }
-
-      // -----------------------------
-      // New paid amount
-      // -----------------------------
-
-      const newPaidAmount = Number(
-        (alreadyPaid + paymentAmount).toFixed(2)
-      );
-
-      const newOutstanding = Number(
-        (totalDue - newPaidAmount).toFixed(2)
-      );
-
-      const newStatus =
-        newOutstanding <= 0
-          ? "paid"
-          : "partial";
-
-      // -----------------------------
-      // Generate reference
-      // -----------------------------
-
-      const reference =
-        String(transaction_reference || "").trim() ||
-        "MAN-" +
-          Date.now().toString() +
-          "-" +
-          Math.floor(Math.random() * 10000);
-
-      // -----------------------------
-      // Record payment
-      // -----------------------------
-
-      const {
-        data: payment,
-        error: paymentError
-      } = await supabase
-        .from("payments")
-        .insert({
-          loan_account_id: loan.id,
-          amount: paymentAmount,
-          payment_method: String(payment_method),
-          transaction_reference: reference,
-          status: "received"
-        })
-        .select("*")
-        .single();
-
-      if (paymentError) {
-        console.error("Manual payment insert error:", paymentError);
-
-        return res.status(500).json({
-          error: "Could not create payment record"
-        });
-      }
-
-      // -----------------------------
-      // Update EMI
-      // -----------------------------
-
-      const emiUpdate = {
-        paid_amount: newPaidAmount,
-        status: newStatus
-      };
-
-      if (newStatus === "paid") {
-        emiUpdate.paid_at = new Date().toISOString();
-      }
-
-      const {
-        data: updatedEmi,
-        error: emiUpdateError
-      } = await supabase
-        .from("emi_schedule")
-        .update(emiUpdate)
-        .eq("id", emi.id)
-        .select("*")
-        .single();
-
-      if (emiUpdateError) {
-        console.error(
-          "EMI update error:",
-          emiUpdateError
-        );
-
-        return res.status(500).json({
-          error:
-            "Payment was recorded but EMI could not be updated"
-        });
-      }
-
-      // -----------------------------
-      // Response
-      // -----------------------------
-
-      return res.json({
-        success: true,
-        message:
-          newStatus === "paid"
-            ? "EMI payment verified and marked as paid"
-            : "Partial EMI payment verified successfully",
-
-        payment: {
-          id: payment.id,
-          amount: paymentAmount,
-          payment_method,
-          transaction_reference: reference,
-          payment_date
-        },
-
-        emi: {
-          installment_no: updatedEmi.installment_no,
-          due_date: updatedEmi.due_date,
-          total_due: updatedEmi.total_due,
-          paid_amount: updatedEmi.paid_amount,
-          outstanding: newOutstanding,
-          status: updatedEmi.status
-        }
-      });
-
-    } catch (error) {
-      console.error(
-        "Manual payment error:",
-        error
-      );
-
-      return res.status(500).json({
-        error: "Manual payment processing failed"
-      });
-    }
-  }
-);
-
-
-/* =====================================================
-   ADMIN: PAYMENT LIST
-===================================================== */
+  const token = crypto.randomBytes(32).toString("hex");
+
+  sessions.set(token, {
+    createdAt: Date.now(),
+    expiresAt: Date.now() + SESSION_DURATION_MS
+  });
+
+  res.json({
+    ok: true,
+    token,
+    tokenType: "Bearer",
+    expiresIn: SESSION_DURATION_MS / 1000
+  });
+});
+
+app.post("/api/admin/logout", requireAdmin, (req, res) => {
+  const token = (req.headers.authorization || "").slice(7).trim();
+  sessions.delete(token);
+  res.json({ ok: true, message: "Logged out successfully." });
+});
+
+/* ---------------- DASHBOARD SUMMARY ---------------- */
 
 app.get(
-  "/api/admin/payments",
+  "/api/admin/summary",
+  requireDatabase,
   requireAdmin,
   async (req, res) => {
     try {
-      const {
-        data,
-        error
-      } = await supabase
-        .from(
-          "payments"
-        )
-        .select(`
-          *,
-          loan_accounts (
-            loan_account_no,
-            customer_id
-          )
-        `)
-        .order(
-          "payment_date",
-          {
-            ascending:
-              false
-          }
-        );
+      const { data: applications, error } = await supabase
+        .from("loan_applications")
+        .select("application_id, requested_amount, status, created_at");
 
+      if (error) throw error;
 
-      if (error) {
-        console.error(error);
+      const rows = applications || [];
+      const normalized = rows.map(row => ({
+        ...row,
+        status: String(row.status || "submitted").toLowerCase()
+      }));
 
-        return res.status(500).json({
-          error:
-            "Could not load payments"
-        });
-      }
+      const totalApplications = rows.length;
+      const pendingApplications = normalized.filter(row =>
+        ["submitted", "under_review", "pending"].includes(row.status)
+      ).length;
 
+      const approvedApplications = normalized.filter(row =>
+        ["approved", "disbursed", "closed"].includes(row.status)
+      ).length;
 
-      res.json(
-        data || []
+      const totalRequestedAmount = rows.reduce(
+        (sum, row) => sum + (Number(row.requested_amount) || 0),
+        0
       );
 
-    } catch (err) {
-      console.error(err);
+      const disbursedAmount = normalized
+        .filter(row => ["disbursed", "closed"].includes(row.status))
+        .reduce(
+          (sum, row) => sum + (Number(row.requested_amount) || 0),
+          0
+        );
 
-      res.status(500).json({
-        error:
-          "Server error"
+      let paidEmiAmount = 0;
+      let pendingEmiAmount = 0;
+      let pendingEmis = 0;
+      let nextEmiDate = null;
+
+      const emiResult = await supabase
+        .from("emis")
+        .select("emi_amount, due_date, status, paid_at");
+
+      if (!emiResult.error) {
+        const emis = emiResult.data || [];
+        const today = new Date().toISOString().slice(0, 10);
+
+        paidEmiAmount = emis
+          .filter(emi => String(emi.status).toLowerCase() === "paid")
+          .reduce((sum, emi) => sum + (Number(emi.emi_amount) || 0), 0);
+
+        const unpaid = emis.filter(
+          emi => String(emi.status || "").toLowerCase() !== "paid"
+        );
+
+        pendingEmis = unpaid.length;
+        pendingEmiAmount = unpaid.reduce(
+          (sum, emi) => sum + (Number(emi.emi_amount) || 0),
+          0
+        );
+
+        const upcoming = unpaid
+          .filter(emi => emi.due_date && emi.due_date >= today)
+          .sort((a, b) => a.due_date.localeCompare(b.due_date));
+
+        nextEmiDate = upcoming[0]?.due_date || null;
+      } else {
+        console.warn(
+          "EMI summary unavailable. Check the emis table/schema:",
+          emiResult.error.message
+        );
+      }
+
+      res.json({
+        ok: true,
+        summary: {
+          totalApplications,
+          pendingApplications,
+          approvedApplications,
+          totalRequestedAmount,
+          disbursedAmount,
+          paidEmiAmount,
+          pendingEmiAmount,
+          pendingEmis,
+          nextEmiDate
+        }
       });
+    } catch (error) {
+      return apiError(res, 500, safeDbMessage(error));
     }
   }
 );
 
+/* ---------------- LOAN APPLICATIONS ---------------- */
 
-/* =====================================================
-   START SERVER
-===================================================== */
+app.get(
+  "/api/admin/applications",
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { data, error } = await supabase
+        .from("loan_applications")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-app.listen(
-  PORT,
-  "0.0.0.0",
-  () => {
-    console.log(
-      `Shyam Fincorp Loan API running on port ${PORT}`
-    );
+      if (error) throw error;
+
+      res.json({
+        ok: true,
+        applications: data || [],
+        total: (data || []).length
+      });
+    } catch (error) {
+      return apiError(res, 500, safeDbMessage(error));
+    }
   }
 );
+
+app.patch(
+  "/api/admin/applications/:applicationId/status",
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    const applicationId = cleanText(req.params.applicationId, 100);
+    const status = cleanText(req.body?.status, 40).toLowerCase();
+
+    const allowedStatuses = [
+      "submitted",
+      "under_review",
+      "approved",
+      "rejected",
+      "disbursed",
+      "closed"
+    ];
+
+    if (!applicationId) {
+      return apiError(res, 400, "Application ID is required.");
+    }
+
+    if (!allowedStatuses.includes(status)) {
+      return apiError(res, 400, "Invalid application status.");
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("loan_applications")
+        .update({ status })
+        .eq("application_id", applicationId)
+        .select("*")
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) return apiError(res, 404, "Application not found.");
+
+      res.json({
+        ok: true,
+        message: "Application status updated.",
+        application: data
+      });
+    } catch (error) {
+      return apiError(res, 500, safeDbMessage(error));
+    }
+  }
+);
+
+/* ---------------- CUSTOMERS ---------------- */
+
+app.get(
+  "/api/admin/customers",
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { data, error } = await supabase
+        .from("customers")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      res.json({
+        ok: true,
+        customers: data || [],
+        total: (data || []).length
+      });
+    } catch (error) {
+      return apiError(res, 500, safeDbMessage(error));
+    }
+  }
+);
+
+/* ---------------- EMI TRACKING ---------------- */
+
+app.get(
+  "/api/admin/emis",
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { data, error } = await supabase
+        .from("emis")
+        .select("*")
+        .order("due_date", { ascending: true });
+
+      if (error) throw error;
+
+      res.json({
+        ok: true,
+        emis: data || [],
+        total: (data || []).length
+      });
+    } catch (error) {
+      return apiError(res, 500, safeDbMessage(error));
+    }
+  }
+);
+
+app.patch(
+  "/api/admin/emis/:emiId/paid",
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    const emiId = cleanText(req.params.emiId, 100);
+
+    if (!emiId) {
+      return apiError(res, 400, "EMI ID is required.");
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("emis")
+        .update({
+          status: "paid",
+          paid_at: new Date().toISOString()
+        })
+        .eq("id", emiId)
+        .select("*")
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) return apiError(res, 404, "EMI record not found.");
+
+      res.json({
+        ok: true,
+        message: "EMI marked as paid.",
+        emi: data
+      });
+    } catch (error) {
+      return apiError(res, 500, safeDbMessage(error));
+    }
+  }
+);
+
+/* ---------------- PUBLIC LOAN APPLICATION ---------------- */
+
+app.post("/api/applications", requireDatabase, async (req, res) => {
+  const body = req.body || {};
+
+  const full_name = cleanText(body.full_name || body.fullName, 120);
+  const mobile = cleanText(body.mobile, 10);
+  const email = cleanText(body.email, 180);
+  const address = cleanText(body.address, 500);
+  const monthly_income = Number(body.monthly_income ?? body.monthlyIncome);
+  const requested_amount = Number(
+    body.requested_amount ?? body.requestedAmount
+  );
+  const tenure_months = Number(body.tenure_months ?? body.tenureMonths);
+
+  if (!full_name || !validMobile(mobile) || !address) {
+    return apiError(res, 400, "Enter a valid name, mobile number and address.");
+  }
+
+  if (
+    !Number.isFinite(monthly_income) ||
+    monthly_income <= 0 ||
+    !validAmount(requested_amount) ||
+    !Number.isInteger(tenure_months) ||
+    tenure_months < 1 ||
+    tenure_months > 360
+  ) {
+    return apiError(res, 400, "Please check income, loan amount and tenure.");
+  }
+
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return apiError(res, 400, "Enter a valid email address.");
+  }
+
+  try {
+    const application_id =
+      "SFL-" +
+      Date.now().toString(36).toUpperCase() +
+      crypto.randomBytes(2).toString("hex").toUpperCase();
+
+    const record = {
+      application_id,
+      full_name,
+      mobile,
+      email: email || null,
+      monthly_income,
+      requested_amount,
+      tenure_months,
+      address,
+      status: "submitted"
+    };
+
+    const { data, error } = await supabase
+      .from("loan_applications")
+      .insert(record)
+      .select("application_id, full_name, status, created_at")
+      .single();
+
+    if (error) throw error;
+
+    res.status(201).json({
+      ok: true,
+      message: "Loan application submitted successfully.",
+      application: data
+    });
+  } catch (error) {
+    return apiError(res, 500, safeDbMessage(error));
+  }
+});
+
+/* ---------------- UNKNOWN ROUTES ---------------- */
+
+app.use((req, res) => {
+  res.status(404).json({
+    ok: false,
+    error: "API endpoint not found."
+  });
+});
+
+/* ---------------- START SERVER ---------------- */
+
+app.listen(PORT, () => {
+  console.log(`Shyam Fincorp API running on port ${PORT}`);
+  console.log(`Supabase configured: ${Boolean(supabase)}`);
+  console.log(`Admin key configured: ${Boolean(ADMIN_KEY)}`);
+});
