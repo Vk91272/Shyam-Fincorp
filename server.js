@@ -621,6 +621,234 @@ app.get(
   }
 );
 
+/* ---------------- LMS: RECORD LOAN DISBURSEMENT ---------------- */
+
+app.post(
+  "/api/admin/disburse",
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    const applicationId = cleanText(req.body?.application_id, 100);
+    const annualRate = Number(req.body?.annual_interest_rate ?? 12);
+
+    if (!applicationId) {
+      return apiError(res, 400, "Application ID is required.");
+    }
+
+    if (
+      !Number.isFinite(annualRate) ||
+      annualRate < 0 ||
+      annualRate > 100
+    ) {
+      return apiError(res, 400, "Interest rate must be between 0 and 100.");
+    }
+
+    try {
+      // Find application
+      const { data: application, error: appError } = await supabase
+        .from("loan_applications")
+        .select("*")
+        .eq("application_id", applicationId)
+        .maybeSingle();
+
+      if (appError) throw appError;
+
+      if (!application) {
+        return apiError(res, 404, "Loan application not found.");
+      }
+
+      if (String(application.status).toLowerCase() !== "approved") {
+        return apiError(
+          res,
+          400,
+          "Only approved applications can be disbursed."
+        );
+      }
+
+      const principal = Number(application.requested_amount);
+      const months = Number(application.tenure_months);
+
+      if (
+        !Number.isFinite(principal) ||
+        principal <= 0 ||
+        !Number.isInteger(months) ||
+        months < 1 ||
+        months > 360
+      ) {
+        return apiError(res, 400, "Invalid loan amount or tenure.");
+      }
+
+      // Prevent duplicate account creation
+      const { data: existing, error: existingError } = await supabase
+        .from("loan_accounts")
+        .select("id, loan_account_no")
+        .eq("application_id", application.id)
+        .maybeSingle();
+
+      if (existingError) throw existingError;
+
+      if (existing) {
+        return apiError(
+          res,
+          409,
+          `Loan account already exists: ${existing.loan_account_no}`
+        );
+      }
+
+      // Find customer by mobile
+      const { data: foundCustomer, error: customerFindError } =
+        await supabase
+          .from("customers")
+          .select("*")
+          .eq("mobile", application.mobile)
+          .maybeSingle();
+
+      if (customerFindError) throw customerFindError;
+
+      let customer = foundCustomer;
+
+      // Create customer if needed
+      if (!customer) {
+        const { data, error } = await supabase
+          .from("customers")
+          .insert({
+            full_name: application.full_name,
+            mobile: application.mobile,
+            email: application.email || null,
+            address: application.address || null
+          })
+          .select("*")
+          .single();
+
+        if (error) throw error;
+        customer = data;
+      }
+
+      // Calculate monthly EMI
+      const monthlyRate = annualRate / 1200;
+
+      const calculatedEmi = monthlyRate === 0
+        ? principal / months
+        : principal *
+          monthlyRate *
+          Math.pow(1 + monthlyRate, months) /
+          (Math.pow(1 + monthlyRate, months) - 1);
+
+      const emi = Math.round(calculatedEmi * 100) / 100;
+      const disbursedAt = new Date();
+
+      const loanAccountNo =
+        "SFLA-" +
+        Date.now().toString(36).toUpperCase() +
+        crypto.randomBytes(3).toString("hex").toUpperCase();
+
+      // Create loan account
+      const { data: account, error: accountError } = await supabase
+        .from("loan_accounts")
+        .insert({
+          loan_account_no: loanAccountNo,
+          application_id: application.id,
+          customer_id: customer.id,
+          principal: principal,
+          annual_interest_rate: annualRate,
+          tenure_months: months,
+          emi: emi,
+          status: "active",
+          disbursed_at: disbursedAt.toISOString()
+        })
+        .select("*")
+        .single();
+
+      if (accountError) throw accountError;
+
+      // Calculate monthly due dates
+      function getDueDate(startDate, monthOffset) {
+        const year = startDate.getUTCFullYear();
+        const month = startDate.getUTCMonth() + monthOffset;
+        const day = startDate.getUTCDate();
+
+        const firstOfMonth = new Date(Date.UTC(year, month, 1));
+        const lastDay = new Date(Date.UTC(
+          firstOfMonth.getUTCFullYear(),
+          firstOfMonth.getUTCMonth() + 1,
+          0
+        )).getUTCDate();
+
+        firstOfMonth.setUTCDate(Math.min(day, lastDay));
+        return firstOfMonth.toISOString().slice(0, 10);
+      }
+
+      // Create EMI schedule
+      const emiRows = Array.from({ length: months }, (_, index) => ({
+        application_id: application.application_id,
+        customer: application.full_name,
+        amount: emi,
+        emi_amount: emi,
+        due_date: getDueDate(disbursedAt, index + 1),
+        status: "pending"
+      }));
+
+      const { error: emiError } = await supabase
+        .from("emis")
+        .insert(emiRows);
+
+      if (emiError) {
+        // Best-effort cleanup if EMI schedule creation fails
+        const { error: cleanupError } = await supabase
+          .from("loan_accounts")
+          .delete()
+          .eq("id", account.id);
+
+        if (cleanupError) {
+          console.error("Loan account cleanup failed:", cleanupError.message);
+        }
+
+        throw emiError;
+      }
+
+      // Mark application disbursed after account and EMIs are created
+      const { data: updatedApplication, error: statusError } =
+        await supabase
+          .from("loan_applications")
+          .update({ status: "disbursed" })
+          .eq("id", application.id)
+          .select("application_id, status")
+          .single();
+
+      if (statusError) {
+        console.error(
+          "Application status update failed:",
+          statusError.message
+        );
+
+        return apiError(
+          res,
+          500,
+          "Loan account and EMI schedule were created, but application status update failed. Check Supabase before retrying."
+        );
+      }
+
+      return res.status(201).json({
+        ok: true,
+        message: "Loan account created and EMI schedule generated.",
+        application: updatedApplication,
+        loanAccount: {
+          id: account.id,
+          loan_account_no: account.loan_account_no,
+          principal: account.principal,
+          emi: account.emi,
+          tenure_months: account.tenure_months,
+          annual_interest_rate: account.annual_interest_rate
+        },
+        emiCount: emiRows.length
+      });
+    } catch (error) {
+      return apiError(res, 500, safeDbMessage(error));
+    }
+  }
+);
+
+
 
 /* ---------------- UNKNOWN ROUTES ---------------- */
 
