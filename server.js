@@ -411,6 +411,155 @@ app.patch(
   }
 );
 
+/* ---------------- RECORD EMI PAYMENT ---------------- */
+
+app.post(
+  "/api/admin/emis/:emiId/record-payment",
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    const emiId = cleanText(req.params.emiId, 100);
+    const paymentMethod = cleanText(req.body?.payment_method, 40);
+    const notes = cleanText(req.body?.notes, 200);
+
+    const allowedMethods = [
+      "cash",
+      "bank_transfer",
+      "upi_manual",
+      "cheque",
+      "manual_collection"
+    ];
+
+    if (!emiId || !allowedMethods.includes(paymentMethod)) {
+      return apiError(res, 400, "Invalid EMI ID or payment method.");
+    }
+
+    let paymentId = null;
+
+    try {
+      // 1. Find the EMI
+      const { data: emi, error: emiError } = await supabase
+        .from("emis")
+        .select("*")
+        .eq("id", emiId)
+        .maybeSingle();
+
+      if (emiError) throw emiError;
+      if (!emi) return apiError(res, 404, "EMI record not found.");
+
+      if (String(emi.status).toLowerCase() === "paid") {
+        return apiError(res, 409, "This EMI is already marked as paid.");
+      }
+
+      // 2. Find the application
+      const { data: application, error: appError } = await supabase
+        .from("loan_applications")
+        .select("id, application_id")
+        .eq("application_id", emi.application_id)
+        .maybeSingle();
+
+      if (appError) throw appError;
+      if (!application) {
+        return apiError(res, 404, "Related loan application not found.");
+      }
+
+      // 3. Find the related loan account
+      const { data: account, error: accountError } = await supabase
+        .from("loan_accounts")
+        .select("id")
+        .eq("application_id", application.id)
+        .maybeSingle();
+
+      if (accountError) throw accountError;
+      if (!account) {
+        return apiError(res, 404, "Related loan account not found.");
+      }
+
+      const amount = Number(emi.emi_amount ?? emi.amount);
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        return apiError(res, 400, "Invalid EMI amount.");
+      }
+
+      const receivedAt = new Date().toISOString();
+      const reference =
+        notes ||
+        "SFL-PAY-" +
+          Date.now().toString(36).toUpperCase() +
+          crypto.randomBytes(3).toString("hex").toUpperCase();
+
+      // 4. Record the receipt
+      const { data: payment, error: paymentError } = await supabase
+        .from("payments")
+        .insert({
+          loan_account_id: account.id,
+          amount,
+          payment_method: paymentMethod,
+          transaction_reference: reference,
+          payment_date: receivedAt,
+          status: "completed"
+        })
+        .select("id")
+        .single();
+
+      if (paymentError) throw paymentError;
+      paymentId = payment.id;
+
+      // 5. Mark the EMI as paid
+      const { data: updatedEmi, error: updateError } = await supabase
+        .from("emis")
+        .update({
+          status: "paid",
+          paid_at: receivedAt
+        })
+        .eq("id", emiId)
+        .neq("status", "paid")
+        .select("*")
+        .maybeSingle();
+
+      if (updateError) throw updateError;
+
+      if (!updatedEmi) {
+        throw new Error(
+          "EMI was not updated. Another action may have changed its status."
+        );
+      }
+
+      return res.json({
+        ok: true,
+        message: "Payment recorded and EMI marked as paid.",
+        paymentId: payment.id,
+        amount,
+        emi: updatedEmi
+      });
+    } catch (error) {
+      // Remove the receipt if the EMI update failed
+      if (paymentId) {
+        const { error: cleanupError } = await supabase
+          .from("payments")
+          .delete()
+          .eq("id", paymentId);
+
+        if (cleanupError) {
+          console.error(
+            "Payment cleanup failed:",
+            cleanupError.message
+          );
+        }
+      }
+
+      console.error("Record EMI payment failed:", error?.message || error);
+
+      return apiError(
+        res,
+        500,
+        safeDbMessage(error)
+      );
+    }
+  }
+);
+
+
 /* ---------------- PUBLIC LOAN APPLICATION ---------------- */
 
 app.post("/api/applications", requireDatabase, async (req, res) => {
