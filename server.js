@@ -481,6 +481,147 @@ app.post("/api/applications", requireDatabase, async (req, res) => {
   }
 });
 
+/* -------- LMS: LOAN ACCOUNTS -------- */
+app.get(
+  "/api/admin/loan-accounts",
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { data: accounts, error } = await supabase
+        .from("loan_accounts")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      const rows = accounts || [];
+      const customerIds = [...new Set(
+        rows.map(x => x.customer_id).filter(Boolean)
+      )];
+      const applicationIds = [...new Set(
+        rows.map(x => x.application_id).filter(Boolean)
+      )];
+
+      const [customerResult, applicationResult] = await Promise.all([
+        customerIds.length
+          ? supabase.from("customers").select("*").in("id", customerIds)
+          : Promise.resolve({ data: [], error: null }),
+        applicationIds.length
+          ? supabase.from("loan_applications")
+              .select("id,application_id,full_name,mobile")
+              .in("id", applicationIds)
+          : Promise.resolve({ data: [], error: null })
+      ]);
+
+      if (customerResult.error) throw customerResult.error;
+      if (applicationResult.error) throw applicationResult.error;
+
+      const customers = new Map(
+        (customerResult.data || []).map(x => [x.id, x])
+      );
+      const applications = new Map(
+        (applicationResult.data || []).map(x => [x.id, x])
+      );
+
+      res.json({
+        ok: true,
+        loanAccounts: rows.map(x => {
+          const customer = customers.get(x.customer_id) || {};
+          const application = applications.get(x.application_id) || {};
+          return {
+            ...x,
+            application_id: application.application_id || "",
+            customer_name: customer.full_name || application.full_name || "",
+            mobile: customer.mobile || application.mobile || "",
+            emi_amount: x.emi ?? x.emi_amount ?? 0
+          };
+        })
+      });
+    } catch (error) {
+      return apiError(res, 500, safeDbMessage(error));
+    }
+  }
+);
+
+/* -------- LMS: PAYMENT REGISTER -------- */
+app.get(
+  "/api/admin/payments",
+  requireDatabase,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { data: payments, error } = await supabase
+        .from("payments")
+        .select("*")
+        .order("payment_date", { ascending: false });
+
+      if (error) throw error;
+
+      const rows = payments || [];
+      const accountIds = [...new Set(
+        rows.map(x => x.loan_account_id).filter(Boolean)
+      )];
+
+      const { data: accounts, error: accountError } = accountIds.length
+        ? await supabase.from("loan_accounts").select("*").in("id", accountIds)
+        : { data: [], error: null };
+
+      if (accountError) throw accountError;
+
+      const accountRows = accounts || [];
+      const customerIds = [...new Set(
+        accountRows.map(x => x.customer_id).filter(Boolean)
+      )];
+      const applicationIds = [...new Set(
+        accountRows.map(x => x.application_id).filter(Boolean)
+      )];
+
+      const [customerResult, applicationResult] = await Promise.all([
+        customerIds.length
+          ? supabase.from("customers").select("*").in("id", customerIds)
+          : Promise.resolve({ data: [], error: null }),
+        applicationIds.length
+          ? supabase.from("loan_applications")
+              .select("id,application_id,full_name,mobile")
+              .in("id", applicationIds)
+          : Promise.resolve({ data: [], error: null })
+      ]);
+
+      if (customerResult.error) throw customerResult.error;
+      if (applicationResult.error) throw applicationResult.error;
+
+      const accountMap = new Map(accountRows.map(x => [x.id, x]));
+      const customerMap = new Map(
+        (customerResult.data || []).map(x => [x.id, x])
+      );
+      const applicationMap = new Map(
+        (applicationResult.data || []).map(x => [x.id, x])
+      );
+
+      res.json({
+        ok: true,
+        payments: rows.map(p => {
+          const account = accountMap.get(p.loan_account_id) || {};
+          const customer = customerMap.get(account.customer_id) || {};
+          const application = applicationMap.get(account.application_id) || {};
+          return {
+            ...p,
+            payment_ref: p.transaction_reference || p.id,
+            customer_name: customer.full_name || application.full_name || "",
+            mobile: customer.mobile || application.mobile || "",
+            application_id: application.application_id || "",
+            paid_at: p.payment_date
+          };
+        })
+      });
+    } catch (error) {
+      return apiError(res, 500, safeDbMessage(error));
+    }
+  }
+);
+
+
 /* ---------------- UNKNOWN ROUTES ---------------- */
 
 app.use((req, res) => {
