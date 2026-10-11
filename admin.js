@@ -1,908 +1,431 @@
+
 const API_BASE = "https://shyam-fincorp.onrender.com";
 
-let adminKey = "";
+const $ = (id) => document.getElementById(id);
 
-// -----------------------------
-// Helpers
-// -----------------------------
+let adminToken = "";
+let applicationData = [];
+let customerData = [];
+let paymentData = [];
+let eligibilityData = [];
 
-function showMessage(elementId, message, type) {
-  const element = document.getElementById(elementId);
+const money = (value) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0
+  }).format(Number(value) || 0);
 
-  if (!element) return;
+const safe = (value) =>
+  String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  })[char]);
 
-  element.textContent = message;
-  element.className = "message " + type;
+const statusClass = (value) => {
+  const key = String(value || "").toLowerCase().replace(/\s+/g, "_");
+  const allowed = [
+    "approved", "paid", "disbursed", "closed",
+    "submitted", "pending", "under_review",
+    "rejected", "overdue"
+  ];
+  return allowed.includes(key) ? `status-${key}` : "status-default";
+};
+
+function setNotice(message, error = false) {
+  const notice = $("notice");
+  if (!notice) return;
+  notice.textContent = message;
+  notice.classList.remove("hidden", "error");
+  if (error) notice.classList.add("error");
 }
 
-function formatMoney(value) {
-  return "₹" + Number(value || 0).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+function clearNotice() {
+  $("notice")?.classList.add("hidden");
+}
+
+async function api(path, options = {}) {
+  const headers = {
+    "Content-Type": "application/json",
+    ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
+    ...(options.headers || {})
+  };
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers
   });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || data.message || `Request failed (${response.status})`);
+  }
+
+  return data;
 }
 
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+function showLogin() {
+  $("loginScreen")?.classList.remove("hidden");
+  $("adminSection")?.classList.add("hidden");
 }
 
+function showAdmin() {
+  $("loginScreen")?.classList.add("hidden");
+  $("adminSection")?.classList.remove("hidden");
+}
 
-// -----------------------------
-// Login
-// -----------------------------
+async function login(event) {
+  event.preventDefault();
 
-document
-  .getElementById("loginButton")
-  .addEventListener("click", function () {
+  const key = $("adminKey").value.trim();
+  const button = $("loginButton");
+  const message = $("loginMessage");
 
-    const key =
-      document.getElementById("adminKey").value.trim();
+  if (!key) {
+    message.textContent = "Please enter your admin key.";
+    return;
+  }
 
-    if (!key) {
-      showMessage(
-        "loginMessage",
-        "Admin Key डालें।",
-        "error"
-      );
-      return;
+  button.disabled = true;
+  button.textContent = "Connecting…";
+  message.textContent = "";
+
+  try {
+    const result = await api("/api/admin/login", {
+      method: "POST",
+      body: JSON.stringify({ adminKey: key, key, password: key })
+    });
+
+    // Use the token returned by your backend, if it issues one.
+    adminToken = result.token || result.accessToken || key;
+
+    showAdmin();
+    clearNotice();
+    await loadDashboard();
+  } catch (error) {
+    message.textContent =
+      `${error.message}. Check the backend login route and ADMIN_KEY on Render.`;
+  } finally {
+    button.disabled = false;
+    button.textContent = "Sign in to CRM";
+  }
+}
+
+function logout() {
+  adminToken = "";
+  $("adminKey").value = "";
+  $("loginMessage").textContent = "";
+  showLogin();
+}
+
+function showSection(name) {
+  document.querySelectorAll(".page-section").forEach((section) => {
+    section.classList.toggle("hidden", section.id !== name);
+  });
+
+  document.querySelectorAll(".nav-link").forEach((button) => {
+    button.classList.toggle("active", button.dataset.section === name);
+  });
+
+  const active = document.querySelector(`.nav-link[data-section="${name}"]`);
+  $("pageTitle").textContent = active ? active.textContent.trim() : name;
+  $("sidebar").classList.remove("open");
+
+  const loaders = {
+    dashboard: loadDashboard,
+    applications: loadApplications,
+    customers: loadCustomers,
+    payments: loadPayments,
+    eligibility: loadEligibility,
+    documents: loadDocuments
+  };
+
+  if (loaders[name]) loaders[name]();
+}
+
+function arrayFrom(data, keys = []) {
+  if (Array.isArray(data)) return data;
+  for (const key of keys) {
+    if (Array.isArray(data?.[key])) return data[key];
+  }
+  return [];
+}
+
+function getAmount(app) {
+  return app.requested_amount ?? app.loan_amount ?? app.amount ?? 0;
+}
+
+function getApplicationId(app) {
+  return app.application_id ?? app.applicationId ?? app.id ?? "—";
+}
+
+function renderStatus(value) {
+  const label = String(value || "unknown").replace(/_/g, " ");
+  return `<span class="status-badge ${statusClass(value)}">${safe(label)}</span>`;
+}
+
+function renderRecentApplications(rows) {
+  const body = $("recentApplications");
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="4" class="empty">No applications found.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = rows.slice(0, 6).map((app) => `
+    <tr>
+      <td><strong>${safe(getApplicationId(app))}</strong></td>
+      <td>${safe(app.full_name || app.customer_name || app.name || "—")}</td>
+      <td>${money(getAmount(app))}</td>
+      <td>${renderStatus(app.status)}</td>
+    </tr>
+  `).join("");
+}
+
+async function loadDashboard() {
+  try {
+    const result = await api("/api/admin/applications");
+    applicationData = arrayFrom(result, ["applications", "data", "items"]);
+    $("totalApplications").textContent = applicationData.length;
+    $("pendingApplications").textContent = applicationData.filter((a) =>
+      ["submitted", "under_review", "pending"].includes(String(a.status).toLowerCase())
+    ).length;
+    $("approvedApplications").textContent = applicationData.filter((a) =>
+      ["approved", "disbursed", "closed"].includes(String(a.status).toLowerCase())
+    ).length;
+
+    renderRecentApplications(applicationData);
+
+    try {
+      const payments = await api("/api/admin/emis");
+      paymentData = arrayFrom(payments, ["emis", "payments", "data", "items"]);
+      const paid = paymentData
+        .filter((p) => String(p.status).toLowerCase() === "paid")
+        .reduce((sum, p) => sum + Number(p.amount || p.emi_amount || 0), 0);
+      $("totalCollected").textContent = money(paid);
+    } catch {
+      $("totalCollected").textContent = "—";
     }
+    clearNotice();
+  } catch (error) {
+    setNotice(`Dashboard could not load: ${error.message}`, true);
+    renderRecentApplications([]);
+  }
+}
 
-    adminKey = key;
+function renderApplications(rows) {
+  const body = $("applicationsTable");
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="7" class="empty">No applications match your search.</td></tr>';
+    return;
+  }
 
-    loadApplications();
-  });
-
-
-// -----------------------------
-// Load Applications
-// -----------------------------
+  body.innerHTML = rows.map((app) => {
+    const id = getApplicationId(app);
+    const status = String(app.status || "submitted").toLowerCase();
+    const options = ["submitted", "under_review", "approved", "rejected", "disbursed", "closed"];
+    return `<tr>
+      <td><strong>${safe(id)}</strong></td>
+      <td>${safe(app.full_name || app.customer_name || app.name || "—")}</td>
+      <td>${safe(app.mobile || app.phone || "—")}</td>
+      <td>${money(getAmount(app))}</td>
+      <td>${safe(app.tenure_months ?? app.tenure ?? "—")}</td>
+      <td>${renderStatus(status)}</td>
+      <td><select class="row-select" data-app-status="${safe(id)}">
+        ${options.map((option) => `<option value="${option}" ${option === status ? "selected" : ""}>${option.replace(/_/g, " ")}</option>`).join("")}
+      </select></td>
+    </tr>`;
+  }).join("");
+}
 
 async function loadApplications() {
-
-  showMessage(
-    "loginMessage",
-    "Admin panel check हो रहा है...",
-    "success"
-  );
-
   try {
-
-    const response = await fetch(
-      API_BASE + "/api/applications",
-      {
-        method: "GET",
-
-        headers: {
-          "x-admin-key": adminKey
-        }
-      }
-    );
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        result.error || "Admin login failed"
-      );
-    }
-
-    document
-      .getElementById("loginSection")
-      .classList.add("hidden");
-
-    document
-      .getElementById("adminSection")
-      .classList.remove("hidden");
-
-    document.getElementById("adminStatus").textContent =
-      "Admin Logged In";
-
-    displayApplications(result);
-
-    // Load eligibility inquiries automatically
-    loadInquiries();
-
+    const result = await api("/api/admin/applications");
+    applicationData = arrayFrom(result, ["applications", "data", "items"]);
+    filterApplications();
   } catch (error) {
-
-    console.error(error);
-
-    adminKey = "";
-
-    showMessage(
-      "loginMessage",
-      error.message || "Admin login failed",
-      "error"
-    );
+    $("applicationsTable").innerHTML = `<tr><td colspan="7" class="empty">${safe(error.message)}</td></tr>`;
   }
 }
 
-
-// -----------------------------
-// Eligibility Inquiries
-// -----------------------------
-
-async function loadInquiries() {
-
-  const container =
-    document.getElementById("inquiriesList");
-
-  if (!container) return;
-
-  container.innerHTML =
-    "<p>Eligibility inquiries load हो रही हैं...</p>";
-
-  try {
-
-    const response = await fetch(
-      API_BASE + "/api/admin/inquiries",
-      {
-        method: "GET",
-
-        headers: {
-          "x-admin-key": adminKey
-        }
-      }
-    );
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        result.error ||
-        "Eligibility inquiries load नहीं हुईं"
-      );
-    }
-
-    const inquiries = result.inquiries || [];
-
-    if (!inquiries.length) {
-
-      container.innerHTML = `
-        <div class="application-card">
-          अभी कोई eligibility inquiry नहीं है।
-        </div>
-      `;
-
-      return;
-    }
-
-    let html = `
-      <table>
-
-        <thead>
-
-          <tr>
-            <th>Inquiry ID</th>
-            <th>Customer</th>
-            <th>Mobile</th>
-            <th>Loan Amount</th>
-            <th>Income</th>
-            <th>Tenure</th>
-            <th>Estimated EMI</th>
-            <th>Rate</th>
-            <th>Status</th>
-            <th>Date</th>
-          </tr>
-
-        </thead>
-
-        <tbody>
-    `;
-
-    inquiries.forEach(function (inquiry) {
-
-      let statusClass = "status-blue";
-
-      if (
-        inquiry.eligibility_status ===
-        "likely_eligible"
-      ) {
-        statusClass = "status-green";
-      }
-
-      if (
-        inquiry.eligibility_status ===
-        "not_eligible"
-      ) {
-        statusClass = "status-red";
-      }
-
-      let statusText =
-        inquiry.eligibility_status || "under_review";
-
-      if (statusText === "likely_eligible") {
-        statusText = "Likely Eligible";
-      } else if (statusText === "needs_review") {
-        statusText = "Needs Review";
-      } else if (statusText === "not_eligible") {
-        statusText = "Not Eligible";
-      }
-
-      html += `
-
-        <tr>
-
-          <td>
-            ${escapeHtml(inquiry.inquiry_id)}
-          </td>
-
-          <td>
-            <strong>
-              ${escapeHtml(inquiry.full_name)}
-            </strong>
-
-            ${
-              inquiry.email
-                ? `<br>
-                   <small>
-                     ${escapeHtml(inquiry.email)}
-                   </small>`
-                : ""
-            }
-          </td>
-
-          <td>
-            ${escapeHtml(inquiry.mobile)}
-          </td>
-
-          <td>
-            ${formatMoney(inquiry.requested_amount)}
-          </td>
-
-          <td>
-            ${formatMoney(inquiry.monthly_income)}
-          </td>
-
-          <td>
-            ${escapeHtml(inquiry.tenure_months)}
-            months
-          </td>
-
-          <td>
-            ${formatMoney(inquiry.estimated_emi)}
-          </td>
-
-          <td>
-            ${
-              inquiry.estimated_interest_rate
-                ? escapeHtml(
-                    inquiry.estimated_interest_rate
-                  ) + "%"
-                : "-"
-            }
-          </td>
-
-          <td>
-
-            <span class="status ${statusClass}">
-              ${escapeHtml(statusText)}
-            </span>
-
-            ${
-              inquiry.eligibility_reason
-                ? `<br>
-                   <small>
-                     ${escapeHtml(
-                       inquiry.eligibility_reason
-                     )}
-                   </small>`
-                : ""
-            }
-
-          </td>
-
-          <td>
-            ${
-              inquiry.created_at
-                ? new Date(
-                    inquiry.created_at
-                  ).toLocaleString("en-IN")
-                : "-"
-            }
-          </td>
-
-        </tr>
-
-      `;
-    });
-
-    html += `
-        </tbody>
-      </table>
-    `;
-
-    container.innerHTML = html;
-
-  } catch (error) {
-
-    console.error(error);
-
-    container.innerHTML = `
-
-      <div
-        class="message error"
-        style="display:block;"
-      >
-        ${escapeHtml(error.message)}
-      </div>
-
-    `;
-  }
-}
-
-
-// -----------------------------
-// Display Applications
-// -----------------------------
-
-function displayApplications(applications) {
-
-  const container =
-    document.getElementById("applicationsList");
-
-  if (!applications.length) {
-
-    container.innerHTML = `
-
-      <div class="application-card">
-        अभी कोई loan application नहीं है।
-      </div>
-
-    `;
-
-    return;
-  }
-
-  container.innerHTML = "";
-
-  applications.forEach(function (application) {
-
-    const card =
-      document.createElement("div");
-
-    card.className = "application-card";
-
-    card.innerHTML = `
-
-      <h3>
-        ${escapeHtml(application.full_name)}
-      </h3>
-
-      <p>
-        <strong>Application ID:</strong>
-        ${escapeHtml(application.application_id)}
-      </p>
-
-      <p>
-        <strong>Status:</strong>
-
-        <span class="status">
-          ${escapeHtml(application.status)}
-        </span>
-      </p>
-
-      <div class="info-grid">
-
-        <div class="info">
-          <small>Mobile</small>
-          ${escapeHtml(application.mobile)}
-        </div>
-
-        <div class="info">
-          <small>Monthly Income</small>
-          ${formatMoney(application.monthly_income)}
-        </div>
-
-        <div class="info">
-          <small>Requested Amount</small>
-          ${formatMoney(application.requested_amount)}
-        </div>
-
-        <div class="info">
-          <small>Tenure</small>
-          ${escapeHtml(application.tenure_months)}
-          months
-        </div>
-
-        <div class="info">
-          <small>Email</small>
-          ${escapeHtml(application.email || "-")}
-        </div>
-
-        <div class="info">
-          <small>Address</small>
-          ${escapeHtml(application.address)}
-        </div>
-
-      </div>
-
-
-      <div class="loan-form">
-
-        <h3>Create Loan Account</h3>
-
-        <label>
-          Principal / Loan Amount
-        </label>
-
-        <input
-          type="number"
-          id="principal-${application.id}"
-          value="${application.requested_amount}"
-          min="1"
-        >
-
-        <label>
-          Annual Interest Rate (%)
-        </label>
-
-        <input
-          type="number"
-          id="rate-${application.id}"
-          value="12"
-          min="0"
-          step="0.01"
-        >
-
-        <label>
-          Tenure (Months)
-        </label>
-
-        <input
-          type="number"
-          id="tenure-${application.id}"
-          value="${application.tenure_months}"
-          min="1"
-          max="120"
-        >
-
-        <button
-          type="button"
-          class="green"
-          onclick="createLoan(
-            '${application.application_id}',
-            '${application.id}'
-          )"
-        >
-          Create Loan Account & Generate EMI
-        </button>
-
-        <br>
-
-        <button
-          type="button"
-          class="gray"
-          onclick="updateStatus(
-            '${application.application_id}',
-            'under_review'
-          )"
-        >
-          Under Review
-        </button>
-
-        <button
-          type="button"
-          onclick="updateStatus(
-            '${application.application_id}',
-            'approved'
-          )"
-        >
-          Approve
-        </button>
-
-        <button
-          type="button"
-          onclick="updateStatus(
-            '${application.application_id}',
-            'rejected'
-          )"
-        >
-          Reject
-        </button>
-
-      </div>
-
-    `;
-
-    container.appendChild(card);
-
+function filterApplications() {
+  const query = ($("applicationSearch")?.value || "").toLowerCase();
+  const status = $("applicationStatus")?.value || "";
+  const filtered = applicationData.filter((app) => {
+    const text = [
+      getApplicationId(app), app.full_name, app.customer_name, app.mobile, app.email
+    ].join(" ").toLowerCase();
+    return text.includes(query) && (!status || String(app.status).toLowerCase() === status);
   });
+  renderApplications(filtered);
 }
 
-
-// -----------------------------
-// Create Loan Account
-// -----------------------------
-
-async function createLoan(
-  applicationId,
-  databaseId
-) {
-
-  const principal =
-    Number(
-      document.getElementById(
-        "principal-" + databaseId
-      ).value
-    );
-
-  const rate =
-    Number(
-      document.getElementById(
-        "rate-" + databaseId
-      ).value
-    );
-
-  const tenure =
-    Number(
-      document.getElementById(
-        "tenure-" + databaseId
-      ).value
-    );
-
-  if (!principal || principal <= 0) {
-
-    alert("Loan amount सही डालें।");
-
-    return;
-  }
-
-  if (rate < 0) {
-
-    alert("Interest rate सही डालें।");
-
-    return;
-  }
-
-  if (!tenure || tenure <= 0) {
-
-    alert("Tenure सही डालें।");
-
-    return;
-  }
-
-  const confirmed = confirm(
-
-    "क्या आप इस application का Loan Account बनाना चाहते हैं?\n\n" +
-
-    "Application ID: " +
-    applicationId +
-
-    "\n" +
-
-    "Loan Amount: " +
-    formatMoney(principal) +
-
-    "\n" +
-
-    "Interest Rate: " +
-    rate +
-    "%" +
-
-    "\n" +
-
-    "Tenure: " +
-    tenure +
-    " months"
-
-  );
-
-  if (!confirmed) {
+async function updateApplicationStatus(id, status) {
+  if (!confirm(`Change application ${id} status to "${status.replace(/_/g, " ")}"?`)) {
+    loadApplications();
     return;
   }
 
   try {
-
-    const response = await fetch(
-      API_BASE + "/api/admin/loan-accounts",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-key": adminKey
-        },
-
-        body: JSON.stringify({
-
-          application_id: applicationId,
-
-          principal: principal,
-
-          annual_interest_rate: rate,
-
-          tenure_months: tenure
-
-        })
-      }
-    );
-
-    const result =
-      await response.json();
-
-    if (!response.ok) {
-
-      throw new Error(
-        result.error ||
-        "Loan account create नहीं हुआ"
-      );
-    }
-
-    alert(
-
-      "Loan Account Successfully Created!\n\n" +
-
-      "Loan Account No.: " +
-      result.loan_account_no +
-
-      "\n" +
-
-      "Monthly EMI: " +
-      formatMoney(result.emi) +
-
-      "\n" +
-
-      "Tenure: " +
-      result.tenure_months +
-      " months"
-
-    );
-
-    loadApplications();
-
+    await api(`/api/admin/applications/${encodeURIComponent(id)}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status })
+    });
+    setNotice(`Application ${id} status updated.`);
+    await loadApplications();
+    await loadDashboard();
   } catch (error) {
-
-    console.error(error);
-
-    alert(
-      error.message ||
-      "Loan account create करते समय error आया।"
-    );
+    setNotice(`Status update failed: ${error.message}`, true);
+    await loadApplications();
   }
 }
 
-
-// -----------------------------
-// Update Application Status
-// -----------------------------
-
-async function updateStatus(
-  applicationId,
-  status
-) {
-
+async function loadCustomers() {
   try {
-
-    const response = await fetch(
-
-      API_BASE +
-      "/api/applications/" +
-      encodeURIComponent(applicationId) +
-      "/status",
-
-      {
-        method: "PATCH",
-
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-key": adminKey
-        },
-
-        body: JSON.stringify({
-          status: status
-        })
-      }
-    );
-
-    const result =
-      await response.json();
-
-    if (!response.ok) {
-
-      throw new Error(
-        result.error ||
-        "Status update नहीं हुआ"
-      );
-    }
-
-    showMessage(
-      "applicationMessage",
-      "Application status updated: " + status,
-      "success"
-    );
-
-    loadApplications();
-
+    const result = await api("/api/admin/customers");
+    customerData = arrayFrom(result, ["customers", "data", "items"]);
+    filterCustomers();
   } catch (error) {
-
-    console.error(error);
-
-    showMessage(
-      "applicationMessage",
-      error.message ||
-      "Status update failed",
-      "error"
-    );
+    $("customersTable").innerHTML = `<tr><td colspan="5" class="empty">${safe(error.message)}. Confirm that your backend has a customers endpoint.</td></tr>`;
   }
 }
 
-
-// -----------------------------
-// Refresh Applications
-// -----------------------------
-
-document
-  .getElementById("refreshButton")
-  .addEventListener(
-    "click",
-    loadApplications
+function filterCustomers() {
+  const query = ($("customerSearch")?.value || "").toLowerCase();
+  const rows = customerData.filter((c) =>
+    [c.full_name, c.name, c.customer_name, c.mobile, c.phone, c.email, c.loan_account]
+      .join(" ").toLowerCase().includes(query)
   );
 
-
-// -----------------------------
-// Refresh Eligibility Inquiries
-// -----------------------------
-
-document
-  .getElementById("inquiriesButton")
-  .addEventListener(
-    "click",
-    loadInquiries
-  );
-
-
-// -----------------------------
-// Payment Records
-// -----------------------------
-
-document
-  .getElementById("paymentsButton")
-  .addEventListener(
-    "click",
-    loadPayments
-  );
-
+  $("customersTable").innerHTML = rows.length ? rows.map((c) => `
+    <tr>
+      <td><strong>${safe(c.full_name || c.customer_name || c.name || "—")}</strong></td>
+      <td>${safe(c.mobile || c.phone || "—")}</td>
+      <td>${safe(c.email || "—")}</td>
+      <td>${safe(c.loan_account || c.loan_account_number || "—")}</td>
+      <td>${renderStatus(c.status || "active")}</td>
+    </tr>`).join("") : '<tr><td colspan="5" class="empty">No customers found.</td></tr>';
+}
 
 async function loadPayments() {
-
-  const container =
-    document.getElementById("paymentsList");
-
-  container.innerHTML =
-    "<p>Payments load हो रहे हैं...</p>";
-
   try {
+    const result = await api("/api/admin/emis");
+    paymentData = arrayFrom(result, ["emis", "payments", "data", "items"]);
+    filterPayments();
 
-    const response = await fetch(
-      API_BASE + "/api/admin/payments",
-      {
-        method: "GET",
-
-        headers: {
-          "x-admin-key": adminKey
-        }
-      }
-    );
-
-    const result =
-      await response.json();
-
-    if (!response.ok) {
-
-      throw new Error(
-        result.error ||
-        "Payments load नहीं हुए"
-      );
-    }
-
-    if (!result.length) {
-
-      container.innerHTML =
-        "<p>अभी कोई payment record नहीं है।";
-
-      return;
-    }
-
-    let html = `
-
-      <table>
-
-        <thead>
-
-          <tr>
-
-            <th>Loan Account</th>
-            <th>Amount</th>
-            <th>Method</th>
-            <th>Reference</th>
-            <th>Date</th>
-            <th>Status</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-    `;
-
-    result.forEach(function (payment) {
-
-      html += `
-
-        <tr>
-
-          <td>
-            ${escapeHtml(
-              payment.loan_accounts?.loan_account_no || "-"
-            )}
-          </td>
-
-          <td>
-            ${formatMoney(payment.amount)}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              payment.payment_method || "-"
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              payment.transaction_reference || "-"
-            )}
-          </td>
-
-          <td>
-            ${
-              payment.payment_date
-                ? new Date(
-                    payment.payment_date
-                  ).toLocaleString("en-IN")
-                : "-"
-            }
-          </td>
-
-          <td>
-            ${escapeHtml(
-              payment.status || "-"
-            )}
-          </td>
-
-        </tr>
-
-      `;
-    });
-
-    html += `
-
-        </tbody>
-
-      </table>
-
-    `;
-
-    container.innerHTML = html;
-
+    $("totalEmis").textContent = paymentData.length;
+    const pending = paymentData.filter((p) => ["pending", "overdue"].includes(String(p.status).toLowerCase()));
+    const paid = paymentData.filter((p) => String(p.status).toLowerCase() === "paid");
+    $("pendingEmiAmount").textContent = money(pending.reduce((s, p) => s + Number(p.amount || p.emi_amount || 0), 0));
+    $("paidEmiAmount").textContent = money(paid.reduce((s, p) => s + Number(p.amount || p.emi_amount || 0), 0));
   } catch (error) {
-
-    console.error(error);
-
-    container.innerHTML = `
-
-      <div
-        class="message error"
-        style="display:block;"
-      >
-        ${escapeHtml(error.message)}
-      </div>
-
-    `;
+    $("paymentsTable").innerHTML = `<tr><td colspan="6" class="empty">${safe(error.message)}. Confirm the backend EMI endpoint.</td></tr>`;
   }
 }
+
+function filterPayments() {
+  const query = ($("paymentSearch")?.value || "").toLowerCase();
+  const status = $("paymentStatus")?.value || "";
+  const rows = paymentData.filter((p) =>
+    [p.application_id, p.customer, p.customer_name, p.name].join(" ").toLowerCase().includes(query) &&
+    (!status || String(p.status).toLowerCase() === status)
+  );
+
+  $("paymentsTable").innerHTML = rows.length ? rows.map((p) => {
+    const id = p.id;
+    const currentStatus = String(p.status || "pending").toLowerCase();
+    return `<tr>
+      <td><strong>${safe(p.application_id || "—")}</strong></td>
+      <td>${safe(p.customer || p.customer_name || p.name || "—")}</td>
+      <td>${money(p.amount || p.emi_amount)}</td>
+      <td>${safe(p.due_date || "—")}</td>
+      <td>${renderStatus(currentStatus)}</td>
+      <td>${currentStatus !== "paid" ? `<button class="small-action" data-mark-paid="${safe(id)}">Mark paid</button>` : "Completed"}</td>
+    </tr>`;
+  }).join("") : '<tr><td colspan="6" class="empty">No EMI records found.</td></tr>';
+}
+
+async function markEmiPaid(id) {
+  if (!confirm("Mark this EMI as paid? Only do this after verifying the payment.")) return;
+  try {
+    await api(`/api/admin/emis/${encodeURIComponent(id)}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "paid" })
+    });
+    setNotice("EMI status updated to paid.");
+    await loadPayments();
+    await loadDashboard();
+  } catch (error) {
+    setNotice(`Could not update EMI: ${error.message}`, true);
+  }
+}
+
+async function loadEligibility() {
+  try {
+    const result = await api("/api/admin/eligibility");
+    eligibilityData = arrayFrom(result, ["inquiries", "eligibility", "data", "items"]);
+    $("eligibilityTable").innerHTML = eligibilityData.length ? eligibilityData.map((e) => `
+      <tr>
+        <td>${safe(e.full_name || e.name || "—")}</td>
+        <td>${safe(e.mobile || "—")}</td>
+        <td>${money(e.monthly_income)}</td>
+        <td>${money(e.requested_amount)}</td>
+        <td>${money(e.estimated_emi)}</td>
+        <td>${safe(e.eligibility_status || e.status || "Review required")}</td>
+      </tr>`).join("") : '<tr><td colspan="6" class="empty">No eligibility inquiry records found.</td></tr>';
+  } catch (error) {
+    $("eligibilityTable").innerHTML = `<tr><td colspan="6" class="empty">${safe(error.message)}. Your backend may not provide this endpoint yet.</td></tr>`;
+  }
+}
+
+async function loadDocuments() {
+  $("documentsMessage").textContent =
+    "This section needs a protected backend endpoint for listing document metadata. Private document files should not be made public.";
+}
+
+function refreshCurrent() {
+  const active = document.querySelector(".nav-link.active");
+  if (active) showSection(active.dataset.section);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  $("currentYear").textContent = new Date().getFullYear();
+  $("loginForm").addEventListener("submit", login);
+  $("logoutButton").addEventListener("click", logout);
+  $("refreshButton").addEventListener("click", refreshCurrent);
+  $("menuButton").addEventListener("click", () => $("sidebar").classList.toggle("open"));
+
+  document.querySelectorAll(".nav-link").forEach((button) => {
+    button.addEventListener("click", () => showSection(button.dataset.section));
+  });
+
+  document.querySelectorAll("[data-goto]").forEach((button) => {
+    button.addEventListener("click", () => showSection(button.dataset.goto));
+  });
+
+  document.querySelectorAll("[data-reload]").forEach((button) => {
+    button.addEventListener("click", () => showSection(button.dataset.reload));
+  });
+
+  $("applicationSearch").addEventListener("input", filterApplications);
+  $("applicationStatus").addEventListener("change", filterApplications);
+  $("customerSearch").addEventListener("input", filterCustomers);
+  $("paymentSearch").addEventListener("input", filterPayments);
+  $("paymentStatus").addEventListener("change", filterPayments);
+
+  document.addEventListener("change", (event) => {
+    const select = event.target.closest("[data-app-status]");
+    if (select) updateApplicationStatus(select.dataset.appStatus, select.value);
+  });
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-mark-paid]");
+    if (button) markEmiPaid(button.dataset.markPaid);
+  });
+
+  fetch(API_BASE)
+    .then((response) => {
+      if (!response.ok) throw new Error("API unavailable");
+    })
+    .catch(() => setNotice("API connection could not be verified. Check your Render service.", true));
+});
