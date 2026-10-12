@@ -1,77 +1,145 @@
 (() => {
+  "use strict";
   const API_BASE = "https://shyam-fincorp.onrender.com";
-  const $ = id => document.getElementById(id);
-  const money = n => new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(Math.round(n || 0));
+  const $ = (id) => document.getElementById(id);
+  const formatINR = (value) => new Intl.NumberFormat("en-IN", {
+    style: "currency", currency: "INR", maximumFractionDigits: 0
+  }).format(Number(value) || 0);
 
+  // Responsive navigation
+  $("menuToggle").addEventListener("click", () => $("mainNav").classList.toggle("open"));
+  $("mainNav").querySelectorAll("a").forEach(link => link.addEventListener("click", () => $("mainNav").classList.remove("open")));
   $("year").textContent = new Date().getFullYear();
-  $("menu").addEventListener("click", () => {
-    const nav = $("nav"), opened = nav.classList.toggle("open");
-    $("menu").setAttribute("aria-expanded", String(opened));
-    $("menu").textContent = opened ? "×" : "☰";
-  });
-  $("nav").querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
-    $("nav").classList.remove("open"); $("menu").setAttribute("aria-expanded","false"); $("menu").textContent = "☰";
+
+  // EMI estimate
+  function calculateEMI(principal, annualRate, months) {
+    const r = annualRate / 1200;
+    if (!months || principal <= 0) return 0;
+    if (r === 0) return principal / months;
+    const factor = Math.pow(1 + r, months);
+    return principal * r * factor / (factor - 1);
+  }
+  function updateCalculator() {
+    const amount = Number($("loanAmount").value);
+    const rate = Number($("rate").value);
+    const months = Number($("tenure").value);
+    const emi = calculateEMI(amount, rate, months);
+    const total = emi * months;
+    $("amountLabel").textContent = formatINR(amount);
+    $("rateLabel").textContent = `${rate}%`;
+    $("tenureLabel").textContent = `${months} months`;
+    $("emiAmount").textContent = formatINR(emi);
+    $("principalLabel").textContent = formatINR(amount);
+    $("interestLabel").textContent = formatINR(total - amount);
+    $("totalLabel").textContent = formatINR(total);
+  }
+  ["loanAmount", "rate", "tenure"].forEach(id => $(id).addEventListener("input", updateCalculator));
+  updateCalculator();
+
+  const dialog = $("applyDialog");
+  document.querySelectorAll("[data-open-apply]").forEach(button => button.addEventListener("click", () => {
+    if (dialog.showModal) dialog.showModal();
+    else dialog.setAttribute("open", "");
+    $("mainNav").classList.remove("open");
   }));
-
-  function calculate() {
-    const p = Number($("amount").value), annual = Number($("rate").value), n = Number($("tenure").value), r = annual / 1200;
-    const emi = r === 0 ? p/n : p*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
-    $("amountText").textContent = money(p); $("rateText").textContent = annual; $("tenureText").textContent = `${n} months`;
-    $("emi").textContent = money(emi); $("interest").textContent = money(emi*n-p);
-    $("requestedAmount").value = p;
-    $("applyTenure").value = String(n <= 6 ? 6 : n <= 12 ? 12 : n <= 18 ? 18 : n <= 24 ? 24 : n <= 36 ? 36 : n <= 48 ? 48 : 60);
-  }
-  ["amount","rate","tenure"].forEach(id => $(id).addEventListener("input", calculate)); calculate();
-
-  const dialog = $("applicationDialog");
-  $("openForm").addEventListener("click", () => dialog.showModal());
-  $("closeForm").addEventListener("click", () => dialog.close());
-  dialog.addEventListener("click", e => { if (e.target === dialog) dialog.close(); });
-
-  async function api(path, options={}) {
-    const response = await fetch(API_BASE + path, {...options, headers:{"Content-Type":"application/json",...(options.headers||{})}});
-    let data={}; try { data=await response.json(); } catch {}
-    if (!response.ok) throw new Error(data.message || data.error || `Request failed (${response.status})`);
-    return data;
-  }
-  function message(el, text, ok=false) { el.textContent=text; el.className="message"+(ok?" success":""); }
-
-  // Confirm these route names and parameter names against your existing server.js before launch.
-  $("trackForm").addEventListener("submit", async e => {
-    e.preventDefault(); const id=$("appId").value.trim(), mobile=$("mobile").value.trim();
-    const button=$("trackBtn"), msg=$("trackMessage"), result=$("status");
-    result.hidden=true; button.disabled=true; message(msg,"Checking your application…");
-    try {
-      let data, firstError;
-      try { data=await api(`/api/my-loan?application_id=${encodeURIComponent(id)}&mobile=${encodeURIComponent(mobile)}`); }
-      catch (err) { firstError=err; try { data=await api(`/api/loan-status?application_id=${encodeURIComponent(id)}&mobile=${encodeURIComponent(mobile)}`); } catch { throw firstError; } }
-      const item=data.application||data.loan||data.data||data, appId=item.application_id||item.applicationId||id;
-      const status=item.status||item.application_status||data.status||"Status received";
-      result.replaceChildren();
-      const title=document.createElement("strong"); title.textContent="Application status"; result.appendChild(title);
-      for (const [label,value] of [["Application ID",appId],["Status",String(status).replaceAll("_"," ")],...(item.full_name||item.name?[["Applicant",item.full_name||item.name]]:[]),...(item.requested_amount||item.amount?[["Requested amount",money(item.requested_amount||item.amount)]]:[])]) {
-        const row=document.createElement("div"); row.textContent=`${label}: ${value}`; result.appendChild(row);
-      }
-      result.hidden=false; message(msg,"Latest available status retrieved.",true);
-    } catch(err) { message(msg,`${err.message}. Verify the application ID and registered mobile, or contact official support.`); }
-    finally { button.disabled=false; }
+  $("closeDialog").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", event => {
+    if (event.target === dialog) dialog.close();
   });
 
-  $("applicationForm").addEventListener("submit", async e => {
-    e.preventDefault(); const button=$("submitBtn"), msg=$("applyMessage"), form=new FormData(e.currentTarget);
-    const mobile=String(form.get("mobile")||"").trim();
-    if(!/^[0-9]{10}$/.test(mobile)){message(msg,"Enter a valid 10-digit mobile number.");return;}
-    const payload={full_name:String(form.get("fullName")||"").trim(),mobile,email:String(form.get("email")||"").trim(),monthly_income:Number(form.get("monthlyIncome")),requested_amount:Number(form.get("requestedAmount")),tenure_months:Number(form.get("tenureMonths")),address:String(form.get("address")||"").trim()};
-    button.disabled=true; message(msg,"Submitting your application…");
+  const setMessage = (el, message, kind = "") => {
+    el.textContent = message;
+    el.className = `form-message ${kind}`.trim();
+  };
+  async function requestJSON(url, options = {}) {
+    let response;
     try {
-      let data, firstError;
-      try { data=await api("/api/loan-applications",{method:"POST",body:JSON.stringify(payload)}); }
-      catch(err) { firstError=err; try { data=await api("/api/apply",{method:"POST",body:JSON.stringify(payload)}); } catch { throw firstError; } }
-      const item=data.application||data.data||data, id=item.application_id||item.applicationId||data.application_id||data.applicationId;
-      if(id){$("appId").value=id;message(msg,`Application submitted. Your application ID is ${id}. Save it to track your status.`,true);}
-      else message(msg,data.message||"The API responded successfully. Check the official response for your application ID.",true);
-      $("track").scrollIntoView({behavior:"smooth",block:"center"});
-    } catch(err) { message(msg,`${err.message}. Submission was not confirmed. Check the API routes in server.js and try again.`); }
-    finally { button.disabled=false; }
+      response = await fetch(url, options);
+    } catch (error) {
+      throw new Error("Could not connect to the API. Please try again in a moment.");
+    }
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || payload.ok === false) {
+      throw new Error(payload.error || payload.message || `Request failed (${response.status}).`);
+    }
+    return payload;
+  }
+
+  // This matches the real POST route in the supplied server.js: /api/applications.
+  $("applyForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const submit = $("submitApplication");
+    const message = $("applyMessage");
+    if (!form.reportValidity()) return;
+
+    const body = {
+      full_name: $("fullName").value.trim(),
+      mobile: $("mobile").value.trim(),
+      email: $("email").value.trim(),
+      monthly_income: Number($("income").value),
+      requested_amount: Number($("requestedAmount").value),
+      tenure_months: Number($("tenureMonths").value),
+      address: $("address").value.trim()
+    };
+    if (!/^[6-9]\d{9}$/.test(body.mobile)) {
+      setMessage(message, "Enter a valid 10-digit Indian mobile number.", "error");
+      return;
+    }
+    if (!(body.monthly_income > 0) || !(body.requested_amount > 0) ||
+        !Number.isInteger(body.tenure_months) || body.tenure_months < 1 || body.tenure_months > 360) {
+      setMessage(message, "Please check your income, loan amount and tenure.", "error");
+      return;
+    }
+
+    submit.disabled = true;
+    submit.textContent = "Submitting…";
+    setMessage(message, "Sending your application securely…");
+    try {
+      const result = await requestJSON(`${API_BASE}/api/applications`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const application = result.application || {};
+      const appId = application.application_id || result.application_id || "";
+      setMessage(message,
+        `Application submitted successfully${appId ? `. Your application ID is ${appId}. Save it for future reference.` : "."} Submission is not loan approval.`,
+        "success");
+      form.reset();
+      if (appId) $("trackId").value = appId;
+      submit.textContent = "Submitted ✓";
+    } catch (error) {
+      setMessage(message, `${error.message} If this continues, contact support and do not submit repeatedly.`, "error");
+      submit.innerHTML = 'Submit application <span>↗</span>';
+    } finally {
+      submit.disabled = false;
+      if (submit.textContent === "Submitting…") submit.innerHTML = 'Submit application <span>↗</span>';
+    }
   });
+
+  // The uploaded server.js does not currently have a public tracking endpoint.
+  // Do not make a request to a guessed endpoint or claim status was checked.
+  $("trackForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const mobile = $("trackMobile").value.trim();
+    const id = $("trackId").value.trim();
+    if (!/^[6-9]\d{9}$/.test(mobile)) {
+      setMessage($("trackMessage"), "Enter the same valid 10-digit mobile number used in the application.", "error");
+      return;
+    }
+    if (!id) {
+      setMessage($("trackMessage"), "Enter your application ID.", "error");
+      return;
+    }
+    setMessage($("trackMessage"),
+      "The application submission API is configured. Public status lookup is not present in the current server.js yet; add the tracking route described in README.md and redeploy the API.",
+      "error");
+  });
+
+  // Apply the calculator inputs to the application form for convenience.
+  document.querySelectorAll("[data-open-apply]").forEach(button => button.addEventListener("click", () => {
+    if (!$("requestedAmount").value) $("requestedAmount").value = $("loanAmount").value;
+    if (!$("tenureMonths").value) $("tenureMonths").value = $("tenure").value;
+  }));
 })();
