@@ -1,87 +1,18 @@
-
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shyam Fincorp | Loan Management</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101b35"><meta name="description" content="Shyam Fincorp — explore loan options, estimate EMIs and track your application."><title>Shyam Fincorp | Finance with clarity</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head>
 <body>
-  <div id="login-screen" class="login-screen">
-    <form id="login-form" class="login-card">
-      <div class="logo">SF</div>
-      <p class="eyebrow">SHYAM FINCORP</p>
-      <h1>Welcome back</h1>
-      <p class="muted">Sign in to your loan management workspace.</p>
-      <label>Email address</label>
-      <input id="email" type="email" required autocomplete="username" placeholder="Admin email">
-      <label>Password</label>
-      <input id="password" type="password" required autocomplete="current-password" placeholder="Admin password">
-      <button class="btn full" type="submit">Sign in to dashboard</button>
-      <p id="login-error" class="error"></p>
-    </form>
-  </div>
-
-  <div id="app" class="layout hidden">
-    <aside class="sidebar">
-      <div class="brand"><div class="logo">SF</div>
-        <div><b>SHYAM FINCORP</b><small>Loan Management</small></div>
-      </div>
-      <p class="nav-label">WORKSPACE</p>
-      <button class="nav active" data-view="dashboard">Dashboard</button>
-      <button class="nav" data-view="applications">Loan Applications</button>
-      <button class="nav" data-view="customers">Customers</button>
-      <button class="nav" data-view="emis">EMI Tracking</button>
-      <button id="logout" class="nav logout">Sign out</button>
-    </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <div><p class="eyebrow">ADMIN WORKSPACE</p><h1 id="page-title">Dashboard</h1></div>
-        <span class="admin-tag">● Secure session</span>
-      </header>
-
-      <section id="view-dashboard" class="view">
-        <div class="hero">
-          <p class="eyebrow">LOAN OPERATIONS</p>
-          <h2>Clarity for every customer.<br>Control over every loan.</h2>
-          <p>Manage applications, review amounts and track repayments.</p>
-        </div>
-        <div class="stats">
-          <article class="stat"><span>Total applications</span><strong id="total-apps">—</strong></article>
-          <article class="stat"><span>Total customers</span><strong id="total-customers">—</strong></article>
-          <article class="stat"><span>Requested amount</span><strong id="total-amount">—</strong></article>
-          <article class="stat"><span>Pending EMIs</span><strong id="pending-emis">—</strong></article>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><div><h2>Recent applications</h2><p>Latest loan requests</p></div>
-          <button class="btn secondary" data-go="applications">View all</button></div>
-          <div id="recent-table"></div>
-        </div>
-      </section>
-
-      <section id="view-applications" class="view hidden">
-        <div class="section-heading"><div><h2>Loan Applications</h2><p>Review and update application status.</p></div>
-        <button class="btn" id="refresh-apps">Refresh data</button></div>
-        <div class="panel"><div id="applications-table"></div></div>
-      </section>
-
-      <section id="view-customers" class="view hidden">
-        <div class="section-heading"><div><h2>Customers</h2><p>Registered customer records.</p></div>
-        <button class="btn" id="refresh-customers">Refresh data</button></div>
-        <div class="panel"><div id="customers-table"></div></div>
-      </section>
-
-      <section id="view-emis" class="view hidden">
-        <div class="section-heading"><div><h2>EMI Tracking</h2><p>Review due dates and record repayments.</p></div>
-        <button class="btn" id="refresh-emis">Refresh data</button></div>
-        <div class="panel"><div id="emis-table"></div></div>
-      </section>
-      <p id="notice" class="notice" role="status"></p>
-      <footer>Shyam Fincorp · Loan Management Workspace</footer>
-    </main>
-  </div>
-  <script src="app.js"></script>
-</body>
-</html>
+<div class="topline"><span class="dot"></span> Thoughtful finance. Clear next steps. <b>Jai Shree Shyam ✦</b></div>
+<header class="header"><a class="brand" href="#home"><span class="logo">S<span>F</span></span><span>SHYAM <b>FINCORP</b><small>FINANCE WITH CLARITY</small></span></a><button id="menu" aria-label="Toggle menu">☰</button><nav id="nav"><a href="#solutions">Solutions</a><a href="#calculator">EMI calculator</a><a href="#journey">How it works</a><a href="#faq">FAQs</a><a class="nav-cta" href="#track">My application ↗</a></nav></header>
+<main>
+<section class="hero wrap" id="home"><div class="hero-copy"><div class="eyebrow">✦ &nbsp;A CLEARER WAY FORWARD</div><h1>Big plans deserve<br><em>better beginnings.</em></h1><p class="lead">Explore personal loan options with a simple digital journey, clear information and support at every step.</p><div class="actions"><a class="btn dark" href="#apply">Explore loan options <span>↗</span></a><a class="link" href="#calculator">Calculate your EMI →</a></div><div class="trust"><span class="check">✓</span><div><b>Simple digital process</b><small>Apply and check progress online</small></div><i></i><span class="check">₹</span><div><b>Plan with clarity</b><small>Estimate before you apply</small></div></div></div>
+<div class="art"><div class="circle"></div><div class="coin"></div><div class="float top"><span class="check">✓</span><div><b>One step at a time</b><small>Your goals, your pace</small></div></div><div class="mock-card"><div class="card-overline">YOUR NEXT CHAPTER <span>•••</span></div><div class="mock-title">Make room for<br><strong>what matters.</strong></div><svg viewBox="0 0 340 105" aria-label="Illustrative upward growth line"><defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ed9c5" stop-opacity=".4"/><stop offset="1" stop-color="#9ed9c5" stop-opacity="0"/></linearGradient></defs><path d="M0 87 C30 80 39 64 65 70 S100 80 125 53 S165 69 194 38 S230 48 253 25 S300 36 340 4 L340 105 L0 105Z" fill="url(#area)"/><path d="M0 87 C30 80 39 64 65 70 S100 80 125 53 S165 69 194 38 S230 48 253 25 S300 36 340 4" fill="none" stroke="#9ed9c5" stroke-width="3" stroke-linecap="round"/></svg><div class="card-foot">● &nbsp; Plan with confidence <span>01 / 03</span></div></div><div class="float bottom"><span class="rupee">₹</span><div><b>EMI, made easier</b><small>Estimate monthly payments</small></div><strong>↗</strong></div><div class="stamp">CLEAR<br><b>BY DESIGN</b><span>✳</span></div></div></section>
+<div class="ticker">FINANCE FOR REAL LIFE <span>✳</span> DIGITAL-FIRST EXPERIENCE <span>✳</span> TRANSPARENT INFORMATION <span>✳</span> SUPPORT WHEN YOU NEED IT <span>✳</span> FINANCE FOR REAL LIFE <span>✳</span></div>
+<section class="wrap section" id="solutions"><div class="section-head"><div><div class="eyebrow">THE SHYAM FINCORP APPROACH</div><h2>Less confusion.<br><em>More forward motion.</em></h2></div><p>Financial decisions should feel informed, not overwhelming. Understand the numbers, explore your options and choose your next step thoughtfully.</p></div><div class="cards"><article><span class="num">01</span><div class="symbol">◎</div><h3>Digital by design</h3><p>Explore the process and submit your details through a convenient online experience.</p><a href="#apply">Start exploring ↗</a></article><article class="featured"><span class="num">02</span><div class="symbol">↗</div><h3>Know your numbers</h3><p>Use the EMI calculator to estimate monthly repayments before applying.</p><a href="#calculator">Calculate EMI ↗</a></article><article><span class="num">03</span><div class="symbol">⌁</div><h3>Follow your progress</h3><p>Already applied? Check available updates with your application ID and registered mobile.</p><a href="#track">Check status ↗</a></article></div></section>
+<section class="calculator" id="calculator"><div class="wrap calc-layout"><div class="calc-copy"><div class="eyebrow light">PLAN BEFORE YOU COMMIT</div><h2>Your plans.<br><em>Your monthly picture.</em></h2><p>Adjust the amount, tenure and interest rate to see an estimated EMI. This is an illustration, not a loan offer or approval.</p><div class="note"><span>✦</span><div><b>Small changes matter.</b><small>Compare combinations to see how tenure affects monthly repayments and total interest.</small></div></div></div><div class="calc-card"><div class="calc-head"><div><div class="eyebrow">EMI ESTIMATOR</div><h3>Find your estimate</h3></div><span class="calc-logo">₹</span></div><label for="amount">Loan amount <strong id="amountText">₹2,00,000</strong></label><input id="amount" type="range" min="10000" max="1000000" step="5000" value="200000"><div class="range-label"><span>₹10,000</span><span>₹10,00,000</span></div><label for="rate">Annual interest rate <strong><span id="rateText">12</span>%</strong></label><input id="rate" type="range" min="8" max="30" step=".5" value="12"><div class="range-label"><span>8%</span><span>30%</span></div><label for="tenure">Tenure <strong id="tenureText">24 months</strong></label><input id="tenure" type="range" min="3" max="60" step="3" value="24"><div class="range-label"><span>3 months</span><span>60 months</span></div><div class="result"><div><small>Estimated monthly EMI</small><strong id="emi">₹9,414</strong></div><div class="result-side"><small>Total interest</small><b id="interest">₹25,936</b></div></div><a class="btn dark full" href="#apply">Continue to application <span>↗</span></a><p class="disclaimer">Illustrative estimate only. Actual terms depend on eligibility, assessment, fees and final lender approval.</p></div></div></section>
+<section class="wrap section" id="journey"><div class="section-head"><div><div class="eyebrow">A SIMPLE JOURNEY</div><h2>From curious to<br><em>clear on next steps.</em></h2></div><p>Here’s a high-level view of a digital application journey. Submission does not guarantee approval.</p></div><div class="steps"><article><span>01</span><h3>Share your details</h3><p>Complete the form with accurate contact and financial information.</p></article><article><span>02</span><h3>Review & assessment</h3><p>Your application may be reviewed for eligibility and supporting information.</p></article><article><span>03</span><h3>Track the status</h3><p>Use your application ID and registered mobile to check available updates.</p></article></div></section>
+<section class="apply-band" id="apply"><div class="wrap apply-layout"><div><div class="eyebrow light">READY WHEN YOU ARE</div><h2>Take the first<br><em>informed step.</em></h2><p>Continue to the application form when you’re ready. Keep your details accurate so the team can contact you about your request.</p><div class="points">✓ Clear steps &nbsp;&nbsp; ✓ Online convenience &nbsp;&nbsp; ✓ Status lookup</div></div><div class="apply-card"><div class="symbol">↗</div><h3>Start a loan application</h3><p>Open the application form connected to Shyam Fincorp’s existing service.</p><button class="btn pale full" id="openForm">Open application form <span>↗</span></button><small>Only submit information through official channels.</small></div></div></section>
+<section class="wrap track-section" id="track"><div><div class="eyebrow">ALREADY APPLIED?</div><h2>Your application,<br><em>in view.</em></h2><p>Enter your application ID and the mobile number you registered with to check the latest available status.</p><div class="privacy">◇ &nbsp; Use your own registered details. Never share OTPs or banking passwords.</div></div><div class="track-card"><div class="track-head"><span class="symbol">⌕</span><div class="eyebrow">APPLICATION LOOKUP</div></div><form id="trackForm"><label for="appId">Application ID</label><input id="appId" placeholder="e.g. SFL-123456" required autocomplete="off"><label for="mobile">Registered mobile number</label><input id="mobile" type="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile number" required><button class="btn dark full" id="trackBtn">Check application status <span>→</span></button><p id="trackMessage" class="message" role="status"></p><div id="status" class="status" hidden></div></form></div></section>
+<section class="wrap section faq" id="faq"><div class="section-head"><div><div class="eyebrow">GOOD TO KNOW</div><h2>Questions, <em>answered.</em></h2></div><p>Important information to help you make a considered decision.</p></div><div class="faq-list"><details><summary>Does the EMI calculator mean my loan is approved? <span>+</span></summary><p>No. It provides an estimate only. Eligibility and approval depend on assessment and the lender's final decision.</p></details><details><summary>What do I need to track my application? <span>+</span></summary><p>Use the application ID provided to you and the mobile number registered with that application.</p></details><details><summary>Are there any fees or charges? <span>+</span></summary><p>Confirm applicable interest, fees, charges, terms and conditions in official loan documents before accepting an offer.</p></details><details><summary>How should I protect my information? <span>+</span></summary><p>Submit personal information only through official channels. Never share passwords, OTPs or full card details. Review the official privacy policy before applying.</p></details></div></section>
+</main>
+<footer><div class="wrap"><div class="footer-top"><a class="brand footer-brand" href="#home"><span class="logo">S<span>F</span></span><span>SHYAM <b>FINCORP</b><small>FINANCE WITH CLARITY</small></span></a><div class="footer-mantra">Move forward.<br><em>With clarity.</em></div><div class="footer-links"><a href="#solutions">Solutions</a><a href="#calculator">EMI calculator</a><a href="#track">Track application</a><a href="#faq">FAQs</a></div></div><div class="footer-bottom"><span>© <span id="year"></span> Shyam Fincorp. All rights reserved.</span><span>Jai Shree Shyam ✦</span></div><p class="footer-disclaimer">General information and illustrative calculator only; not a sanction, commitment or guarantee of credit. Availability, eligibility, rates, fees and approval depend on the applicable lender's assessment and official terms. Verify company, regulatory, privacy and grievance details before public launch.</p></div></footer>
+<dialog id="applicationDialog"><div class="dialog-head"><div><div class="eyebrow">SHYAM FINCORP</div><h3>Loan application</h3></div><button type="button" id="closeForm" aria-label="Close">×</button></div><p>Enter your details to submit an application through the existing Shyam Fincorp API.</p><form id="applicationForm"><div class="form-grid"><div class="wide"><label for="fullName">Full name</label><input id="fullName" name="fullName" required maxlength="100" autocomplete="name"></div><div><label for="applyMobile">Mobile number</label><input id="applyMobile" name="mobile" type="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" required></div><div><label for="email">Email (optional)</label><input id="email" name="email" type="email" autocomplete="email"></div><div><label for="income">Monthly income (₹)</label><input id="income" name="monthlyIncome" type="number" min="0" step="1000" required></div><div><label for="requestedAmount">Loan amount (₹)</label><input id="requestedAmount" name="requestedAmount" type="number" min="1000" max="10000000" required></div><div><label for="applyTenure">Tenure (months)</label><select id="applyTenure" name="tenureMonths"><option>6</option><option>12</option><option>18</option><option selected>24</option><option>36</option><option>48</option><option>60</option></select></div><div class="wide"><label for="address">Full address</label><textarea id="address" name="address" rows="2" required maxlength="500"></textarea></div></div><label class="consent"><input id="consent" type="checkbox" required><span>I confirm the information is accurate and consent to its use for processing this application under the applicable privacy notice.</span></label><button class="btn dark full" id="submitBtn">Submit application <span>→</span></button><p id="applyMessage" class="message" role="status"></p></form><p class="disclaimer">Do not enter Aadhaar/PAN numbers, bank passwords or OTPs in this form.</p></dialog><script src="script.js"></script></body></html>
