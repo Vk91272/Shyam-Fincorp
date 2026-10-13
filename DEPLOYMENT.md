@@ -1,24 +1,21 @@
-# Shyam Fincorp public website — deployment
+# Deployment steps
 
-## Bundle contents
-- `index.html`: premium public-facing homepage, services, application enquiry, tracking, FAQs and footer.
-- `public.css`: responsive styling.
-- `public.js`: public application and tracking requests.
+## 1. Frontend on GitHub Pages
+1. Open repository `Vk91272/Shyam-Fincorp`.
+2. Upload/replace `index.html`, `public.css`, and `public.js` in the folder served by GitHub Pages (repo root if Pages is set to `main` → `/root`).
+3. Commit changes. Wait for GitHub Pages to publish, then hard-refresh the page.
 
-## Important: preserve your existing LMS/CRM
-1. Open https://github.com/Vk91272/Shyam-Fincorp and select the `main` branch.
-2. Before replacing the root `index.html`, save its current contents as a backup on your computer. If the CRM login currently depends on the root index, first identify its correct CRM entry page and preserve a working link to it.
-3. Upload `index.html`, `public.css`, and `public.js` from this bundle to the repository root and commit the changes.
-4. Do not delete or replace `server.js`, `app.js`, `lms.html`, `lms.js`, `lms.css`, `admin.html`, `admin.js`, `admin.css`, or database files as part of this homepage change.
-5. Confirm GitHub Pages uses `main` and `/(root)` in repository Settings → Pages.
-6. Open https://vk91272.github.io/Shyam-Fincorp/ after deployment and hard refresh with Ctrl+F5.
+## 2. Backend on Render
+1. Back up your current `server.js` first.
+2. Merge/deploy the included `server.js` to the backend repository/root that Render deploys. It is based on the provided current server file and adds `POST /api/customer/loan`; it also retains existing routes.
+3. Keep `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `ADMIN_KEY` only in Render Environment. Never expose them in frontend JavaScript.
+4. Confirm Render deploy succeeds and open `https://shyam-fincorp.onrender.com/` — it should return the service JSON.
+5. Test with a non-sensitive test application: submit the public form, save the Application ID, then track using that ID and the same registered mobile.
 
-## Backend compatibility must be tested
-The frontend currently calls `POST https://shyam-fincorp.onrender.com/api/applications` and `POST https://shyam-fincorp.onrender.com/api/customer/loan`. These route names and JSON fields need to match the deployed `server.js` exactly. If your current backend uses different routes, adjust `public.js` to the actual implementation before launch. A failed request is not a successful submission.
+## 3. Database checks
+- The Supabase `loan_applications` table must contain `application_id`, `full_name`, `mobile`, `requested_amount`, `tenure_months`, `status`, and `created_at`.
+- Ensure `application_id` is unique and mobile is stored consistently as a 10-digit string.
+- Do not make KYC/document storage public.
 
-## Safety and launch checklist
-- Never place `ADMIN_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, or any secret in browser JavaScript.
-- Only show a loan as disbursed after the backend records confirmation of the actual transfer; a button click alone must not set `Disbursed`.
-- Verify legal company name, actual contact details, grievance process, privacy policy, terms, lender relationship, regulatory status, product availability, rates and fees before publishing them.
-- Do not advertise guaranteed approval or disbursement. Document upload alone does not prove KYC, creditworthiness or bank ownership verification.
-- Test the enquiry form and tracking API using test records before directing real customers to it.
+## 4. Before launch
+Use only verified legal entity details, lender/NBFC status, charges, rates, grievance contact, privacy policy and terms. This package does not connect to live KYC, credit-bureau or bank-transfer services. Do not describe a loan as disbursed until an authorised person confirms the real transfer.
