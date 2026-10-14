@@ -34,14 +34,15 @@ if (appForm) appForm.addEventListener("submit", async e => {
   submitButton.disabled = true; submitButton.textContent = "Submitting…";
   message(appMessage,"Submitting your enquiry…");
   try {
+    // Confirm this route and field names against server.js before launch.
     const res = await fetch(`${API_BASE}/api/applications`, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
     const data = await res.json().catch(()=>({}));
     if (!res.ok) throw new Error(data.error || `Application API returned HTTP ${res.status}.`);
-    const id = data.application_id || data.applicationId || data.id || data.application?.application_id || data.application?.id;
+    const id = data.application_id || data.applicationId || data.id;
     if (!id) throw new Error("The server did not return an application ID. Contact support before submitting again.");
     message(appMessage,`Enquiry submitted. Your Application ID is ${id}. Save it to track progress. This is not a loan approval or disbursement.`,"success");
     appForm.reset(); document.getElementById("trackApplicationId").value = id; document.getElementById("trackMobile").value = mobile;
-  } catch(err) { message(appMessage,`${err.message} Please check that the latest server.js has been deployed on Render.`,"error"); }
+  } catch(err) { message(appMessage,`${err.message} The form may need to be aligned with the currently deployed API.`,"error"); }
   finally { submitButton.disabled = false; submitButton.textContent = "Submit enquiry ↗"; }
 });
 const trackForm = document.getElementById("trackForm");
@@ -54,12 +55,12 @@ if (trackForm) trackForm.addEventListener("submit", async e => {
   const button = document.getElementById("trackButton"); button.disabled = true; button.textContent = "Checking…"; trackResult.hidden = true;
   message(trackMessage,"Checking the connected loan service…");
   try {
+    // Confirm this route and response schema against server.js before launch.
     const res = await fetch(`${API_BASE}/api/customer/loan`, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({application_id:id,mobile})});
     const data = await res.json().catch(()=>({})); if (!res.ok) throw new Error(data.error || `Tracking API returned HTTP ${res.status}.`);
     const loan = data.loan || data.loan_account || data.application || data;
     trackResult.replaceChildren(); const h = document.createElement("h4"); h.textContent = "Application status"; trackResult.appendChild(h);
     const rows = [["Application ID",loan.application_id || data.application_id || id],["Current status",labelStatus(loan.status || data.status || "Status unavailable")]];
-    if (loan.created_at) rows.push(["Submitted on", new Date(loan.created_at).toLocaleDateString("en-IN")]);
     const amount = loan.approved_amount ?? loan.principal ?? loan.loan_amount;
     if (amount !== undefined) rows.push(["Approved / loan amount",`₹${rupees(amount)}`]);
     const disb = loan.disbursement_status || loan.disbursementStatus; if (disb) rows.push(["Disbursement",labelStatus(disb)]);
